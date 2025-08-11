@@ -1,7 +1,29 @@
-/* Custom stylesheet for the Vraa project */
+/* Sticky sidebar behavior */
+.sidebar-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
 
-/* Highlight the active link in the sidebar */
-.sidebar .nav-link.active {
+/* Sidebar link styles */
+.sidebar-sticky .nav-link {
+  color: #212529;
+  padding: .35rem .5rem;
+  border-radius: .375rem;
+}
+
+.sidebar-sticky .nav-link:hover {
+  background: rgba(0,0,0,.04);
+  text-decoration: none;
+}
+
+.sidebar-sticky .nav-link.active {
   font-weight: 600;
-  color: #0d6efd;
+  background: rgba(13,110,253,.1);
+}
+
+/* Optional: improve readability of main content */
+.content p {
+  line-height: 1.7;
 }
