@@ -1,0 +1,7 @@
+/* Custom stylesheet for the Vraa project */
+
+/* Highlight the active link in the sidebar */
+.sidebar .nav-link.active {
+  font-weight: 600;
+  color: #0d6efd;
+}

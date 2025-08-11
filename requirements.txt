@@ -1,0 +1,6 @@
+# Requirements for the Vraa Django project
+#
+# To install these dependencies run:
+#   pip install -r requirements.txt
+
+Django>=4.0,<5.0
