@@ -1,9 +1,9 @@
 """
 Tests for the ``main`` application.
 
-This file provides a skeleton for writing unit tests. At present no
-tests are implemented, but the structure is ready for future
-development.
+This module contains basic test cases verifying that the application is
+reachable and renders expected content. At least one test is implemented
+to ensure the testing infrastructure remains functional.
 """
 from __future__ import annotations
 
