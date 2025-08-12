@@ -34,7 +34,7 @@ def referater(request):
 def vedtaegter(request):
     """Render the vedtægter (statutes) page."""
     return render(request, 'main/vedtaegter.html', {
-        'title': 'Vedtaegter',
+        'title': 'Vedtægter',
     })
 
 
