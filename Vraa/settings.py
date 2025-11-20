@@ -17,13 +17,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-local-dev-key-change-me')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# We convert the string 'True'/'False' from environment to a boolean.
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+# CHANGE: Default to 'True' locally so you can develop without crashing.
+# On Heroku, you set DEBUG=False in the config, so it will be safe there.
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 # ALLOWED_HOSTS needed for production
 ALLOWED_HOSTS = ['*']
-# For stricter security, replace '*' with:
-# ALLOWED_HOSTS = ['vraa.org', 'www.vraa.org', 'your-app-name.herokuapp.com', '127.0.0.1']
+# For stricter security in future:
+# ALLOWED_HOSTS = ['vraa.org', 'www.vraa.org', 'your-app-name.herokuapp.com', '127.0.0.1', 'localhost']
 
 # Application definition
 INSTALLED_APPS = [
