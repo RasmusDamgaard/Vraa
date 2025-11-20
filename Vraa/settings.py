@@ -1,28 +1,29 @@
 """
 Django settings for the Vraa project.
-
-This configuration file outlines the default settings for a fresh
-Django project. Many of these values mirror those produced by the
-``django-admin startproject`` command. Adjust as needed to support
-additional applications or deployment specific requirements.
+Refactored for Heroku Deployment.
 """
 from __future__ import annotations
 
 import os
 from pathlib import Path
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# A randomly generated key is provided here for local development.
-SECRET_KEY = 'django-insecure-03pyv$axpmjn^=9n%$(64h=bi14+oa72$6dxue%db#1u(8f@m!'
+# We get this from the Environment Variable on Heroku. 
+# If not found (local dev), we use a fallback insecure key.
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-local-dev-key-change-me')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# We convert the string 'True'/'False' from environment to a boolean.
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-# Allow all hosts during development. Update this in production.
-ALLOWED_HOSTS: list[str] = ['*']
+# ALLOWED_HOSTS needed for production
+ALLOWED_HOSTS = ['*']
+# For stricter security, replace '*' with:
+# ALLOWED_HOSTS = ['vraa.org', 'www.vraa.org', 'your-app-name.herokuapp.com', '127.0.0.1']
 
 # Application definition
 INSTALLED_APPS = [
@@ -31,6 +32,8 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    # WhiteNoise must be before staticfiles
+    'whitenoise.runserver_nostatic', 
     'django.contrib.staticfiles',
     # Local apps
     'main',
@@ -38,6 +41,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # WhiteNoiseMiddleware sits after SecurityMiddleware
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -51,7 +56,6 @@ ROOT_URLCONF = 'Vraa.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        # Template loaders will search within each app's ``templates`` directory by default.
         'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -68,18 +72,15 @@ TEMPLATES = [
 WSGI_APPLICATION = 'Vraa.wsgi.application'
 
 # Database
-# https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-
-DATABASES: dict[str, dict[str, str]] = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+# Switches between Postgres (production) and SQLite (local) automatically
+DATABASES = {
+    'default': dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600
+    )
 }
 
 # Password validation
-# https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -96,26 +97,19 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Internationalization
-# https://docs.djangoproject.com/en/4.0/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'Europe/Copenhagen'
-
 USE_I18N = True
-
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.0/howto/static-files/
-
 STATIC_URL = '/static/'
-
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR / 'main' / 'static',
 ]
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
+# Enable WhiteNoise compression and caching support
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

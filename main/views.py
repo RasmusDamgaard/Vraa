@@ -1,45 +1,26 @@
 """
-View functions for the ``main`` application.
-
-Each function renders a specific template corresponding to a page in
-the site. The context includes only a title for now; this may be
-expanded in the future to include dynamic content.
+View classes for the ``main`` application.
+Refactored to use Django's generic TemplateView for cleaner code.
 """
 from __future__ import annotations
+from django.views.generic import TemplateView
 
-from django.shortcuts import render
+class FrontpageView(TemplateView):
+    template_name = 'main/frontpage.html'
+    extra_context = {'title': 'Frontpage'}
 
+class InformationView(TemplateView):
+    template_name = 'main/information.html'
+    extra_context = {'title': 'Information'}
 
-def frontpage(request):
-    """Render the front page of the website."""
-    return render(request, 'main/frontpage.html', {
-        'title': 'Frontpage',
-    })
+class ReferaterView(TemplateView):
+    template_name = 'main/referater.html'
+    extra_context = {'title': 'Referater'}
 
+class VedtaegterView(TemplateView):
+    template_name = 'main/vedtaegter.html'
+    extra_context = {'title': 'Vedtægter'}
 
-def information(request):
-    """Render the information page."""
-    return render(request, 'main/information.html', {
-        'title': 'Information',
-    })
-
-
-def referater(request):
-    """Render the referater (minutes) page."""
-    return render(request, 'main/referater.html', {
-        'title': 'Referater',
-    })
-
-
-def vedtaegter(request):
-    """Render the vedtægter (statutes) page."""
-    return render(request, 'main/vedtaegter.html', {
-        'title': 'Vedtægter',
-    })
-
-
-def kalender(request):
-    """Render the calendar page."""
-    return render(request, 'main/kalender.html', {
-        'title': 'Kalender',
-    })
+class KalenderView(TemplateView):
+    template_name = 'main/kalender.html'
+    extra_context = {'title': 'Kalender'}
