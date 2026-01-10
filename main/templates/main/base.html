@@ -16,6 +16,24 @@
     <link rel="stylesheet" href="{% static 'main/css/style.css' %}" />
   </head>
   <body>
+    <!-- Mobile navbar with hamburger toggle -->
+    <nav class="navbar navbar-light bg-light d-md-none">
+      <div class="container-fluid">
+        <span class="navbar-brand mb-0 h1">Vraa</span>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#sidebarMenu"
+          aria-controls="sidebarMenu"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      </div>
+    </nav>
+
     <div class="container-fluid">
       <div class="row">
         <!-- Side navigation panel -->
