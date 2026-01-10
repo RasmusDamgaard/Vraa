@@ -1,7 +1,61 @@
 {% extends 'main/base.html' %}
 
+{% load static %}
+
 {% block content %}
-  <p>
-    Her ligger referater fra bestyrelsesmøder samt regnskaber.
+  <h1 class="mb-4">Referater</h1>
+
+  <p class="lead">
+    Her ligger referater fra bestyrelsesmøder.
   </p>
+
+  <div class="mt-4">
+    <ul class="list-group">
+      <li class="list-group-item">
+        <a href="{% static 'main/pdfs/referater/Ref.best.2020_v1.pdf' %}" target="_blank" class="text-decoration-none">
+          Referat af bestyrelsesmøde 2020
+        </a>
+      </li>
+      <li class="list-group-item">
+        <a href="{% static 'main/pdfs/referater/Ref.best.2019_v0d (foreløbigt).pdf' %}" target="_blank" class="text-decoration-none">
+          Referat af bestyrelsesmøde 2019
+        </a>
+      </li>
+      <li class="list-group-item">
+        <a href="{% static 'main/pdfs/referater/Ref.best.2018_v2 (1).pdf' %}" target="_blank" class="text-decoration-none">
+          Referat af bestyrelsesmøde 2018
+        </a>
+      </li>
+      <li class="list-group-item">
+        <a href="{% static 'main/pdfs/referater/Ref.best.2017_v0b.pdf' %}" target="_blank" class="text-decoration-none">
+          Referat af bestyrelsesmøde 2017
+        </a>
+      </li>
+      <li class="list-group-item">
+        <a href="{% static 'main/pdfs/referater/Ref.best.2015_v0c.pdf' %}" target="_blank" class="text-decoration-none">
+          Referat af bestyrelsesmøde 2015
+        </a>
+      </li>
+      <li class="list-group-item">
+        <a href="{% static 'main/pdfs/referater/referat af bestyrelsesmøde for 2014.pdf' %}" target="_blank" class="text-decoration-none">
+          Referat af bestyrelsesmøde 2014
+        </a>
+      </li>
+      <li class="list-group-item">
+        <a href="{% static 'main/pdfs/referater/Ref.best.2013_v0a.pdf' %}" target="_blank" class="text-decoration-none">
+          Referat af bestyrelsesmøde 2013
+        </a>
+      </li>
+      <li class="list-group-item">
+        <a href="{% static 'main/pdfs/referater/2011.pdf' %}" target="_blank" class="text-decoration-none">
+          Referat af bestyrelsesmøde 2011
+        </a>
+      </li>
+      <li class="list-group-item">
+        <a href="{% static 'main/pdfs/referater/2010.pdf' %}" target="_blank" class="text-decoration-none">
+          Referat af bestyrelsesmøde 2010
+        </a>
+      </li>
+    </ul>
+  </div>
 {% endblock %}
