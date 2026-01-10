@@ -1,9 +1,9 @@
-/* Ensure sidebar spans full viewport height */
+/* Ensure sidebar spans full viewport height on desktop */
 .sidebar {
   min-height: 100vh;
 }
 
-/* Sticky sidebar behavior */
+/* Sticky sidebar behavior on desktop */
 .sidebar-sticky {
   position: sticky;
   top: 0;
@@ -31,4 +31,52 @@
 /* Optional: improve readability of main content */
 .content p {
   line-height: 1.7;
+}
+
+/* Mobile-specific styles */
+@media (max-width: 767.98px) {
+  /* Remove min-height and sticky positioning on mobile */
+  .sidebar {
+    min-height: auto;
+  }
+
+  .sidebar-sticky {
+    position: relative;
+    height: auto;
+  }
+
+  /* Add padding to sidebar when collapsed/expanded on mobile */
+  #sidebarMenu {
+    padding: 1rem 0;
+  }
+
+  /* Ensure main content has proper padding on mobile */
+  main.col-12 {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* Center content better on mobile */
+  .content {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  /* Make images more responsive on mobile */
+  .content img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Improve logo sizing on mobile */
+  .sidebar .img-fluid {
+    max-width: 150px;
+  }
+}
+
+/* Tablet and smaller desktop adjustments */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .sidebar .img-fluid {
+    max-width: 120px;
+  }
 }
