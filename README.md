@@ -50,3 +50,8 @@ For production deployment (e.g. on DigitalOcean), configure environment variable
 as `SECRET_KEY`, set `DEBUG = False` in `settings.py`, and update `ALLOWED_HOSTS` with
 the domain or IP address of your server. You may also want to serve static files
 through a web server like Nginx and use `gunicorn` or similar as the application server.
+
+
+# To do !
+- update runtime.txt file as pr heroku log message when pushing changes to site
+- change to use UV package manager.
