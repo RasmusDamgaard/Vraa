@@ -20,7 +20,34 @@ with real content as needed.
 
 ## Installation
 
-To set up the project locally:
+### Option 1: Using UV (Recommended)
+
+[UV](https://github.com/astral-sh/uv) is a fast Python package manager. To set up the project with UV:
+
+1. Install UV if you haven't already:
+
+   ```bash
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   uv sync
+   ```
+
+3. Run database migrations and start the development server:
+
+   ```bash
+   uv run python manage.py migrate
+   uv run python manage.py runserver
+   ```
+
+4. Navigate to `http://127.0.0.1:8000/` in your web browser to view the site.
+
+### Option 2: Using pip (Traditional)
+
+To set up the project locally with pip:
 
 1. Create a virtual environment (optional but recommended):
 
@@ -50,7 +77,3 @@ For production deployment (e.g. on DigitalOcean), configure environment variable
 as `SECRET_KEY`, set `DEBUG = False` in `settings.py`, and update `ALLOWED_HOSTS` with
 the domain or IP address of your server. You may also want to serve static files
 through a web server like Nginx and use `gunicorn` or similar as the application server.
-
-
-# To do !
-- change to use UV package manager.
