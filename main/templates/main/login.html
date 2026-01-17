@@ -1,0 +1,30 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="auth-container">
+    <h1>Log ind</h1>
+
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        Ugyldigt brugernavn eller adgangskode. Bemærk at din konto skal være godkendt af administrator.
+    </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="id_username" class="form-label">Brugernavn</label>
+            <input type="text" name="username" id="id_username" class="form-control" required autofocus>
+        </div>
+        <div class="mb-3">
+            <label for="id_password" class="form-label">Adgangskode</label>
+            <input type="password" name="password" id="id_password" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Log ind</button>
+    </form>
+
+    <p class="mt-4">
+        Har du ikke en konto? <a href="{% url 'main:register' %}">Registrer dig her</a>
+    </p>
+</div>
+{% endblock %}

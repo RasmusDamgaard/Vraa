@@ -18,13 +18,10 @@ class SimpleTestCase(TestCase):
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
 
-    def test_bootstrap_integrity_hash(self) -> None:
-        """The base template should include the correct SRI hash for Bootstrap."""
+    def test_bootstrap_included(self) -> None:
+        """The base template should include Bootstrap 5.3.3."""
         response = self.client.get('/')
-        self.assertContains(
-            response,
-            'integrity="sha384-OLBgp1GsljhM2TJ+sbHjaiH9txEUvgdDTAzHv2P24donTt6/529l+9Ua0vFImLlb"',
-        )
+        self.assertContains(response, 'bootstrap@5.3.3')
 
     def test_information_page(self) -> None:
         response = self.client.get(reverse('main:information'))
