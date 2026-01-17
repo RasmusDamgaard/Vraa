@@ -53,5 +53,4 @@ through a web server like Nginx and use `gunicorn` or similar as the application
 
 
 # To do !
-- update runtime.txt file as pr heroku log message when pushing changes to site
 - change to use UV package manager.
