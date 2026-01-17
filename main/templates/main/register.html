@@ -1,0 +1,62 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="auth-container">
+    <h1>Opret konto</h1>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label for="id_username" class="form-label">Brugernavn</label>
+            {{ form.username }}
+            {% if form.username.help_text %}
+            <div class="form-text">{{ form.username.help_text }}</div>
+            {% endif %}
+            {% if form.username.errors %}
+            <div class="text-danger">{{ form.username.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label for="id_password1" class="form-label">Adgangskode</label>
+            {{ form.password1 }}
+            {% if form.password1.help_text %}
+            <div class="form-text">{{ form.password1.help_text }}</div>
+            {% endif %}
+            {% if form.password1.errors %}
+            <div class="text-danger">{{ form.password1.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label for="id_password2" class="form-label">Bekræft adgangskode</label>
+            {{ form.password2 }}
+            {% if form.password2.help_text %}
+            <div class="form-text">{{ form.password2.help_text }}</div>
+            {% endif %}
+            {% if form.password2.errors %}
+            <div class="text-danger">{{ form.password2.errors }}</div>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary">Opret konto</button>
+    </form>
+
+    <p class="mt-4">
+        Har du allerede en konto? <a href="{% url 'main:login' %}">Log ind her</a>
+    </p>
+
+    <div class="alert alert-info mt-4">
+        <strong>Bemærk:</strong> Nye konti skal godkendes af en administrator før du kan logge ind.
+    </div>
+</div>
+{% endblock %}
