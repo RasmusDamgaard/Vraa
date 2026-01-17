@@ -57,7 +57,8 @@ Vraa/
 │   └── tests.py             # Test cases (to be implemented)
 │
 ├── manage.py                # Django management script
-├── requirements.txt         # Python dependencies
+├── requirements.txt         # Python dependencies (pip/Heroku)
+├── pyproject.toml           # Python project configuration (UV/PEP 621)
 ├── runtime.txt              # Python version for Heroku
 ├── Procfile                 # Heroku deployment config
 ├── db.sqlite3               # Local SQLite database
@@ -170,6 +171,27 @@ Uses `dj-database-url` for flexible database configuration:
 
 ### Local Setup
 
+#### Option 1: Using UV (Recommended)
+
+[UV](https://github.com/astral-sh/uv) is a modern, fast Python package manager:
+
+```bash
+# 1. Install UV (if not already installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# 2. Install dependencies
+uv sync
+
+# 3. Run migrations
+uv run python manage.py migrate
+
+# 4. Start development server
+uv run python manage.py runserver
+# Access at http://127.0.0.1:8000/
+```
+
+#### Option 2: Using pip (Traditional)
+
 ```bash
 # 1. Create virtual environment
 python3 -m venv venv
@@ -188,6 +210,30 @@ python manage.py runserver
 
 ### Common Commands
 
+#### With UV
+
+```bash
+# Run migrations
+uv run python manage.py migrate
+
+# Create migrations (if models change)
+uv run python manage.py makemigrations
+
+# Collect static files (before deployment)
+uv run python manage.py collectstatic --noinput
+
+# Start Django shell
+uv run python manage.py shell
+
+# Create superuser for admin
+uv run python manage.py createsuperuser
+
+# Run tests
+uv run python manage.py test
+```
+
+#### With pip/venv
+
 ```bash
 # Run migrations
 python manage.py migrate
@@ -203,6 +249,9 @@ python manage.py shell
 
 # Create superuser for admin
 python manage.py createsuperuser
+
+# Run tests
+python manage.py test
 ```
 
 ### Adding New Pages
@@ -370,6 +419,13 @@ All URLs (except admin) are defined in `main/urls.py` with namespace `main`.
   - Django 4.x
   - gunicorn, whitenoise
   - dj-database-url, psycopg2-binary
+  - Used by Heroku for dependency installation
+
+- **`pyproject.toml`** (New)
+  - PEP 621 compliant project metadata
+  - Dependencies configuration for UV package manager
+  - Optional dev dependencies section
+  - Build system configuration
 
 - **`Procfile`** (1 line)
   - Heroku web dyno configuration
@@ -453,11 +509,11 @@ Currently no automated tests exist. When adding tests:
 
 ---
 
-## TODO Items (from README)
+## Completed TODO Items
 
-Current outstanding tasks:
-1. **Update `runtime.txt`** - Keep Python version current per Heroku recommendations
-2. **Migrate to UV package manager** - Consider modern Python packaging tool
+Recently completed tasks:
+1. ✅ **Update `runtime.txt`** - Updated to Python 3.11.14 per Heroku recommendations
+2. ✅ **Migrate to UV package manager** - Added `pyproject.toml` with UV support; both UV and pip workflows are now supported
 
 ---
 
