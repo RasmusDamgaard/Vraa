@@ -119,3 +119,34 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
+
+# =============================================================================
+# PRODUCTION SECURITY SETTINGS
+# =============================================================================
+# These settings are only applied when DEBUG is False (production environment)
+
+if not DEBUG:
+    # Restrict allowed hosts to actual domains
+    ALLOWED_HOSTS = [
+        'vraa.org',
+        'www.vraa.org',
+        '.herokuapp.com',  # Allows any Heroku subdomain
+    ]
+
+    # HTTPS/SSL Settings
+    SECURE_SSL_REDIRECT = True  # Redirect all HTTP requests to HTTPS
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')  # Trust Heroku's proxy
+
+    # HTTP Strict Transport Security (HSTS)
+    # Tells browsers to only use HTTPS for this domain
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True  # Allow inclusion in browser preload lists
+
+    # Secure Cookies
+    SESSION_COOKIE_SECURE = True  # Only send session cookie over HTTPS
+    CSRF_COOKIE_SECURE = True  # Only send CSRF cookie over HTTPS
+
+    # Additional Security Headers
+    SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevent MIME type sniffing
+    X_FRAME_OPTIONS = 'DENY'  # Prevent clickjacking (already set by middleware, explicit here)
