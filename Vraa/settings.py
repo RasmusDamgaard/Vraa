@@ -121,6 +121,17 @@ LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
 
 # =============================================================================
+# CACHING CONFIGURATION
+# =============================================================================
+# Local memory cache for development, can upgrade to Redis in production
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'vraa-cache',
+    }
+}
+
+# =============================================================================
 # PRODUCTION SECURITY SETTINGS
 # =============================================================================
 # These settings are only applied when DEBUG is False (production environment)

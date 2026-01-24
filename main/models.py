@@ -33,6 +33,10 @@ class Message(models.Model):
         ordering = ['-created_at']
         verbose_name = 'Besked'
         verbose_name_plural = 'Beskeder'
+        indexes = [
+            models.Index(fields=['-created_at']),
+            models.Index(fields=['author']),
+        ]
 
     def __str__(self) -> str:
         preview = self.content[:50]
@@ -69,6 +73,11 @@ class Comment(models.Model):
         ordering = ['created_at']
         verbose_name = 'Kommentar'
         verbose_name_plural = 'Kommentarer'
+        indexes = [
+            models.Index(fields=['created_at']),
+            models.Index(fields=['message']),
+            models.Index(fields=['author']),
+        ]
 
     def __str__(self) -> str:
         preview = self.content[:30]
