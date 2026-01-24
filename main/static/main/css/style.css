@@ -1,82 +1,691 @@
-/* Ensure sidebar spans full viewport height on desktop */
-.sidebar {
-  min-height: 100vh;
+/* ============================================
+   GOOGLE FONTS & CSS VARIABLES
+   ============================================ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Color Palette - Nature-inspired for island feel */
+  --primary-blue: #2C5F7C;
+  --primary-blue-light: #3A7CA5;
+  --accent-teal: #5FA8A0;
+  --accent-sand: #F4E9D8;
+  --neutral-gray: #F8F9FA;
+  --neutral-gray-dark: #E9ECEF;
+  --text-primary: #2D3748;
+  --text-secondary: #718096;
+  --white: #FFFFFF;
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+  /* Border Radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+
+  /* Transitions */
+  --transition-fast: 150ms ease-in-out;
+  --transition-base: 250ms ease-in-out;
 }
 
-/* Sticky sidebar behavior on desktop */
+/* ============================================
+   GLOBAL STYLES
+   ============================================ */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--text-primary);
+  background-color: var(--neutral-gray);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   SIDEBAR STYLES
+   ============================================ */
+.sidebar {
+  min-height: 100vh;
+  background: linear-gradient(180deg, var(--white) 0%, var(--neutral-gray) 100%);
+  border-right: 1px solid var(--neutral-gray-dark);
+  box-shadow: var(--shadow-sm);
+}
+
 .sidebar-sticky {
   position: sticky;
   top: 0;
   height: 100vh;
   overflow-y: auto;
+  padding: var(--spacing-lg) var(--spacing-md);
 }
 
-/* Sidebar link styles */
+/* Logo Container */
+.sidebar .text-center {
+  padding: var(--spacing-md) 0 var(--spacing-xl) 0;
+  border-bottom: 2px solid var(--neutral-gray-dark);
+  margin-bottom: var(--spacing-lg) !important;
+}
+
+.sidebar .img-fluid {
+  max-width: 140px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
+  transition: transform var(--transition-base);
+}
+
+.sidebar .img-fluid:hover {
+  transform: scale(1.02);
+}
+
+/* Navigation Links */
 .sidebar-sticky .nav-link {
-  color: #212529;
-  padding: .35rem .5rem;
-  border-radius: .375rem;
+  color: var(--text-primary);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-xs);
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar-sticky .nav-link::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 3px;
+  background: var(--primary-blue);
+  transform: scaleY(0);
+  transition: transform var(--transition-base);
 }
 
 .sidebar-sticky .nav-link:hover {
-  background: rgba(0,0,0,.04);
+  background: var(--accent-sand);
   text-decoration: none;
+  transform: translateX(2px);
+  color: var(--primary-blue);
 }
 
 .sidebar-sticky .nav-link.active {
   font-weight: 600;
-  background: rgba(13,110,253,.1);
+  background: linear-gradient(135deg, rgba(44, 95, 124, 0.1) 0%, rgba(95, 168, 160, 0.1) 100%);
+  color: var(--primary-blue);
+  box-shadow: var(--shadow-sm);
 }
 
-/* Optional: improve readability of main content */
+.sidebar-sticky .nav-link.active::before {
+  transform: scaleY(1);
+}
+
+/* ============================================
+   MOBILE NAVBAR
+   ============================================ */
+.navbar {
+  background: var(--white) !important;
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+}
+
+.navbar-brand {
+  font-weight: 700;
+  color: var(--primary-blue) !important;
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+}
+
+.navbar-toggler {
+  border: 2px solid var(--neutral-gray-dark);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
+}
+
+.navbar-toggler:hover {
+  background: var(--neutral-gray);
+  border-color: var(--primary-blue);
+}
+
+.navbar-toggler:focus {
+  box-shadow: 0 0 0 0.2rem rgba(44, 95, 124, 0.25);
+}
+
+/* ============================================
+   MAIN CONTENT AREA
+   ============================================ */
+main {
+  background: var(--neutral-gray);
+  min-height: 100vh;
+}
+
+.content {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl) var(--spacing-xl) !important;
+  box-shadow: var(--shadow-md);
+  margin-top: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  max-width: 860px;
+}
+
+/* Typography */
+.content h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--primary-blue);
+  margin-bottom: var(--spacing-lg);
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  border-bottom: 3px solid var(--accent-teal);
+  padding-bottom: var(--spacing-md);
+}
+
+.content h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--primary-blue-light);
+  margin-top: var(--spacing-xl);
+  margin-bottom: var(--spacing-md);
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+
+.content h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: var(--spacing-lg);
+  margin-bottom: var(--spacing-sm);
+  line-height: 1.4;
+}
+
 .content p {
-  line-height: 1.7;
+  line-height: 1.75;
+  margin-bottom: var(--spacing-md);
+  color: var(--text-primary);
 }
 
-/* Mobile-specific styles */
+.content ul,
+.content ol {
+  line-height: 1.75;
+  margin-bottom: var(--spacing-lg);
+  padding-left: var(--spacing-xl);
+}
+
+.content li {
+  margin-bottom: var(--spacing-sm);
+  color: var(--text-primary);
+}
+
+.content strong {
+  font-weight: 600;
+  color: var(--primary-blue);
+}
+
+.content em {
+  color: var(--text-secondary);
+}
+
+/* Links */
+.content a {
+  color: var(--primary-blue);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: all var(--transition-fast);
+  font-weight: 500;
+}
+
+.content a:hover {
+  color: var(--primary-blue-light);
+  border-bottom-color: var(--accent-teal);
+}
+
+/* Images */
+.content img {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.content img:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Alert Boxes */
+.alert {
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  border-left: 4px solid;
+}
+
+.alert-info {
+  background: linear-gradient(135deg, rgba(44, 95, 124, 0.08) 0%, rgba(95, 168, 160, 0.08) 100%);
+  border-left-color: var(--accent-teal);
+  color: var(--text-primary);
+}
+
+.alert-info strong {
+  color: var(--primary-blue);
+}
+
+/* Text utilities */
+.text-muted {
+  color: var(--text-secondary) !important;
+}
+
+/* ============================================
+   MOBILE-SPECIFIC STYLES
+   ============================================ */
 @media (max-width: 767.98px) {
-  /* Remove min-height and sticky positioning on mobile */
   .sidebar {
     min-height: auto;
+    background: var(--white);
+    border-right: none;
+    box-shadow: none;
   }
 
   .sidebar-sticky {
     position: relative;
     height: auto;
+    padding: var(--spacing-md);
   }
 
-  /* Add padding to sidebar when collapsed/expanded on mobile */
+  .sidebar .text-center {
+    border-bottom: none;
+    padding: var(--spacing-sm) 0;
+    margin-bottom: var(--spacing-md) !important;
+  }
+
   #sidebarMenu {
-    padding: 1rem 0;
+    padding: var(--spacing-md) 0;
+    box-shadow: var(--shadow-md);
   }
 
-  /* Ensure main content has proper padding on mobile */
   main.col-12 {
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 
-  /* Center content better on mobile */
   .content {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
+    padding: var(--spacing-lg) var(--spacing-md) !important;
+    margin: var(--spacing-md);
+    border-radius: var(--radius-md);
   }
 
-  /* Make images more responsive on mobile */
+  .content h1 {
+    font-size: 1.75rem;
+  }
+
+  .content h2 {
+    font-size: 1.5rem;
+  }
+
+  .content h3 {
+    font-size: 1.15rem;
+  }
+
   .content img {
     max-width: 100%;
     height: auto;
   }
 
-  /* Improve logo sizing on mobile */
   .sidebar .img-fluid {
-    max-width: 150px;
+    max-width: 120px;
   }
 }
 
-/* Tablet and smaller desktop adjustments */
+/* ============================================
+   TABLET ADJUSTMENTS
+   ============================================ */
 @media (min-width: 768px) and (max-width: 991.98px) {
   .sidebar .img-fluid {
-    max-width: 120px;
+    max-width: 100px;
+  }
+
+  .content {
+    padding: var(--spacing-lg) !important;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY & POLISH
+   ============================================ */
+*:focus {
+  outline: 2px solid var(--accent-teal);
+  outline-offset: 2px;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Selection color */
+::selection {
+  background: var(--accent-teal);
+  color: var(--white);
+}
+
+::-moz-selection {
+  background: var(--accent-teal);
+  color: var(--white);
+}
+
+/* ============================================
+   MESSAGE BOARD STYLES
+   ============================================ */
+.message-board {
+  margin-top: var(--spacing-lg);
+}
+
+.message-board h2 {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.messages-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.message-card {
+  background: var(--neutral-gray);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-base);
+}
+
+.message-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 1px solid var(--neutral-gray-dark);
+}
+
+.message-header strong {
+  color: var(--primary-blue);
+}
+
+.message-content {
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.message-content p:last-child {
+  margin-bottom: 0;
+}
+
+.message-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--neutral-gray-dark);
+}
+
+/* ============================================
+   COMMENT STYLES
+   ============================================ */
+.comments-section {
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-sm);
+  border-top: 1px dashed var(--neutral-gray-dark);
+}
+
+.comments-list {
+  margin-left: var(--spacing-md);
+  margin-top: var(--spacing-sm);
+}
+
+.comment-item {
+  background: var(--white);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  margin-top: var(--spacing-sm);
+  font-size: 0.9rem;
+  border-left: 3px solid var(--accent-teal);
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-xs);
+}
+
+.comment-header strong {
+  color: var(--primary-blue);
+  font-size: 0.85rem;
+}
+
+.comment-content {
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.comment-content p {
+  margin-bottom: var(--spacing-xs);
+}
+
+.comment-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* ============================================
+   CALENDAR & BOOKING STYLES
+   ============================================ */
+.calendar-container {
+  max-width: 100%;
+}
+
+.calendar-legend {
+  display: flex;
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: 0.9rem;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-sm);
+}
+
+.legend-color.confirmed {
+  background-color: #28a745;
+}
+
+.legend-color.pending {
+  background-color: #ffc107;
+}
+
+#calendar {
+  background: var(--white);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.fc-event {
+  border: none;
+  padding: 2px 4px;
+  border-radius: var(--radius-sm);
+}
+
+.bookings-list .list-group-item {
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-sm);
+}
+
+/* ============================================
+   USER STATUS IN SIDEBAR
+   ============================================ */
+.user-status {
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-lg);
+  border-top: 2px solid var(--neutral-gray-dark);
+  font-size: 0.9rem;
+}
+
+.user-status p {
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.user-status strong {
+  color: var(--primary-blue);
+}
+
+/* ============================================
+   AUTHENTICATION & FORM CONTAINERS
+   ============================================ */
+.auth-container,
+.message-form-container,
+.delete-confirm-container {
+  max-width: 480px;
+}
+
+.auth-container h1,
+.message-form-container h1,
+.delete-confirm-container h1 {
+  margin-bottom: var(--spacing-lg);
+}
+
+/* Form styling */
+.form-control {
+  border: 2px solid var(--neutral-gray-dark);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-control:focus {
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(44, 95, 124, 0.15);
+  outline: none;
+}
+
+.form-label {
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.form-text {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+/* Button styling */
+.btn-primary {
+  background-color: var(--primary-blue);
+  border-color: var(--primary-blue);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-blue-light);
+  border-color: var(--primary-blue-light);
+}
+
+.btn-outline-primary {
+  color: var(--primary-blue);
+  border-color: var(--primary-blue);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary-blue);
+  border-color: var(--primary-blue);
+  color: var(--white);
+}
+
+.btn-outline-secondary {
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+.btn-outline-danger {
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+/* Alert styling */
+.alert-danger {
+  background: linear-gradient(135deg, rgba(220, 53, 69, 0.08) 0%, rgba(220, 53, 69, 0.12) 100%);
+  border-left-color: #dc3545;
+  color: var(--text-primary);
+}
+
+.alert-success {
+  background: linear-gradient(135deg, rgba(40, 167, 69, 0.08) 0%, rgba(40, 167, 69, 0.12) 100%);
+  border-left-color: #28a745;
+  color: var(--text-primary);
+}
+
+.alert-warning {
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.08) 0%, rgba(255, 193, 7, 0.15) 100%);
+  border-left-color: #ffc107;
+  color: var(--text-primary);
+}
+
+/* ============================================
+   MOBILE ADJUSTMENTS FOR NEW COMPONENTS
+   ============================================ */
+@media (max-width: 767.98px) {
+  .message-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+
+  .message-actions {
+    flex-wrap: wrap;
+  }
+
+  .user-status {
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-md);
+  }
+
+  .auth-container,
+  .message-form-container,
+  .delete-confirm-container {
+    max-width: 100%;
   }
 }

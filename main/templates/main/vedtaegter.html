@@ -1,7 +1,17 @@
 {% extends 'main/base.html' %}
 
+{% load static %}
+
 {% block content %}
-  <p>
+  <h1 class="mb-4">Vedtægter</h1>
+
+  <p class="lead">
     Her er foreningens vedtægter.
   </p>
+
+  <div class="mt-4">
+    <a href="{% static 'main/pdfs/vedtaegter/Vedtaegter.zip' %}" class="btn btn-primary" download>
+      <i class="bi bi-download"></i> Hent vedtægterne her
+    </a>
+  </div>
 {% endblock %}

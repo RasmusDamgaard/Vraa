@@ -87,13 +87,23 @@
                 >
               </li>
             </ul>
+
+            <!-- User authentication status -->
+            <div class="user-status">
+                {% if user.is_authenticated %}
+                <p class="mb-2">Logget ind som <strong>{{ user.username }}</strong></p>
+                <a href="{% url 'main:logout' %}" class="btn btn-outline-secondary btn-sm w-100">Log ud</a>
+                {% else %}
+                <a href="{% url 'main:login' %}" class="btn btn-primary btn-sm w-100 mb-2">Log ind</a>
+                <a href="{% url 'main:register' %}" class="btn btn-outline-secondary btn-sm w-100">Registrer</a>
+                {% endif %}
+            </div>
           </div>
         </nav>
 
         <!-- Main content (centered column) -->
         <main class="col-12 col-md-9 col-lg-10 px-4">
-          <!-- Narrow, centered like CS50: adjust max-width to taste -->
-          <div class="mx-auto py-4 content" style="max-width: 860px;">
+          <div class="mx-auto content">
             {% block content %}{% endblock %}
           </div>
         </main>

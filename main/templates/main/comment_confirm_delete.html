@@ -1,0 +1,23 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="delete-confirm-container">
+    <h1>Slet kommentar</h1>
+
+    <div class="alert alert-warning">
+        <p><strong>Er du sikker på, at du vil slette denne kommentar?</strong></p>
+        <blockquote class="border-start border-3 ps-3 my-3 fst-italic">
+            {{ object.content|truncatewords:50 }}
+        </blockquote>
+        <p class="mb-0 text-muted">Denne handling kan ikke fortrydes.</p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-danger">Ja, slet kommentar</button>
+            <a href="{% url 'main:frontpage' %}" class="btn btn-outline-secondary">Annuller</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
