@@ -23,6 +23,10 @@ urlpatterns = [
     path('besked/<int:pk>/rediger/', views.MessageUpdateView.as_view(), name='message_update'),
     path('besked/<int:pk>/slet/', views.MessageDeleteView.as_view(), name='message_delete'),
 
+    # Comments
+    path('besked/<int:message_pk>/kommentar/', views.CommentCreateView.as_view(), name='comment_create'),
+    path('kommentar/<int:pk>/slet/', views.CommentDeleteView.as_view(), name='comment_delete'),
+
     # Authentication
     path('login/', auth_views.LoginView.as_view(
         template_name='main/login.html',

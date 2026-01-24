@@ -7,7 +7,7 @@ from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from .models import Message
+from .models import Comment, Message
 
 User = get_user_model()
 
@@ -27,6 +27,23 @@ class MessageAdmin(admin.ModelAdmin):
             return obj.content[:75] + '...'
         return obj.content
     content_preview.short_description = 'Besked'
+
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    """Admin interface for managing comments."""
+
+    list_display = ['author', 'message', 'content_preview', 'created_at']
+    list_filter = ['created_at', 'author']
+    search_fields = ['content', 'author__username']
+    readonly_fields = ['created_at']
+    raw_id_fields = ['message']
+
+    def content_preview(self, obj):
+        if len(obj.content) > 50:
+            return obj.content[:50] + '...'
+        return obj.content
+    content_preview.short_description = 'Kommentar'
 
 
 class UserAdmin(BaseUserAdmin):

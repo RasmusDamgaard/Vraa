@@ -9,7 +9,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, ListView, TemplateView, UpdateView
 
-from .models import Message
+from .models import Comment, Message
 
 
 class FrontpageView(ListView):
@@ -20,6 +20,13 @@ class FrontpageView(ListView):
     context_object_name = 'message_list'
     paginate_by = 20
     extra_context = {'title': 'Frontpage'}
+
+    def get_queryset(self):
+        # Optimize queries: prefetch comments and their authors
+        return Message.objects.select_related('author').prefetch_related(
+            'comments',
+            'comments__author',
+        )
 
 
 class InformationView(TemplateView):
@@ -96,6 +103,40 @@ class MessageDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     template_name = 'main/message_confirm_delete.html'
     success_url = reverse_lazy('main:frontpage')
     extra_context = {'title': 'Slet besked'}
+
+    def test_func(self):
+        return self.get_object().author == self.request.user
+
+
+class CommentCreateView(LoginRequiredMixin, CreateView):
+    """Create a new comment on a message (authenticated users only)."""
+
+    model = Comment
+    fields = ['content']
+    template_name = 'main/comment_form.html'
+    extra_context = {'title': 'Tilføj kommentar'}
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        form.instance.message_id = self.kwargs['message_pk']
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('main:frontpage')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['message'] = Message.objects.get(pk=self.kwargs['message_pk'])
+        return context
+
+
+class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    """Delete a comment (author only)."""
+
+    model = Comment
+    template_name = 'main/comment_confirm_delete.html'
+    success_url = reverse_lazy('main:frontpage')
+    extra_context = {'title': 'Slet kommentar'}
 
     def test_func(self):
         return self.get_object().author == self.request.user
