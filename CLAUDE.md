@@ -524,13 +524,7 @@ Pending tasks for future development:
    - Add comment display to message board UI
    - Implement comment permissions and validation
 
-3. 🗑️ **Allow users to delete their own messages on the message board**
-   - Add delete functionality to message views
-   - Implement proper permission checks (users can only delete own messages)
-   - Add confirmation dialogs for delete actions
-   - Handle cascading deletion of associated comments
-
-4. ⚡ **Look for performance improvements to make the site run faster**
+3. ⚡ **Look for performance improvements to make the site run faster**
    - Analyze current performance bottlenecks
    - Implement database query optimization
    - Add caching where appropriate
@@ -538,7 +532,7 @@ Pending tasks for future development:
    - Consider lazy loading for images
    - Review and optimize CSS/JavaScript bundle sizes
 
-5. 📅 **Add booking system to the website**
+4. 📅 **Add booking system to the website**
    - Design booking database models
    - Create booking form and validation
    - Implement calendar view with availability
@@ -553,6 +547,7 @@ Pending tasks for future development:
 Recently completed tasks:
 1. ✅ **Update `runtime.txt`** - Updated to Python 3.11.14 per Heroku recommendations
 2. ✅ **Migrate to UV package manager** - Added `pyproject.toml` with UV support; both UV and pip workflows are now supported
+3. ✅ **Allow users to delete their own messages on the message board** - `MessageDeleteView` implemented with proper permission checks (users can only delete own messages), confirmation dialog via `message_confirm_delete.html` template, and delete button in frontpage UI
 
 ---
 
