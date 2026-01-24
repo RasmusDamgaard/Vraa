@@ -511,34 +511,7 @@ Currently no automated tests exist. When adding tests:
 
 ## Active TODO Items
 
-Pending tasks for future development:
-
-1. 🔒 **Make the website secure with HTTPS**
-   - Configure SSL/TLS certificates
-   - Ensure secure connections across the site
-   - Update security settings in Django configuration
-
-2. 💬 **Add functionality for users to comment on message board messages**
-   - Design and implement comment model
-   - Create comment forms and views
-   - Add comment display to message board UI
-   - Implement comment permissions and validation
-
-3. ⚡ **Look for performance improvements to make the site run faster**
-   - Analyze current performance bottlenecks
-   - Implement database query optimization
-   - Add caching where appropriate
-   - Optimize static file delivery
-   - Consider lazy loading for images
-   - Review and optimize CSS/JavaScript bundle sizes
-
-4. 📅 **Add booking system to the website**
-   - Design booking database models
-   - Create booking form and validation
-   - Implement calendar view with availability
-   - Add booking management (create, edit, cancel)
-   - Send booking confirmation notifications
-   - Prevent double-bookings and conflicts
+No pending tasks at this time. All planned features have been implemented.
 
 ---
 
@@ -548,6 +521,10 @@ Recently completed tasks:
 1. ✅ **Update `runtime.txt`** - Updated to Python 3.11.14 per Heroku recommendations
 2. ✅ **Migrate to UV package manager** - Added `pyproject.toml` with UV support; both UV and pip workflows are now supported
 3. ✅ **Allow users to delete their own messages on the message board** - `MessageDeleteView` implemented with proper permission checks (users can only delete own messages), confirmation dialog via `message_confirm_delete.html` template, and delete button in frontpage UI
+4. ✅ **Make the website secure with HTTPS** - Added production security settings including `SECURE_SSL_REDIRECT`, HSTS headers, secure cookies, and restricted `ALLOWED_HOSTS`
+5. ✅ **Add functionality for users to comment on message board messages** - Created `Comment` model, `CommentCreateView` and `CommentDeleteView` with proper permissions, updated frontpage to display comments
+6. ✅ **Look for performance improvements** - Added database indexes on Message and Comment models, configured local memory caching, optimized queries with `select_related`/`prefetch_related`, added lazy loading for images
+7. ✅ **Add booking system to the website** - Created `Booking` model with validation, booking CRUD views, FullCalendar integration, admin approval workflow, and double-booking prevention
 
 ---
 

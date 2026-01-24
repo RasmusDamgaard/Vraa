@@ -493,6 +493,58 @@ html {
 }
 
 /* ============================================
+   CALENDAR & BOOKING STYLES
+   ============================================ */
+.calendar-container {
+  max-width: 100%;
+}
+
+.calendar-legend {
+  display: flex;
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: 0.9rem;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-sm);
+}
+
+.legend-color.confirmed {
+  background-color: #28a745;
+}
+
+.legend-color.pending {
+  background-color: #ffc107;
+}
+
+#calendar {
+  background: var(--white);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.fc-event {
+  border: none;
+  padding: 2px 4px;
+  border-radius: var(--radius-sm);
+}
+
+.bookings-list .list-group-item {
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-sm);
+}
+
+/* ============================================
    USER STATUS IN SIDEBAR
    ============================================ */
 .user-status {

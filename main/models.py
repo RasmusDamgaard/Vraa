@@ -84,3 +84,91 @@ class Comment(models.Model):
         if len(self.content) > 30:
             preview += '...'
         return f'{self.author.username}: {preview}'
+
+
+class Booking(models.Model):
+    """A booking for the vacation home."""
+
+    STATUS_CHOICES = [
+        ('pending', 'Afventer'),
+        ('confirmed', 'Bekræftet'),
+        ('cancelled', 'Annulleret'),
+    ]
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='bookings',
+        verbose_name='Bruger',
+    )
+    start_date = models.DateField(
+        verbose_name='Start dato',
+    )
+    end_date = models.DateField(
+        verbose_name='Slut dato',
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='pending',
+        verbose_name='Status',
+    )
+    notes = models.TextField(
+        blank=True,
+        max_length=500,
+        verbose_name='Noter',
+        help_text='Eventuelle bemærkninger til bookingen',
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Oprettet',
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Opdateret',
+    )
+
+    class Meta:
+        ordering = ['start_date']
+        verbose_name = 'Booking'
+        verbose_name_plural = 'Bookinger'
+        indexes = [
+            models.Index(fields=['start_date']),
+            models.Index(fields=['end_date']),
+            models.Index(fields=['status']),
+            models.Index(fields=['user']),
+        ]
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(end_date__gt=models.F('start_date')),
+                name='end_date_after_start_date',
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f'{self.user.username}: {self.start_date} - {self.end_date}'
+
+    def clean(self):
+        """Validate no overlapping confirmed bookings."""
+        from django.core.exceptions import ValidationError
+
+        if self.start_date and self.end_date:
+            if self.end_date <= self.start_date:
+                raise ValidationError(
+                    {'end_date': 'Slut dato skal være efter start dato.'}
+                )
+
+            # Check for overlapping confirmed bookings
+            overlapping = Booking.objects.filter(
+                status='confirmed',
+                start_date__lt=self.end_date,
+                end_date__gt=self.start_date,
+            ).exclude(pk=self.pk)
+
+            if overlapping.exists():
+                raise ValidationError('Der er allerede en booking i denne periode.')
+
+    @property
+    def duration_days(self) -> int:
+        """Return the number of days for this booking."""
+        return (self.end_date - self.start_date).days
