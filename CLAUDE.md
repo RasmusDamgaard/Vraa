@@ -509,6 +509,45 @@ Currently no automated tests exist. When adding tests:
 
 ---
 
+## Active TODO Items
+
+Pending tasks for future development:
+
+1. 🔒 **Make the website secure with HTTPS**
+   - Configure SSL/TLS certificates
+   - Ensure secure connections across the site
+   - Update security settings in Django configuration
+
+2. 💬 **Add functionality for users to comment on message board messages**
+   - Design and implement comment model
+   - Create comment forms and views
+   - Add comment display to message board UI
+   - Implement comment permissions and validation
+
+3. 🗑️ **Allow users to delete their own messages on the message board**
+   - Add delete functionality to message views
+   - Implement proper permission checks (users can only delete own messages)
+   - Add confirmation dialogs for delete actions
+   - Handle cascading deletion of associated comments
+
+4. ⚡ **Look for performance improvements to make the site run faster**
+   - Analyze current performance bottlenecks
+   - Implement database query optimization
+   - Add caching where appropriate
+   - Optimize static file delivery
+   - Consider lazy loading for images
+   - Review and optimize CSS/JavaScript bundle sizes
+
+5. 📅 **Add booking system to the website**
+   - Design booking database models
+   - Create booking form and validation
+   - Implement calendar view with availability
+   - Add booking management (create, edit, cancel)
+   - Send booking confirmation notifications
+   - Prevent double-bookings and conflicts
+
+---
+
 ## Completed TODO Items
 
 Recently completed tasks:
