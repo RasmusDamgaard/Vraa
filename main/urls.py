@@ -18,10 +18,20 @@ urlpatterns = [
     path('vedtaegter/', views.VedtaegterView.as_view(), name='vedtaegter'),
     path('kalender/', views.KalenderView.as_view(), name='kalender'),
 
+    # Booking system
+    path('booking/ny/', views.BookingCreateView.as_view(), name='booking_create'),
+    path('booking/<int:pk>/rediger/', views.BookingUpdateView.as_view(), name='booking_update'),
+    path('booking/<int:pk>/annuller/', views.BookingDeleteView.as_view(), name='booking_delete'),
+    path('api/bookings/', views.BookingAPIView.as_view(), name='booking_api'),
+
     # Message board
     path('besked/ny/', views.MessageCreateView.as_view(), name='message_create'),
     path('besked/<int:pk>/rediger/', views.MessageUpdateView.as_view(), name='message_update'),
     path('besked/<int:pk>/slet/', views.MessageDeleteView.as_view(), name='message_delete'),
+
+    # Comments
+    path('besked/<int:message_pk>/kommentar/', views.CommentCreateView.as_view(), name='comment_create'),
+    path('kommentar/<int:pk>/slet/', views.CommentDeleteView.as_view(), name='comment_delete'),
 
     # Authentication
     path('login/', auth_views.LoginView.as_view(

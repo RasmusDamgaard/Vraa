@@ -7,7 +7,7 @@ from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from .models import Message
+from .models import Booking, Comment, Message
 
 User = get_user_model()
 
@@ -27,6 +27,45 @@ class MessageAdmin(admin.ModelAdmin):
             return obj.content[:75] + '...'
         return obj.content
     content_preview.short_description = 'Besked'
+
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    """Admin interface for managing comments."""
+
+    list_display = ['author', 'message', 'content_preview', 'created_at']
+    list_filter = ['created_at', 'author']
+    search_fields = ['content', 'author__username']
+    readonly_fields = ['created_at']
+    raw_id_fields = ['message']
+
+    def content_preview(self, obj):
+        if len(obj.content) > 50:
+            return obj.content[:50] + '...'
+        return obj.content
+    content_preview.short_description = 'Kommentar'
+
+
+@admin.register(Booking)
+class BookingAdmin(admin.ModelAdmin):
+    """Admin interface for managing bookings."""
+
+    list_display = ['user', 'start_date', 'end_date', 'status', 'created_at']
+    list_filter = ['status', 'start_date', 'created_at']
+    search_fields = ['user__username', 'notes']
+    readonly_fields = ['created_at', 'updated_at']
+    date_hierarchy = 'start_date'
+    actions = ['approve_bookings', 'reject_bookings']
+
+    @admin.action(description='Godkend valgte bookinger')
+    def approve_bookings(self, request, queryset):
+        count = queryset.filter(status='pending').update(status='confirmed')
+        self.message_user(request, f'{count} booking(er) er nu godkendt.')
+
+    @admin.action(description='Afvis valgte bookinger')
+    def reject_bookings(self, request, queryset):
+        count = queryset.filter(status='pending').update(status='cancelled')
+        self.message_user(request, f'{count} booking(er) er afvist.')
 
 
 class UserAdmin(BaseUserAdmin):

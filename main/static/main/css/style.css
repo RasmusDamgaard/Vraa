@@ -445,6 +445,106 @@ html {
 }
 
 /* ============================================
+   COMMENT STYLES
+   ============================================ */
+.comments-section {
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-sm);
+  border-top: 1px dashed var(--neutral-gray-dark);
+}
+
+.comments-list {
+  margin-left: var(--spacing-md);
+  margin-top: var(--spacing-sm);
+}
+
+.comment-item {
+  background: var(--white);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  margin-top: var(--spacing-sm);
+  font-size: 0.9rem;
+  border-left: 3px solid var(--accent-teal);
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-xs);
+}
+
+.comment-header strong {
+  color: var(--primary-blue);
+  font-size: 0.85rem;
+}
+
+.comment-content {
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.comment-content p {
+  margin-bottom: var(--spacing-xs);
+}
+
+.comment-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* ============================================
+   CALENDAR & BOOKING STYLES
+   ============================================ */
+.calendar-container {
+  max-width: 100%;
+}
+
+.calendar-legend {
+  display: flex;
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: 0.9rem;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-sm);
+}
+
+.legend-color.confirmed {
+  background-color: #28a745;
+}
+
+.legend-color.pending {
+  background-color: #ffc107;
+}
+
+#calendar {
+  background: var(--white);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.fc-event {
+  border: none;
+  padding: 2px 4px;
+  border-radius: var(--radius-sm);
+}
+
+.bookings-list .list-group-item {
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-sm);
+}
+
+/* ============================================
    USER STATUS IN SIDEBAR
    ============================================ */
 .user-status {

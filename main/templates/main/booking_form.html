@@ -1,0 +1,46 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="message-form-container">
+    <h1>{% if object %}Rediger booking{% else %}Ny booking{% endif %}</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="id_start_date" class="form-label">Start dato</label>
+            {{ form.start_date }}
+            {% if form.start_date.errors %}
+            <div class="text-danger">{{ form.start_date.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="mb-3">
+            <label for="id_end_date" class="form-label">Slut dato</label>
+            {{ form.end_date }}
+            {% if form.end_date.errors %}
+            <div class="text-danger">{{ form.end_date.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="mb-3">
+            <label for="id_notes" class="form-label">Noter (valgfrit)</label>
+            {{ form.notes }}
+            {% if form.notes.errors %}
+            <div class="text-danger">{{ form.notes.errors }}</div>
+            {% endif %}
+            <div class="form-text">Eventuelle bemærkninger til bookingen</div>
+        </div>
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">
+                {% if object %}Gem ændringer{% else %}Send booking{% endif %}
+            </button>
+            <a href="{% url 'main:kalender' %}" class="btn btn-outline-secondary">Annuller</a>
+        </div>
+    </form>
+
+    <div class="alert alert-info mt-4">
+        <strong>Bemærk:</strong> Alle bookinger skal godkendes af administrator før de er bekræftet.
+    </div>
+</div>
+{% endblock %}

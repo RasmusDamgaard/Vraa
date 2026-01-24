@@ -6,10 +6,14 @@ from __future__ import annotations
 from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.http import JsonResponse
 from django.urls import reverse_lazy
+from django.utils import timezone
+from django.views import View
 from django.views.generic import CreateView, DeleteView, ListView, TemplateView, UpdateView
 
-from .models import Message
+from .forms import BookingForm
+from .models import Booking, Comment, Message
 
 
 class FrontpageView(ListView):
@@ -20,6 +24,13 @@ class FrontpageView(ListView):
     context_object_name = 'message_list'
     paginate_by = 20
     extra_context = {'title': 'Frontpage'}
+
+    def get_queryset(self):
+        # Optimize queries: prefetch comments and their authors
+        return Message.objects.select_related('author').prefetch_related(
+            'comments',
+            'comments__author',
+        )
 
 
 class InformationView(TemplateView):
@@ -37,9 +48,19 @@ class VedtaegterView(TemplateView):
     extra_context = {'title': 'Vedtægter'}
 
 
-class KalenderView(TemplateView):
+class KalenderView(LoginRequiredMixin, ListView):
+    """Display calendar with bookings."""
+
+    model = Booking
     template_name = 'main/kalender.html'
+    context_object_name = 'bookings'
     extra_context = {'title': 'Kalender'}
+
+    def get_queryset(self):
+        return Booking.objects.filter(
+            status__in=['pending', 'confirmed'],
+            end_date__gte=timezone.now().date(),
+        ).select_related('user')
 
 
 class RegisterView(CreateView):
@@ -99,3 +120,107 @@ class MessageDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def test_func(self):
         return self.get_object().author == self.request.user
+
+
+class CommentCreateView(LoginRequiredMixin, CreateView):
+    """Create a new comment on a message (authenticated users only)."""
+
+    model = Comment
+    fields = ['content']
+    template_name = 'main/comment_form.html'
+    extra_context = {'title': 'Tilføj kommentar'}
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        form.instance.message_id = self.kwargs['message_pk']
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('main:frontpage')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['message'] = Message.objects.get(pk=self.kwargs['message_pk'])
+        return context
+
+
+class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    """Delete a comment (author only)."""
+
+    model = Comment
+    template_name = 'main/comment_confirm_delete.html'
+    success_url = reverse_lazy('main:frontpage')
+    extra_context = {'title': 'Slet kommentar'}
+
+    def test_func(self):
+        return self.get_object().author == self.request.user
+
+
+class BookingCreateView(LoginRequiredMixin, CreateView):
+    """Create a new booking."""
+
+    model = Booking
+    form_class = BookingForm
+    template_name = 'main/booking_form.html'
+    success_url = reverse_lazy('main:kalender')
+    extra_context = {'title': 'Ny booking'}
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        form.instance.status = 'pending'
+        messages.success(
+            self.request,
+            'Din booking er oprettet og afventer godkendelse af administrator.',
+        )
+        return super().form_valid(form)
+
+
+class BookingUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    """Edit a booking (owner only, pending bookings only)."""
+
+    model = Booking
+    form_class = BookingForm
+    template_name = 'main/booking_form.html'
+    success_url = reverse_lazy('main:kalender')
+    extra_context = {'title': 'Rediger booking'}
+
+    def test_func(self):
+        booking = self.get_object()
+        return booking.user == self.request.user and booking.status == 'pending'
+
+
+class BookingDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    """Cancel a booking (owner only)."""
+
+    model = Booking
+    template_name = 'main/booking_confirm_delete.html'
+    success_url = reverse_lazy('main:kalender')
+    extra_context = {'title': 'Annuller booking'}
+
+    def test_func(self):
+        return self.get_object().user == self.request.user
+
+
+class BookingAPIView(LoginRequiredMixin, View):
+    """API endpoint for calendar data (JSON)."""
+
+    def get(self, request):
+        bookings = Booking.objects.filter(
+            status__in=['pending', 'confirmed'],
+        ).select_related('user')
+
+        events = []
+        for booking in bookings:
+            events.append({
+                'id': booking.pk,
+                'title': booking.user.username,
+                'start': booking.start_date.isoformat(),
+                'end': booking.end_date.isoformat(),
+                'color': '#28a745' if booking.status == 'confirmed' else '#ffc107',
+                'extendedProps': {
+                    'status': booking.status,
+                    'is_owner': booking.user == request.user,
+                },
+            })
+
+        return JsonResponse(events, safe=False)
