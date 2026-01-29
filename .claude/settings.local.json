@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -lh \"C:\\\\Users\\\\rdamg\\\\Vraa\\\\main\\\\static\\\\main\\\\img\"\" 2>/dev/null || echo \"Image directory not found or empty \")",
+      "Bash(find:*)",
+      "Bash(dir:*)",
+      "Bash(powershell:*)",
+      "Bash(uv run python:*)"
+    ]
+  }
+}

@@ -93,39 +93,21 @@ body {
   margin-bottom: var(--spacing-xs);
   font-weight: 500;
   font-size: 0.95rem;
-  transition: all var(--transition-base);
-  position: relative;
-  overflow: hidden;
-}
-
-.sidebar-sticky .nav-link::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 3px;
-  background: var(--primary-blue);
-  transform: scaleY(0);
-  transition: transform var(--transition-base);
+  transition: background var(--transition-base), color var(--transition-base);
+  border-left: 3px solid transparent;
 }
 
 .sidebar-sticky .nav-link:hover {
   background: var(--accent-sand);
   text-decoration: none;
-  transform: translateX(2px);
   color: var(--primary-blue);
 }
 
 .sidebar-sticky .nav-link.active {
   font-weight: 600;
-  background: linear-gradient(135deg, rgba(44, 95, 124, 0.1) 0%, rgba(95, 168, 160, 0.1) 100%);
+  background: rgba(44, 95, 124, 0.1);
   color: var(--primary-blue);
-  box-shadow: var(--shadow-sm);
-}
-
-.sidebar-sticky .nav-link.active::before {
-  transform: scaleY(1);
+  border-left-color: var(--primary-blue);
 }
 
 /* ============================================
@@ -253,13 +235,7 @@ main {
 /* Images */
 .content img {
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  transition: transform var(--transition-base), box-shadow var(--transition-base);
-}
-
-.content img:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-md);
 }
 
 /* Alert Boxes */
@@ -267,18 +243,13 @@ main {
   border: none;
   border-radius: var(--radius-md);
   padding: var(--spacing-md) var(--spacing-lg);
-  box-shadow: var(--shadow-sm);
   border-left: 4px solid;
 }
 
 .alert-info {
-  background: linear-gradient(135deg, rgba(44, 95, 124, 0.08) 0%, rgba(95, 168, 160, 0.08) 100%);
+  background: rgba(95, 168, 160, 0.1);
   border-left-color: var(--accent-teal);
   color: var(--text-primary);
-}
-
-.alert-info strong {
-  color: var(--primary-blue);
 }
 
 /* Text utilities */
@@ -603,65 +574,35 @@ html {
   font-size: 0.85rem;
 }
 
-/* Button styling */
+/* Button styling - theme colors */
 .btn-primary {
-  background-color: var(--primary-blue);
-  border-color: var(--primary-blue);
-  border-radius: var(--radius-md);
-  padding: var(--spacing-sm) var(--spacing-lg);
-  font-weight: 500;
-  transition: all var(--transition-fast);
-}
-
-.btn-primary:hover {
-  background-color: var(--primary-blue-light);
-  border-color: var(--primary-blue-light);
+  --bs-btn-bg: var(--primary-blue);
+  --bs-btn-border-color: var(--primary-blue);
+  --bs-btn-hover-bg: var(--primary-blue-light);
+  --bs-btn-hover-border-color: var(--primary-blue-light);
 }
 
 .btn-outline-primary {
-  color: var(--primary-blue);
-  border-color: var(--primary-blue);
-  border-radius: var(--radius-md);
-  padding: var(--spacing-sm) var(--spacing-lg);
-  font-weight: 500;
-  transition: all var(--transition-fast);
-}
-
-.btn-outline-primary:hover {
-  background-color: var(--primary-blue);
-  border-color: var(--primary-blue);
-  color: var(--white);
-}
-
-.btn-outline-secondary {
-  border-radius: var(--radius-md);
-  font-weight: 500;
-  transition: all var(--transition-fast);
-}
-
-.btn-outline-danger {
-  border-radius: var(--radius-md);
-  font-weight: 500;
-  transition: all var(--transition-fast);
+  --bs-btn-color: var(--primary-blue);
+  --bs-btn-border-color: var(--primary-blue);
+  --bs-btn-hover-bg: var(--primary-blue);
+  --bs-btn-hover-border-color: var(--primary-blue);
 }
 
 /* Alert styling */
 .alert-danger {
-  background: linear-gradient(135deg, rgba(220, 53, 69, 0.08) 0%, rgba(220, 53, 69, 0.12) 100%);
+  background: rgba(220, 53, 69, 0.1);
   border-left-color: #dc3545;
-  color: var(--text-primary);
 }
 
 .alert-success {
-  background: linear-gradient(135deg, rgba(40, 167, 69, 0.08) 0%, rgba(40, 167, 69, 0.12) 100%);
+  background: rgba(40, 167, 69, 0.1);
   border-left-color: #28a745;
-  color: var(--text-primary);
 }
 
 .alert-warning {
-  background: linear-gradient(135deg, rgba(255, 193, 7, 0.08) 0%, rgba(255, 193, 7, 0.15) 100%);
+  background: rgba(255, 193, 7, 0.1);
   border-left-color: #ffc107;
-  color: var(--text-primary);
 }
 
 /* ============================================

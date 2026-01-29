@@ -79,7 +79,12 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         events: '{% url "main:booking_api" %}',
         eventDisplay: 'block',
-        displayEventTime: false
+        displayEventTime: false,
+        selectable: true,
+        select: function(info) {
+            // Navigate to booking form with pre-filled dates
+            window.location.href = '{% url "main:booking_create" %}?start=' + info.startStr + '&end=' + info.endStr;
+        }
     });
     calendar.render();
 });

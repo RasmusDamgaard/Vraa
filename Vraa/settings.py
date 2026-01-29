@@ -123,13 +123,22 @@ LOGIN_URL = '/login/'
 # =============================================================================
 # CACHING CONFIGURATION
 # =============================================================================
-# Local memory cache for development, can upgrade to Redis in production
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'vraa-cache',
+# Use dummy cache during tests to avoid interference, local memory cache otherwise
+import sys
+if 'test' in sys.argv:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        }
     }
-}
+else:
+    # Local memory cache for development, can upgrade to Redis in production
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'vraa-cache',
+        }
+    }
 
 # =============================================================================
 # PRODUCTION SECURITY SETTINGS

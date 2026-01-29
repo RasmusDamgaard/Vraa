@@ -9,7 +9,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.cache import cache_page
 from django.views.generic import CreateView, DeleteView, ListView, TemplateView, UpdateView
 
 from .forms import BookingForm
@@ -33,16 +35,19 @@ class FrontpageView(ListView):
         )
 
 
+@method_decorator(cache_page(60 * 60), name='dispatch')
 class InformationView(TemplateView):
     template_name = 'main/information.html'
     extra_context = {'title': 'Information'}
 
 
+@method_decorator(cache_page(60 * 60), name='dispatch')
 class ReferaterView(TemplateView):
     template_name = 'main/referater.html'
     extra_context = {'title': 'Referater'}
 
 
+@method_decorator(cache_page(60 * 60), name='dispatch')
 class VedtaegterView(TemplateView):
     template_name = 'main/vedtaegter.html'
     extra_context = {'title': 'Vedtægter'}
@@ -164,6 +169,15 @@ class BookingCreateView(LoginRequiredMixin, CreateView):
     template_name = 'main/booking_form.html'
     success_url = reverse_lazy('main:kalender')
     extra_context = {'title': 'Ny booking'}
+
+    def get_initial(self):
+        initial = super().get_initial()
+        # Pre-fill dates from query parameters (for click-to-book calendar)
+        if 'start' in self.request.GET:
+            initial['start_date'] = self.request.GET['start']
+        if 'end' in self.request.GET:
+            initial['end_date'] = self.request.GET['end']
+        return initial
 
     def form_valid(self, form):
         form.instance.user = self.request.user
