@@ -587,6 +587,12 @@ html {
   --bs-btn-border-color: var(--primary-blue);
   --bs-btn-hover-bg: var(--primary-blue);
   --bs-btn-hover-border-color: var(--primary-blue);
+  --bs-btn-hover-color: var(--white);
+  --bs-btn-active-bg: var(--primary-blue);
+  --bs-btn-active-border-color: var(--primary-blue);
+  --bs-btn-active-color: var(--white);
+  border-width: 2px;
+  font-weight: 500;
 }
 
 /* Alert styling */
@@ -702,7 +708,8 @@ html {
 }
 
 /* Download Card Styles */
-.document-download-card {
+.document-download-card,
+.content a.document-download-card {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-md);
@@ -713,13 +720,16 @@ html {
   color: var(--white);
   transition: all var(--transition-base);
   box-shadow: var(--shadow-md);
+  border-bottom: none;
 }
 
-.document-download-card:hover {
+.document-download-card:hover,
+.content a.document-download-card:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
   text-decoration: none;
   color: var(--white);
+  border-bottom: none;
 }
 
 .document-download-icon {
