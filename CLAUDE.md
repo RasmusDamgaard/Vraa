@@ -59,8 +59,8 @@ Vraa/
 │   └── tests.py             # Test cases (to be implemented)
 │
 ├── manage.py                # Django management script
-├── requirements.txt         # Python dependencies (pip/Heroku)
-├── pyproject.toml           # Python project configuration (UV/PEP 621)
+├── pyproject.toml           # Python dependencies (UV/PEP 621)
+├── uv.lock                  # Locked dependencies for reproducible builds
 ├── runtime.txt              # Python version for Heroku
 ├── Procfile                 # Heroku deployment config
 ├── db.sqlite3               # Local SQLite database
@@ -173,7 +173,7 @@ Uses `dj-database-url` for flexible database configuration:
 
 ### Local Setup
 
-#### Option 1: Using UV (Recommended)
+#### Using UV
 
 [UV](https://github.com/astral-sh/uv) is a modern, fast Python package manager:
 
@@ -192,27 +192,7 @@ uv run python manage.py runserver
 # Access at http://127.0.0.1:8000/
 ```
 
-#### Option 2: Using pip (Traditional)
-
-```bash
-# 1. Create virtual environment
-python3 -m venv venv
-source venv/bin/activate
-
-# 2. Install dependencies
-pip install -r requirements.txt
-
-# 3. Run migrations
-python manage.py migrate
-
-# 4. Start development server
-python manage.py runserver
-# Access at http://127.0.0.1:8000/
-```
-
 ### Common Commands
-
-#### With UV
 
 ```bash
 # Run migrations
@@ -232,28 +212,6 @@ uv run python manage.py createsuperuser
 
 # Run tests
 uv run python manage.py test
-```
-
-#### With pip/venv
-
-```bash
-# Run migrations
-python manage.py migrate
-
-# Create migrations (if models change)
-python manage.py makemigrations
-
-# Collect static files (before deployment)
-python manage.py collectstatic --noinput
-
-# Start Django shell
-python manage.py shell
-
-# Create superuser for admin
-python manage.py createsuperuser
-
-# Run tests
-python manage.py test
 ```
 
 ### Adding New Pages
@@ -429,17 +387,11 @@ All URLs (except admin) are defined in `main/urls.py` with namespace `main`.
 
 ### Deployment
 
-- **`requirements.txt`** (11 lines)
-  - Django 4.x
-  - gunicorn, whitenoise
-  - dj-database-url, psycopg2-binary
-  - Used by Heroku for dependency installation
-
-- **`pyproject.toml`** (New)
+- **`pyproject.toml`**
   - PEP 621 compliant project metadata
-  - Dependencies configuration for UV package manager
+  - Dependencies: Django 4.x, gunicorn, whitenoise, dj-database-url, psycopg2-binary
+  - Used by Heroku for dependency installation via UV
   - Optional dev dependencies section
-  - Build system configuration
 
 - **`Procfile`** (1 line)
   - Heroku web dyno configuration
@@ -548,7 +500,7 @@ No pending tasks at this time. All planned features have been implemented.
 
 Recently completed tasks:
 1. ✅ **Update `runtime.txt`** - Updated to Python 3.11.14 per Heroku recommendations
-2. ✅ **Migrate to UV package manager** - Added `pyproject.toml` with UV support; both UV and pip workflows are now supported
+2. ✅ **Migrate to UV package manager** - Added `pyproject.toml` and `uv.lock`; UV is the sole package manager (removed `requirements.txt` for Heroku compatibility)
 3. ✅ **Allow users to delete their own messages on the message board** - `MessageDeleteView` implemented with proper permission checks (users can only delete own messages), confirmation dialog via `message_confirm_delete.html` template, and delete button in frontpage UI
 4. ✅ **Make the website secure with HTTPS** - Added production security settings including `SECURE_SSL_REDIRECT`, HSTS headers, secure cookies, and restricted `ALLOWED_HOSTS`
 5. ✅ **Add functionality for users to comment on message board messages** - Created `Comment` model, `CommentCreateView` and `CommentDeleteView` with proper permissions, updated frontpage to display comments
