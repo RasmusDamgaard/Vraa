@@ -16,13 +16,11 @@ with real content as needed.
 ## Prerequisites
 
 * Python 3.11 or higher
-* Django 4.x (see `requirements.txt` for installation)
+* [UV](https://github.com/astral-sh/uv) package manager (see `pyproject.toml` for dependencies)
 
 ## Installation
 
-### Option 1: Using UV (Recommended)
-
-[UV](https://github.com/astral-sh/uv) is a fast Python package manager. To set up the project with UV:
+[UV](https://github.com/astral-sh/uv) is a fast Python package manager. To set up the project:
 
 1. Install UV if you haven't already:
 
@@ -41,32 +39,6 @@ with real content as needed.
    ```bash
    uv run python manage.py migrate
    uv run python manage.py runserver
-   ```
-
-4. Navigate to `http://127.0.0.1:8000/` in your web browser to view the site.
-
-### Option 2: Using pip (Traditional)
-
-To set up the project locally with pip:
-
-1. Create a virtual environment (optional but recommended):
-
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate
-   ```
-
-2. Install dependencies:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. Run database migrations and start the development server:
-
-   ```bash
-   python manage.py migrate
-   python manage.py runserver
    ```
 
 4. Navigate to `http://127.0.0.1:8000/` in your web browser to view the site.

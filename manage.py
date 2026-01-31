@@ -5,7 +5,7 @@ This script serves as the command‑line utility for administrative tasks.
 It mirrors the structure of the standard `manage.py` file created by
 `django-admin startproject` and delegates to Django’s command line
 management functions. To use this script you'll need Django installed in
-your environment. See ``requirements.txt`` for installation details.
+your environment. See ``pyproject.toml`` for dependencies or run ``uv sync``.
 """
 
 import os
