@@ -96,6 +96,27 @@
                   >Kalender</a
                 >
               </li>
+
+              <!-- Help Section -->
+              <li class="nav-item mt-3">
+                <small class="text-muted px-3">Hjælp</small>
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link {% if title == 'Brugervejledning' %}active{% endif %}"
+                  href="{% url 'main:brugervejledning' %}"
+                  >Brugervejledning</a
+                >
+              </li>
+              {% if user.is_staff %}
+              <li class="nav-item">
+                <a
+                  class="nav-link {% if title == 'Admin Vejledning' %}active{% endif %}"
+                  href="{% url 'main:admin_vejledning' %}"
+                  >Admin Vejledning</a
+                >
+              </li>
+              {% endif %}
             </ul>
 
             <!-- User authentication status -->

@@ -238,3 +238,22 @@ class BookingAPIView(LoginRequiredMixin, View):
             })
 
         return JsonResponse(events, safe=False)
+
+
+@method_decorator(cache_page(60 * 60), name='dispatch')
+class BrugervejledningView(TemplateView):
+    """User guide page accessible to all visitors."""
+
+    template_name = 'main/brugervejledning.html'
+    extra_context = {'title': 'Brugervejledning'}
+
+
+class AdminVejledningView(UserPassesTestMixin, TemplateView):
+    """Admin guide page accessible only to staff users."""
+
+    template_name = 'main/admin_vejledning.html'
+    extra_context = {'title': 'Admin Vejledning'}
+    login_url = reverse_lazy('main:login')
+
+    def test_func(self):
+        return self.request.user.is_staff

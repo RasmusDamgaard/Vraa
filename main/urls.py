@@ -42,4 +42,8 @@ urlpatterns = [
         next_page='main:frontpage',
     ), name='logout'),
     path('register/', views.RegisterView.as_view(), name='register'),
+
+    # Documentation
+    path('brugervejledning/', views.BrugervejledningView.as_view(), name='brugervejledning'),
+    path('admin-vejledning/', views.AdminVejledningView.as_view(), name='admin_vejledning'),
 ]

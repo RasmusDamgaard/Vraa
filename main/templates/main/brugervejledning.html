@@ -1,0 +1,287 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+  <h1 class="mb-4">Brugervejledning</h1>
+
+  <p class="lead mb-4">
+    Velkommen til Vraa-hjemmesiden. Her finder du en komplet guide til alle hjemmesidens funktioner.
+  </p>
+
+  <!-- Table of Contents -->
+  <div class="card mb-5">
+    <div class="card-body">
+      <h5 class="card-title">Indholdsfortegnelse</h5>
+      <ol class="mb-0">
+        <li><a href="#velkommen">Velkommen</a></li>
+        <li><a href="#kom-i-gang">Kom i gang</a></li>
+        <li><a href="#beskedtavlen">Beskedtavlen</a></li>
+        <li><a href="#bookingsystemet">Bookingsystemet</a></li>
+        <li><a href="#dokumenter">Dokumenter</a></li>
+        <li><a href="#faq">Ofte stillede spørgsmål</a></li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- Section 1: Velkommen -->
+  <h2 id="velkommen" class="mt-5 mb-3">1. Velkommen</h2>
+  <p>
+    Denne hjemmeside er skabt til familiemedlemmer med tilknytning til sommerhuset Vraa.
+    Her kan du:
+  </p>
+  <ul>
+    <li>Se og skrive beskeder på beskedtavlen</li>
+    <li>Booke ophold i sommerhuset</li>
+    <li>Læse mødereferater og vedtægter</li>
+    <li>Finde praktisk information om huset</li>
+  </ul>
+
+  <!-- Section 2: Kom i gang -->
+  <h2 id="kom-i-gang" class="mt-5 mb-3">2. Kom i gang</h2>
+
+  <h3 class="mt-4">Opret en konto</h3>
+  <ol>
+    <li>Klik på <strong>Registrer</strong> i menuen til venstre</li>
+    <li>Vælg et brugernavn og en adgangskode</li>
+    <li>Klik <strong>Registrer</strong> for at oprette din konto</li>
+  </ol>
+
+  <div class="alert alert-info">
+    <strong>Bemærk:</strong> Din konto skal godkendes af en administrator, før du kan logge ind.
+    Du vil modtage besked, når din konto er aktiveret.
+  </div>
+
+  <h3 class="mt-4">Log ind</h3>
+  <ol>
+    <li>Klik på <strong>Log ind</strong> i menuen til venstre</li>
+    <li>Indtast dit brugernavn og adgangskode</li>
+    <li>Klik <strong>Log ind</strong></li>
+  </ol>
+
+  <h3 class="mt-4">Log ud</h3>
+  <p>
+    Når du er logget ind, kan du logge ud ved at klikke på <strong>Log ud</strong> knappen i menuen.
+  </p>
+
+  <!-- Section 3: Beskedtavlen -->
+  <h2 id="beskedtavlen" class="mt-5 mb-3">3. Beskedtavlen</h2>
+  <p>
+    Beskedtavlen findes på forsiden og er stedet, hvor familiemedlemmer kan dele nyheder,
+    spørgsmål og beskeder med hinanden.
+  </p>
+
+  <h3 class="mt-4">Skriv en ny besked</h3>
+  <ol>
+    <li>Log ind på din konto</li>
+    <li>Gå til <strong>Frontpage</strong> (forsiden)</li>
+    <li>Klik på <strong>Skriv ny besked</strong></li>
+    <li>Skriv din besked i tekstfeltet</li>
+    <li>Klik <strong>Opret</strong> for at sende beskeden</li>
+  </ol>
+
+  <h3 class="mt-4">Rediger en besked</h3>
+  <p class="text-muted">Du kan kun redigere dine egne beskeder.</p>
+  <ol>
+    <li>Find din besked på forsiden</li>
+    <li>Klik på <strong>Rediger</strong> knappen ved beskeden</li>
+    <li>Foretag dine ændringer</li>
+    <li>Klik <strong>Gem</strong></li>
+  </ol>
+
+  <h3 class="mt-4">Slet en besked</h3>
+  <p class="text-muted">Du kan kun slette dine egne beskeder.</p>
+  <ol>
+    <li>Find din besked på forsiden</li>
+    <li>Klik på <strong>Slet</strong> knappen ved beskeden</li>
+    <li>Bekræft sletningen</li>
+  </ol>
+
+  <h3 class="mt-4">Kommentarer</h3>
+  <p>Du kan kommentere på andres beskeder:</p>
+  <ol>
+    <li>Find beskeden, du vil kommentere på</li>
+    <li>Klik på <strong>Tilføj kommentar</strong></li>
+    <li>Skriv din kommentar</li>
+    <li>Klik <strong>Opret</strong></li>
+  </ol>
+  <p class="text-muted">Du kan slette dine egne kommentarer ved at klikke på slet-knappen.</p>
+
+  <!-- Section 4: Bookingsystemet -->
+  <h2 id="bookingsystemet" class="mt-5 mb-3">4. Bookingsystemet</h2>
+  <p>
+    Bookingsystemet giver dig mulighed for at reservere ophold i sommerhuset.
+  </p>
+
+  <div class="alert alert-warning">
+    <strong>Vigtigt:</strong> Du skal være logget ind for at se kalenderen og oprette bookinger.
+  </div>
+
+  <h3 class="mt-4">Se kalenderen</h3>
+  <ol>
+    <li>Log ind på din konto</li>
+    <li>Klik på <strong>Kalender</strong> i menuen</li>
+    <li>Kalenderen viser alle aktuelle og kommende bookinger</li>
+  </ol>
+
+  <h3 class="mt-4">Forstå farvekoderne</h3>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Farve</th>
+        <th>Betydning</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="badge" style="background-color: #ffc107; color: #000;">Gul</span></td>
+        <td>Afventer godkendelse</td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background-color: #28a745;">Grøn</span></td>
+        <td>Godkendt booking</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 class="mt-4">Opret en booking</h3>
+  <ol>
+    <li>Gå til <strong>Kalender</strong></li>
+    <li>Klik på <strong>Ny booking</strong> knappen, eller klik direkte på en dato i kalenderen</li>
+    <li>Vælg start- og slutdato for dit ophold</li>
+    <li>Tilføj eventuelt en beskrivelse (f.eks. antal gæster)</li>
+    <li>Klik <strong>Opret booking</strong></li>
+  </ol>
+
+  <div class="alert alert-info">
+    <strong>Bemærk:</strong> Din booking skal godkendes af en administrator, før den er endelig.
+    Indtil da vises den som "afventer godkendelse" (gul).
+  </div>
+
+  <h3 class="mt-4">Rediger en booking</h3>
+  <p class="text-muted">Du kan kun redigere dine egne bookinger, og kun mens de afventer godkendelse.</p>
+  <ol>
+    <li>Gå til <strong>Kalender</strong></li>
+    <li>Klik på din booking i kalenderen</li>
+    <li>Klik <strong>Rediger</strong></li>
+    <li>Foretag dine ændringer</li>
+    <li>Klik <strong>Gem</strong></li>
+  </ol>
+
+  <h3 class="mt-4">Annuller en booking</h3>
+  <ol>
+    <li>Gå til <strong>Kalender</strong></li>
+    <li>Klik på din booking</li>
+    <li>Klik <strong>Annuller</strong></li>
+    <li>Bekræft annulleringen</li>
+  </ol>
+
+  <!-- Section 5: Dokumenter -->
+  <h2 id="dokumenter" class="mt-5 mb-3">5. Dokumenter</h2>
+
+  <h3 class="mt-4">Information</h3>
+  <p>
+    Under <strong>Information</strong> finder du praktiske oplysninger om sommerhuset,
+    herunder ankomst- og afrejsechecklister.
+  </p>
+
+  <h3 class="mt-4">Referater</h3>
+  <p>
+    Under <strong>Referater</strong> finder du mødereferater fra tidligere år.
+    Klik på et årstal for at hente referatet som PDF.
+  </p>
+
+  <h3 class="mt-4">Vedtægter</h3>
+  <p>
+    Under <strong>Vedtægter</strong> finder du de gældende vedtægter for sommerhuset.
+  </p>
+
+  <!-- Section 6: FAQ -->
+  <h2 id="faq" class="mt-5 mb-3">6. Ofte stillede spørgsmål</h2>
+
+  <div class="accordion" id="faqAccordion">
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+          Jeg har registreret mig, men kan ikke logge ind?
+        </button>
+      </h2>
+      <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          Din konto skal godkendes af en administrator, før du kan logge ind.
+          Kontakt en administrator, hvis du venter længe på godkendelse.
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+          Hvorfor kan jeg ikke se kalenderen?
+        </button>
+      </h2>
+      <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          Kalenderen kræver, at du er logget ind. Log ind med dit brugernavn og adgangskode for at se og oprette bookinger.
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+          Hvorfor er min booking stadig gul?
+        </button>
+      </h2>
+      <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          En gul booking afventer godkendelse fra en administrator.
+          Når bookingen er godkendt, skifter den til grøn.
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+          Kan jeg redigere en godkendt booking?
+        </button>
+      </h2>
+      <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          Nej, du kan kun redigere bookinger, der afventer godkendelse.
+          Hvis du har brug for at ændre en godkendt booking, kan du annullere den og oprette en ny.
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+          Jeg har glemt min adgangskode?
+        </button>
+      </h2>
+      <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          Kontakt en administrator, som kan nulstille din adgangskode.
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq6">
+          Kan jeg slette andres beskeder eller kommentarer?
+        </button>
+      </h2>
+      <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          Nej, du kan kun slette dine egne beskeder og kommentarer.
+          Administratorer kan dog slette indhold ved behov.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="text-muted mt-5">
+    Har du spørgsmål, der ikke er besvaret her? Skriv en besked på beskedtavlen, eller kontakt en administrator.
+  </p>
+{% endblock %}

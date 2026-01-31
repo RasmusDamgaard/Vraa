@@ -48,7 +48,9 @@ Vraa/
 │   │   ├── information.html
 │   │   ├── referater.html
 │   │   ├── vedtaegter.html
-│   │   └── kalender.html
+│   │   ├── kalender.html
+│   │   ├── brugervejledning.html  # User guide (Danish)
+│   │   └── admin_vejledning.html  # Admin guide (staff-only)
 │   ├── views.py             # Class-based views (TemplateView)
 │   ├── urls.py              # App URL patterns
 │   ├── models.py            # Models (currently empty)
@@ -364,7 +366,9 @@ claude/add-claude-documentation-6msCK
 | `/information/` | `InformationView` | `information.html` | General property information |
 | `/referater/` | `ReferaterView` | `referater.html` | Meeting minutes archive |
 | `/vedtaegter/` | `VedtaegterView` | `vedtaegter.html` | Statutes and rules |
-| `/kalender/` | `KalenderView` | `kalender.html` | Calendar/booking |
+| `/kalender/` | `KalenderView` | `kalender.html` | Calendar/booking (login required) |
+| `/brugervejledning/` | `BrugervejledningView` | `brugervejledning.html` | User guide in Danish |
+| `/admin-vejledning/` | `AdminVejledningView` | `admin_vejledning.html` | Admin guide (staff-only) |
 | `/admin/` | Django Admin | N/A | Admin interface |
 
 All URLs (except admin) are defined in `main/urls.py` with namespace `main`.
@@ -399,11 +403,21 @@ All URLs (except admin) are defined in `main/urls.py` with namespace `main`.
 
 ### Templates
 
-- **`main/templates/main/base.html`** (109 lines)
+- **`main/templates/main/base.html`** (~145 lines)
   - Master template
   - Bootstrap 5 integration
   - Responsive sidebar/mobile menu
   - Active navigation state logic
+  - Help section with user guide link (all users) and admin guide link (staff only via `{% if user.is_staff %}`)
+
+- **`main/templates/main/brugervejledning.html`** - User guide in Danish
+  - Sections: Velkommen, Kom i gang, Beskedtavlen, Bookingsystemet, Dokumenter, FAQ
+  - Uses Bootstrap accordion for FAQ
+  - Cached for 1 hour
+
+- **`main/templates/main/admin_vejledning.html`** - Admin guide (staff-only)
+  - Sections: Oversigt, Adgang til Admin, Brugerhåndtering, Bookinghåndtering, Indholdsmoderation, Fejlfinding
+  - Not cached (to prevent cache leakage between user permission levels)
 
 ### Styling
 
@@ -446,10 +460,9 @@ All URLs (except admin) are defined in `main/urls.py` with namespace `main`.
 
 ### What This Project IS NOT
 
-- Not a complex web application with user authentication
-- Not using Django REST Framework or APIs
+- Not using Django REST Framework or APIs (except simple booking JSON endpoint)
 - Not using JavaScript frameworks (Vue/React/etc.)
-- Not using Django forms or model forms (no user input currently)
+- Not a complex SPA - uses traditional Django templates with Bootstrap
 
 ### Development Principles
 
@@ -471,11 +484,27 @@ Modify `style.css` using existing CSS variables. Add new variables if needed.
 Place in appropriate `main/static/main/` subdirectory and reference with `{% static %}`.
 
 #### Database Models
-Currently no models exist. If adding models:
+Models exist for Message, Comment, and Booking. If adding new models:
 1. Define in `main/models.py`
 2. Run `python manage.py makemigrations`
 3. Run `python manage.py migrate`
 4. Register in `main/admin.py` if needed
+
+#### Staff-Only Pages
+To create a page accessible only to staff users:
+
+```python
+from django.contrib.auth.mixins import UserPassesTestMixin
+
+class StaffOnlyView(UserPassesTestMixin, TemplateView):
+    template_name = 'main/staff_page.html'
+    login_url = reverse_lazy('main:login')
+
+    def test_func(self):
+        return self.request.user.is_staff
+```
+
+**Important**: Do NOT use `@cache_page` decorator on staff-only views, as cached responses could leak to non-staff users. See `AdminVejledningView` for the pattern.
 
 ### Testing Approach
 
@@ -525,6 +554,7 @@ Recently completed tasks:
 5. ✅ **Add functionality for users to comment on message board messages** - Created `Comment` model, `CommentCreateView` and `CommentDeleteView` with proper permissions, updated frontpage to display comments
 6. ✅ **Look for performance improvements** - Added database indexes on Message and Comment models, configured local memory caching, optimized queries with `select_related`/`prefetch_related`, added lazy loading for images
 7. ✅ **Add booking system to the website** - Created `Booking` model with validation, booking CRUD views, FullCalendar integration, admin approval workflow, and double-booking prevention
+8. ✅ **Add on-site documentation pages** - Created `/brugervejledning/` (user guide) accessible to all users with instructions for registration, messages, bookings, and FAQ. Created `/admin-vejledning/` (admin guide) restricted to staff users with Django admin instructions for user approval, booking management, and content moderation. Both pages in Danish with Bootstrap accordion for FAQ sections.
 
 ---
 
@@ -554,8 +584,8 @@ For human developers:
 
 ---
 
-**Document Version**: 1.0
-**Last Updated**: 2026-01-17
+**Document Version**: 1.1
+**Last Updated**: 2026-01-31
 **Python Version**: 3.11.4
 **Django Version**: 4.x
 **Deployment**: Heroku
