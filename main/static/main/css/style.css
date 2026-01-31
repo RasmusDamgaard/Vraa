@@ -630,3 +630,189 @@ html {
     max-width: 100%;
   }
 }
+
+/* ============================================
+   DOCUMENT LIST STYLES
+   ============================================ */
+.document-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.document-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--neutral-gray);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: all var(--transition-base);
+  border: 2px solid transparent;
+}
+
+.document-item:hover {
+  background: var(--accent-sand);
+  border-color: var(--primary-blue);
+  transform: translateX(4px);
+  text-decoration: none;
+  color: var(--text-primary);
+}
+
+.document-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: var(--white);
+  border-radius: var(--radius-md);
+  color: var(--primary-blue);
+  flex-shrink: 0;
+}
+
+.document-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-grow: 1;
+}
+
+.document-title {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.document-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.document-arrow {
+  color: var(--text-secondary);
+  transition: transform var(--transition-fast);
+}
+
+.document-item:hover .document-arrow {
+  transform: translateX(4px);
+  color: var(--primary-blue);
+}
+
+/* Download Card Styles */
+.document-download-card {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  color: var(--white);
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-md);
+}
+
+.document-download-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  text-decoration: none;
+  color: var(--white);
+}
+
+.document-download-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-md);
+  color: var(--white);
+}
+
+.document-download-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.document-download-title {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.document-download-subtitle {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+/* ============================================
+   ACCORDION STYLES (FAQ)
+   ============================================ */
+.accordion {
+  border: 1px solid var(--neutral-gray-dark);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.accordion-item {
+  border: none;
+  border-bottom: 1px solid var(--neutral-gray-dark);
+}
+
+.accordion-item:last-child {
+  border-bottom: none;
+}
+
+.accordion-button {
+  font-weight: 500;
+  color: var(--text-primary);
+  background-color: var(--white);
+  padding: var(--spacing-md) var(--spacing-lg);
+  box-shadow: none;
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: var(--neutral-gray);
+  color: var(--primary-blue);
+  box-shadow: none;
+}
+
+.accordion-button:focus {
+  box-shadow: none;
+  border-color: var(--neutral-gray-dark);
+}
+
+.accordion-button::after {
+  background-size: 1rem;
+}
+
+.accordion-body {
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--neutral-gray);
+}
+
+/* Mobile adjustments for documents */
+@media (max-width: 767.98px) {
+  .document-item {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .document-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .document-download-card {
+    padding: var(--spacing-md) var(--spacing-lg);
+    flex-direction: row;
+  }
+
+  .document-download-icon {
+    width: 48px;
+    height: 48px;
+  }
+}

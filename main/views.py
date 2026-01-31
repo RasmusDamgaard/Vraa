@@ -3,9 +3,13 @@ View classes for the ``main`` application.
 """
 from __future__ import annotations
 
+import logging
+
+from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.models import User
+from django.core.mail import send_mail
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -14,8 +18,10 @@ from django.views import View
 from django.views.decorators.cache import cache_page
 from django.views.generic import CreateView, DeleteView, ListView, TemplateView, UpdateView
 
-from .forms import BookingForm
+from .forms import BookingForm, CustomUserCreationForm
 from .models import Booking, Comment, Message
+
+logger = logging.getLogger(__name__)
 
 
 class FrontpageView(ListView):
@@ -25,7 +31,7 @@ class FrontpageView(ListView):
     template_name = 'main/frontpage.html'
     context_object_name = 'message_list'
     paginate_by = 20
-    extra_context = {'title': 'Frontpage'}
+    extra_context = {'title': 'Forside'}
 
     def get_queryset(self):
         # Optimize queries: prefetch comments and their authors
@@ -71,7 +77,7 @@ class KalenderView(LoginRequiredMixin, ListView):
 class RegisterView(CreateView):
     """User registration with admin approval workflow."""
 
-    form_class = UserCreationForm
+    form_class = CustomUserCreationForm
     template_name = 'main/register.html'
     success_url = reverse_lazy('main:login')
     extra_context = {'title': 'Registrer'}
@@ -85,7 +91,44 @@ class RegisterView(CreateView):
             self.request,
             'Din konto er oprettet og afventer godkendelse af administrator.',
         )
+        # Send email notification to admin users
+        self._notify_admins(self.object)
         return response
+
+    def _notify_admins(self, new_user):
+        """Send email notification to all admin users about a new registration."""
+        # Get all staff users with email addresses
+        admin_emails = list(
+            User.objects.filter(is_staff=True, is_active=True)
+            .exclude(email='')
+            .values_list('email', flat=True)
+        )
+
+        if not admin_emails:
+            logger.warning('No admin email addresses configured for registration notifications')
+            return
+
+        subject = f'Ny bruger registreret: {new_user.username}'
+        message = (
+            f'En ny bruger har registreret sig på Vraa-hjemmesiden.\n\n'
+            f'Brugernavn: {new_user.username}\n'
+            f'E-mail: {new_user.email}\n'
+            f'Tidspunkt: {timezone.now().strftime("%d. %B %Y kl. %H:%M")}\n\n'
+            f'Brugeren er inaktiv og afventer godkendelse.\n'
+            f'Log ind på admin-panelet for at aktivere kontoen.'
+        )
+
+        try:
+            send_mail(
+                subject=subject,
+                message=message,
+                from_email=settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else None,
+                recipient_list=admin_emails,
+                fail_silently=True,
+            )
+            logger.info(f'Registration notification sent for user {new_user.username}')
+        except Exception as e:
+            logger.error(f'Failed to send registration notification: {e}')
 
 
 class MessageCreateView(LoginRequiredMixin, CreateView):
@@ -248,7 +291,7 @@ class BrugervejledningView(TemplateView):
     extra_context = {'title': 'Brugervejledning'}
 
 
-class AdminVejledningView(UserPassesTestMixin, TemplateView):
+class AdminVejledningView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     """Admin guide page accessible only to staff users."""
 
     template_name = 'main/admin_vejledning.html'
