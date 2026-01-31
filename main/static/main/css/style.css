@@ -219,7 +219,7 @@ main {
 }
 
 /* Links */
-.content a {
+.content a:not(.btn) {
   color: var(--primary-blue);
   text-decoration: none;
   border-bottom: 2px solid transparent;
@@ -227,7 +227,7 @@ main {
   font-weight: 500;
 }
 
-.content a:hover {
+.content a:not(.btn):hover {
   color: var(--primary-blue-light);
   border-bottom-color: var(--accent-teal);
 }
