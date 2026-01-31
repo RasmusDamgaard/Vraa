@@ -10,6 +10,37 @@
         </a>
     </div>
 
+    <!-- Date Navigation -->
+    <div class="calendar-nav mb-3">
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <div class="date-nav-group">
+                <label for="month-select" class="form-label mb-0 me-2">Gå til:</label>
+                <select id="month-select" class="form-select form-select-sm d-inline-block" style="width: auto;">
+                    <option value="0">Januar</option>
+                    <option value="1">Februar</option>
+                    <option value="2">Marts</option>
+                    <option value="3">April</option>
+                    <option value="4">Maj</option>
+                    <option value="5">Juni</option>
+                    <option value="6">Juli</option>
+                    <option value="7">August</option>
+                    <option value="8">September</option>
+                    <option value="9">Oktober</option>
+                    <option value="10">November</option>
+                    <option value="11">December</option>
+                </select>
+                <select id="year-select" class="form-select form-select-sm d-inline-block" style="width: auto;">
+                    <!-- Years will be populated by JavaScript -->
+                </select>
+                <button type="button" id="go-to-date" class="btn btn-sm btn-outline-primary">Gå</button>
+            </div>
+            <div class="date-nav-group">
+                <label for="date-picker" class="form-label mb-0 me-2">Eller vælg dato:</label>
+                <input type="date" id="date-picker" class="form-control form-control-sm d-inline-block" style="width: auto;">
+            </div>
+        </div>
+    </div>
+
     <!-- Calendar Legend -->
     <div class="calendar-legend mb-3">
         <span class="legend-item">
@@ -84,9 +115,56 @@ document.addEventListener('DOMContentLoaded', function() {
         select: function(info) {
             // Navigate to booking form with pre-filled dates
             window.location.href = '{% url "main:booking_create" %}?start=' + info.startStr + '&end=' + info.endStr;
+        },
+        datesSet: function(info) {
+            // Update month/year selectors when calendar changes
+            var currentDate = calendar.getDate();
+            document.getElementById('month-select').value = currentDate.getMonth();
+            document.getElementById('year-select').value = currentDate.getFullYear();
         }
     });
     calendar.render();
+
+    // Populate year selector (current year - 2 to current year + 5)
+    var yearSelect = document.getElementById('year-select');
+    var currentYear = new Date().getFullYear();
+    for (var y = currentYear - 2; y <= currentYear + 5; y++) {
+        var option = document.createElement('option');
+        option.value = y;
+        option.textContent = y;
+        if (y === currentYear) option.selected = true;
+        yearSelect.appendChild(option);
+    }
+
+    // Set initial month value
+    document.getElementById('month-select').value = new Date().getMonth();
+
+    // Go to selected month/year
+    document.getElementById('go-to-date').addEventListener('click', function() {
+        var month = parseInt(document.getElementById('month-select').value);
+        var year = parseInt(document.getElementById('year-select').value);
+        calendar.gotoDate(new Date(year, month, 1));
+    });
+
+    // Navigate when month or year changes (optional: auto-navigate)
+    document.getElementById('month-select').addEventListener('change', function() {
+        var month = parseInt(this.value);
+        var year = parseInt(document.getElementById('year-select').value);
+        calendar.gotoDate(new Date(year, month, 1));
+    });
+
+    document.getElementById('year-select').addEventListener('change', function() {
+        var year = parseInt(this.value);
+        var month = parseInt(document.getElementById('month-select').value);
+        calendar.gotoDate(new Date(year, month, 1));
+    });
+
+    // Date picker navigation
+    document.getElementById('date-picker').addEventListener('change', function() {
+        if (this.value) {
+            calendar.gotoDate(this.value);
+        }
+    });
 });
 </script>
 {% endblock %}
