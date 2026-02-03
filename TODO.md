@@ -12,6 +12,24 @@ This document tracks potential features and improvements for the Vraa vacation h
 
 ---
 
+## Security & Privacy
+
+### P1: Require Login for Entire Site
+- [ ] Add `LoginRequiredMixin` to all views (or use middleware)
+- [ ] Create custom login-required middleware for site-wide protection
+- [ ] Exempt only login and registration pages
+- [ ] Redirect unauthenticated users to login page
+- [ ] Update brugervejledning to reflect login requirement
+
+**Why**: Family privacy - the site contains private information, meeting minutes, and booking details that should only be visible to family members.
+
+**Implementation options**:
+1. **Middleware approach** (recommended): Create middleware that checks authentication on every request
+2. **Mixin approach**: Add `LoginRequiredMixin` to every view class
+3. **URL decorator**: Use `login_required` decorator in urls.py
+
+---
+
 ## High-Impact User Features
 
 ### P1: Password Reset Functionality
@@ -231,6 +249,7 @@ This document tracks potential features and improvements for the Vraa vacation h
 
 | Feature | Priority | Effort | Files to Modify |
 |---------|----------|--------|-----------------|
+| Login required sitewide | P1 | Low | middleware.py (new), settings.py |
 | Password reset | P1 | Low | urls.py, templates, settings.py |
 | My Bookings page | P2 | Low | views.py, urls.py, new template |
 | Pin messages | P2 | Low | models.py, views.py, frontpage.html |

@@ -496,6 +496,7 @@ Currently no automated tests exist. When adding tests:
 See **[TODO.md](TODO.md)** for the complete feature roadmap and backlog.
 
 ### High Priority (P1)
+- **Require Login for Entire Site** - Privacy protection; all content visible only to authenticated family members
 - **Password Reset Functionality** - Users have no way to recover forgotten passwords
 - **Email Notifications for Booking Status** - Notify users when bookings are approved/rejected
 
