@@ -97,6 +97,15 @@
                   >Kalender</a
                 >
               </li>
+              {% if user.is_authenticated %}
+              <li class="nav-item">
+                <a
+                  class="nav-link {% if title == 'Min profil' %}active{% endif %}"
+                  href="{% url 'main:profile' %}"
+                  >Min profil</a
+                >
+              </li>
+              {% endif %}
 
               <!-- Help Section -->
               <li class="nav-item mt-3">

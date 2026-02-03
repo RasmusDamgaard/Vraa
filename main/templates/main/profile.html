@@ -1,0 +1,105 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="profile-container">
+    <h1>Min profil</h1>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Kontoinformation</h5>
+            <p><strong>Brugernavn:</strong> {{ user.username }}</p>
+            <p><strong>E-mail:</strong> {{ user.email|default:"Ikke angivet" }}</p>
+            <p><strong>Medlem siden:</strong> {{ user.date_joined|date:"d. F Y" }}</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3>{{ total_bookings }}</h3>
+                    <p class="text-muted mb-0">Bookinger</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3>{{ total_messages }}</h3>
+                    <p class="text-muted mb-0">Beskeder</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3>{{ total_comments }}</h3>
+                    <p class="text-muted mb-0">Kommentarer</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2>Kommende bookinger</h2>
+    {% if upcoming_bookings %}
+    <div class="list-group mb-4">
+        {% for booking in upcoming_bookings %}
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                <strong>{{ booking.start_date|date:"d. M Y" }} - {{ booking.end_date|date:"d. M Y" }}</strong>
+                <br>
+                <small class="text-muted">{{ booking.duration_days }} dag{% if booking.duration_days != 1 %}e{% endif %}</small>
+                {% if booking.notes %}
+                <br><small class="text-muted">{{ booking.notes|truncatewords:15 }}</small>
+                {% endif %}
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge {% if booking.status == 'confirmed' %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                    {{ booking.get_status_display }}
+                </span>
+                {% if booking.status == 'pending' %}
+                <a href="{% url 'main:booking_update' booking.pk %}" class="btn btn-sm btn-outline-secondary">Rediger</a>
+                {% endif %}
+                <a href="{% url 'main:booking_delete' booking.pk %}" class="btn btn-sm btn-outline-danger">Annuller</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-muted mb-4">Ingen kommende bookinger.</p>
+    {% endif %}
+
+    <div class="mb-3">
+        <a href="{% url 'main:booking_create' %}" class="btn btn-primary">Opret ny booking</a>
+        <a href="{% url 'main:kalender' %}" class="btn btn-outline-secondary">Se kalender</a>
+    </div>
+
+    <h2>Tidligere bookinger</h2>
+    {% if past_bookings %}
+    <div class="list-group mb-4">
+        {% for booking in past_bookings %}
+        <div class="list-group-item">
+            <strong>{{ booking.start_date|date:"d. M Y" }} - {{ booking.end_date|date:"d. M Y" }}</strong>
+            <span class="badge bg-secondary ms-2">Afsluttet</span>
+            <br>
+            <small class="text-muted">{{ booking.duration_days }} dag{% if booking.duration_days != 1 %}e{% endif %}</small>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-muted mb-4">Ingen tidligere bookinger.</p>
+    {% endif %}
+
+    {% if cancelled_bookings %}
+    <h2>Annullerede bookinger</h2>
+    <div class="list-group mb-4">
+        {% for booking in cancelled_bookings %}
+        <div class="list-group-item">
+            <strong>{{ booking.start_date|date:"d. M Y" }} - {{ booking.end_date|date:"d. M Y" }}</strong>
+            <span class="badge bg-danger ms-2">Annulleret</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

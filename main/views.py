@@ -10,7 +10,8 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.decorators import method_decorator
@@ -262,12 +263,17 @@ class BookingAPIView(LoginRequiredMixin, View):
     """API endpoint for calendar data (JSON)."""
 
     def get(self, request):
+        from django.urls import reverse
+
         bookings = Booking.objects.filter(
             status__in=['pending', 'confirmed'],
         ).select_related('user')
 
         events = []
         for booking in bookings:
+            is_owner = booking.user == request.user
+            can_edit = is_owner and booking.status == 'pending'
+
             events.append({
                 'id': booking.pk,
                 'title': booking.user.username,
@@ -276,7 +282,13 @@ class BookingAPIView(LoginRequiredMixin, View):
                 'color': '#28a745' if booking.status == 'confirmed' else '#ffc107',
                 'extendedProps': {
                     'status': booking.status,
-                    'is_owner': booking.user == request.user,
+                    'status_display': booking.get_status_display(),
+                    'is_owner': is_owner,
+                    'notes': booking.notes or '',
+                    'duration': booking.duration_days,
+                    'created_at': booking.created_at.strftime('%d. %B %Y'),
+                    'edit_url': reverse('main:booking_update', args=[booking.pk]) if can_edit else '',
+                    'delete_url': reverse('main:booking_delete', args=[booking.pk]) if is_owner else '',
                 },
             })
 
@@ -300,3 +312,118 @@ class AdminVejledningView(LoginRequiredMixin, UserPassesTestMixin, TemplateView)
 
     def test_func(self):
         return self.request.user.is_staff
+
+
+class ProfileView(LoginRequiredMixin, TemplateView):
+    """Display user profile with their bookings."""
+
+    template_name = 'main/profile.html'
+    extra_context = {'title': 'Min profil'}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        today = timezone.now().date()
+
+        # Separate bookings by time and status
+        context['upcoming_bookings'] = Booking.objects.filter(
+            user=user,
+            end_date__gte=today,
+            status__in=['pending', 'confirmed'],
+        ).select_related('user').order_by('start_date')
+
+        context['past_bookings'] = Booking.objects.filter(
+            user=user,
+            end_date__lt=today,
+        ).select_related('user').order_by('-start_date')[:10]
+
+        context['cancelled_bookings'] = Booking.objects.filter(
+            user=user,
+            status='cancelled',
+        ).select_related('user').order_by('-created_at')[:5]
+
+        # User statistics
+        context['total_bookings'] = Booking.objects.filter(user=user).count()
+        context['total_messages'] = Message.objects.filter(author=user).count()
+        context['total_comments'] = Comment.objects.filter(author=user).count()
+
+        return context
+
+
+class BookingICSView(LoginRequiredMixin, View):
+    """Generate ICS file for a single booking or all bookings."""
+
+    def get(self, request, pk=None):
+        if pk:
+            # Single booking export
+            booking = get_object_or_404(Booking, pk=pk)
+            bookings = [booking]
+            filename = f'vraa-booking-{pk}.ics'
+        else:
+            # All confirmed bookings
+            bookings = Booking.objects.filter(status='confirmed').select_related('user')
+            filename = 'vraa-bookinger.ics'
+
+        # Generate ICS content
+        ics_content = self._generate_ics(bookings)
+
+        response = HttpResponse(ics_content, content_type='text/calendar')
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
+
+    def _generate_ics(self, bookings):
+        """Generate ICS formatted calendar."""
+        lines = [
+            'BEGIN:VCALENDAR',
+            'VERSION:2.0',
+            'PRODID:-//Vraa//Booking System//DA',
+            'CALSCALE:GREGORIAN',
+            'METHOD:PUBLISH',
+            'X-WR-CALNAME:Vraa Bookinger',
+        ]
+
+        for booking in bookings:
+            uid = f'booking-{booking.pk}@vraa.dk'
+            dtstart = booking.start_date.strftime('%Y%m%d')
+            dtend = booking.end_date.strftime('%Y%m%d')
+            dtstamp = booking.created_at.strftime('%Y%m%dT%H%M%SZ')
+            summary = f'Vraa: {booking.user.username}'
+            description = booking.notes.replace('\n', '\\n') if booking.notes else ''
+
+            lines.extend([
+                'BEGIN:VEVENT',
+                f'UID:{uid}',
+                f'DTSTART;VALUE=DATE:{dtstart}',
+                f'DTEND;VALUE=DATE:{dtend}',
+                f'DTSTAMP:{dtstamp}',
+                f'SUMMARY:{summary}',
+            ])
+
+            if description:
+                lines.append(f'DESCRIPTION:{description}')
+
+            lines.append('END:VEVENT')
+
+        lines.append('END:VCALENDAR')
+        return '\r\n'.join(lines)
+
+
+class BookingICSFeedView(LoginRequiredMixin, View):
+    """
+    ICS feed URL for calendar subscription.
+    Returns all confirmed bookings.
+    """
+
+    def get(self, request):
+        # All confirmed bookings
+        bookings = Booking.objects.filter(
+            status='confirmed',
+        ).select_related('user')
+
+        # Generate ICS using the helper from BookingICSView
+        ics_view = BookingICSView()
+        ics_content = ics_view._generate_ics(bookings)
+
+        response = HttpResponse(ics_content, content_type='text/calendar')
+        response['Content-Disposition'] = 'inline; filename="vraa-calendar.ics"'
+        return response
