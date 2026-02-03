@@ -5,9 +5,18 @@
 <div class="calendar-container">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Kalender</h1>
-        <a href="{% url 'main:booking_create' %}" class="btn btn-primary">
-            Book nu
-        </a>
+        <div class="btn-group">
+            <a href="{% url 'main:calendar_ics_feed' %}" class="btn btn-outline-secondary" title="Eksporter til din kalender-app">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-plus me-1" viewBox="0 0 16 16">
+                    <path d="M8 7a.5.5 0 0 1 .5.5V9H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V10H6a.5.5 0 0 1 0-1h1.5V7.5A.5.5 0 0 1 8 7z"/>
+                    <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                </svg>
+                Eksporter
+            </a>
+            <a href="{% url 'main:booking_create' %}" class="btn btn-primary">
+                Book nu
+            </a>
+        </div>
     </div>
 
     <!-- Date Navigation -->
@@ -49,6 +58,29 @@
         <span class="legend-item">
             <span class="legend-color pending"></span> Afventer
         </span>
+    </div>
+
+    <!-- Booking Details Modal -->
+    <div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bookingModalLabel">Booking detaljer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Luk"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Booket af:</strong> <span id="modal-user"></span></p>
+                    <p><strong>Periode:</strong> <span id="modal-dates"></span></p>
+                    <p><strong>Antal dage:</strong> <span id="modal-duration"></span></p>
+                    <p><strong>Status:</strong> <span id="modal-status"></span></p>
+                    <p id="modal-notes-container"><strong>Noter:</strong> <span id="modal-notes"></span></p>
+                    <p><strong>Oprettet:</strong> <span id="modal-created"></span></p>
+                </div>
+                <div class="modal-footer" id="modal-actions">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Luk</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Calendar Container -->
@@ -100,6 +132,14 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('calendar');
+    var bookingModal = new bootstrap.Modal(document.getElementById('bookingModal'));
+
+    // Helper function for date formatting
+    function formatDate(date) {
+        var options = { day: 'numeric', month: 'short', year: 'numeric' };
+        return date.toLocaleDateString('da-DK', options);
+    }
+
     var calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         locale: 'da',
@@ -115,6 +155,46 @@ document.addEventListener('DOMContentLoaded', function() {
         select: function(info) {
             // Navigate to booking form with pre-filled dates
             window.location.href = '{% url "main:booking_create" %}?start=' + info.startStr + '&end=' + info.endStr;
+        },
+        eventClick: function(info) {
+            var event = info.event;
+            var props = event.extendedProps;
+
+            // Populate modal
+            document.getElementById('modal-user').textContent = event.title;
+            document.getElementById('modal-dates').textContent =
+                formatDate(event.start) + ' - ' + formatDate(event.end);
+            document.getElementById('modal-duration').textContent = props.duration + ' dag' + (props.duration !== 1 ? 'e' : '');
+            document.getElementById('modal-status').innerHTML =
+                '<span class="badge ' + (props.status === 'confirmed' ? 'bg-success' : 'bg-warning text-dark') + '">' +
+                props.status_display + '</span>';
+            document.getElementById('modal-created').textContent = props.created_at;
+
+            // Notes (hide if empty)
+            var notesContainer = document.getElementById('modal-notes-container');
+            if (props.notes) {
+                document.getElementById('modal-notes').textContent = props.notes;
+                notesContainer.style.display = 'block';
+            } else {
+                notesContainer.style.display = 'none';
+            }
+
+            // Action buttons for owner
+            var actionsDiv = document.getElementById('modal-actions');
+            actionsDiv.innerHTML = '';
+
+            if (props.is_owner) {
+                if (props.edit_url) {
+                    actionsDiv.innerHTML += '<a href="' + props.edit_url + '" class="btn btn-primary">Rediger</a> ';
+                }
+                if (props.delete_url) {
+                    actionsDiv.innerHTML += '<a href="' + props.delete_url + '" class="btn btn-danger">Annuller</a> ';
+                }
+            }
+            actionsDiv.innerHTML += '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Luk</button>';
+
+            // Show modal
+            bookingModal.show();
         },
         datesSet: function(info) {
             // Update month/year selectors when calendar changes

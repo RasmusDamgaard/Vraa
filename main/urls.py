@@ -24,6 +24,10 @@ urlpatterns = [
     path('booking/<int:pk>/annuller/', views.BookingDeleteView.as_view(), name='booking_delete'),
     path('api/bookings/', views.BookingAPIView.as_view(), name='booking_api'),
 
+    # ICS Calendar Export
+    path('kalender/export/', views.BookingICSFeedView.as_view(), name='calendar_ics_feed'),
+    path('booking/<int:pk>/ics/', views.BookingICSView.as_view(), name='booking_ics'),
+
     # Message board
     path('besked/ny/', views.MessageCreateView.as_view(), name='message_create'),
     path('besked/<int:pk>/rediger/', views.MessageUpdateView.as_view(), name='message_update'),
@@ -46,6 +50,9 @@ urlpatterns = [
     # Documentation
     path('brugervejledning/', views.BrugervejledningView.as_view(), name='brugervejledning'),
     path('admin-vejledning/', views.AdminVejledningView.as_view(), name='admin_vejledning'),
+
+    # User profile
+    path('profil/', views.ProfileView.as_view(), name='profile'),
 
     # Password reset flow
     path('password-reset/',
