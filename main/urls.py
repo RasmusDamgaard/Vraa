@@ -54,6 +54,11 @@ urlpatterns = [
     # User profile
     path('profil/', views.ProfileView.as_view(), name='profile'),
 
+    # Notifications
+    path('notifikationer/', views.NotificationListView.as_view(), name='notifications'),
+    path('notifikationer/<int:pk>/laest/', views.NotificationMarkReadView.as_view(), name='notification_mark_read'),
+    path('notifikationer/laes-alle/', views.NotificationMarkAllReadView.as_view(), name='notification_mark_all_read'),
+
     # Password reset flow
     path('password-reset/',
          auth_views.PasswordResetView.as_view(

@@ -20,7 +20,8 @@ from django.views.decorators.cache import cache_page
 from django.views.generic import CreateView, DeleteView, ListView, TemplateView, UpdateView
 
 from .forms import BookingForm, CustomUserCreationForm
-from .models import Booking, Comment, Message
+from .models import Booking, Comment, Message, Notification
+from .services import NotificationService
 
 logger = logging.getLogger(__name__)
 
@@ -36,10 +37,19 @@ class FrontpageView(ListView):
 
     def get_queryset(self):
         # Optimize queries: prefetch comments and their authors
+        # Messages are ordered by -is_pinned, -pinned_at, -created_at (in model Meta)
         return Message.objects.select_related('author').prefetch_related(
             'comments',
             'comments__author',
         )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Separate pinned and regular messages for template
+        all_messages = list(context['message_list'])
+        context['pinned_messages'] = [m for m in all_messages if m.is_pinned]
+        context['regular_messages'] = [m for m in all_messages if not m.is_pinned]
+        return context
 
 
 @method_decorator(cache_page(60 * 60), name='dispatch')
@@ -182,7 +192,13 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.author = self.request.user
         form.instance.message_id = self.kwargs['message_pk']
-        return super().form_valid(form)
+        response = super().form_valid(form)
+
+        # Send notification to the message author
+        message = Message.objects.get(pk=self.kwargs['message_pk'])
+        NotificationService.notify_comment_on_message(message, self.object)
+
+        return response
 
     def get_success_url(self):
         return reverse_lazy('main:frontpage')
@@ -427,3 +443,43 @@ class BookingICSFeedView(LoginRequiredMixin, View):
         response = HttpResponse(ics_content, content_type='text/calendar')
         response['Content-Disposition'] = 'inline; filename="vraa-calendar.ics"'
         return response
+
+
+class NotificationListView(LoginRequiredMixin, ListView):
+    """Display user's notifications."""
+
+    model = Notification
+    template_name = 'main/notifications.html'
+    context_object_name = 'notifications'
+    paginate_by = 20
+    extra_context = {'title': 'Notifikationer'}
+
+    def get_queryset(self):
+        return Notification.objects.filter(user=self.request.user)
+
+
+class NotificationMarkReadView(LoginRequiredMixin, View):
+    """Mark notification as read (AJAX)."""
+
+    def post(self, request, pk):
+        notification = get_object_or_404(
+            Notification, pk=pk, user=request.user
+        )
+        notification.is_read = True
+        notification.save()
+        return JsonResponse({'success': True})
+
+
+class NotificationMarkAllReadView(LoginRequiredMixin, View):
+    """Mark all notifications as read."""
+
+    def post(self, request):
+        Notification.objects.filter(
+            user=request.user, is_read=False
+        ).update(is_read=True)
+
+        # Check if this is an AJAX request
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': True})
+
+        return HttpResponse(status=204)
