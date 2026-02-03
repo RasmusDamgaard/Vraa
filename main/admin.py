@@ -11,7 +11,10 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.core.mail import send_mail
 
-from .models import Booking, Comment, Message
+from django.utils import timezone
+
+from .models import Booking, Comment, Message, Notification
+from .services import NotificationService
 
 logger = logging.getLogger(__name__)
 
@@ -22,17 +25,39 @@ User = get_user_model()
 class MessageAdmin(admin.ModelAdmin):
     """Admin interface for managing messages."""
 
-    list_display = ['author', 'content_preview', 'created_at']
-    list_filter = ['created_at', 'author']
+    list_display = ['author', 'content_preview', 'is_pinned', 'created_at']
+    list_filter = ['is_pinned', 'created_at', 'author']
     search_fields = ['content', 'author__username']
-    readonly_fields = ['created_at', 'updated_at']
+    readonly_fields = ['created_at', 'updated_at', 'pinned_at', 'pinned_by']
     date_hierarchy = 'created_at'
+    actions = ['pin_messages', 'unpin_messages']
 
     def content_preview(self, obj):
         if len(obj.content) > 75:
             return obj.content[:75] + '...'
         return obj.content
     content_preview.short_description = 'Besked'
+
+    @admin.action(description='Fastgor valgte beskeder')
+    def pin_messages(self, request, queryset):
+        """Pin selected messages to top of message board."""
+        now = timezone.now()
+        count = queryset.update(
+            is_pinned=True,
+            pinned_at=now,
+            pinned_by=request.user
+        )
+        self.message_user(request, f'{count} besked(er) er nu fastgjort.')
+
+    @admin.action(description='Fjern fastgorelse fra valgte beskeder')
+    def unpin_messages(self, request, queryset):
+        """Unpin selected messages."""
+        count = queryset.update(
+            is_pinned=False,
+            pinned_at=None,
+            pinned_by=None
+        )
+        self.message_user(request, f'{count} besked(er) er ikke laengere fastgjort.')
 
 
 @admin.register(Comment)
@@ -64,7 +89,7 @@ class BookingAdmin(admin.ModelAdmin):
     actions = ['approve_bookings', 'reject_bookings']
 
     def save_model(self, request, obj, form, change):
-        """Send notification email when status changes."""
+        """Send notification email and in-app notification when status changes."""
         if change:  # Only for updates, not new objects
             try:
                 old_obj = Booking.objects.get(pk=obj.pk)
@@ -76,8 +101,19 @@ class BookingAdmin(admin.ModelAdmin):
 
         super().save_model(request, obj, form, change)
 
-        if status_changed and obj.user.email:
-            self._send_status_notification(obj)
+        if status_changed:
+            # Send email notification
+            if obj.user.email:
+                self._send_status_notification(obj)
+            # Send in-app notification
+            self._send_inapp_notification(obj)
+
+    def _send_inapp_notification(self, booking):
+        """Send in-app notification about booking status change."""
+        if booking.status == 'confirmed':
+            NotificationService.notify_booking_approved(booking)
+        elif booking.status == 'cancelled':
+            NotificationService.notify_booking_rejected(booking)
 
     def _send_status_notification(self, booking):
         """Send email notification about booking status change."""
@@ -127,6 +163,7 @@ class BookingAdmin(admin.ModelAdmin):
             booking.save()
             if booking.user.email:
                 self._send_status_notification(booking)
+            self._send_inapp_notification(booking)
             count += 1
         self.message_user(request, f'{count} booking(er) er nu godkendt.')
 
@@ -139,6 +176,7 @@ class BookingAdmin(admin.ModelAdmin):
             booking.save()
             if booking.user.email:
                 self._send_status_notification(booking)
+            self._send_inapp_notification(booking)
             count += 1
         self.message_user(request, f'{count} booking(er) er afvist.')
 
@@ -164,3 +202,25 @@ class UserAdmin(BaseUserAdmin):
 # Unregister the default UserAdmin and register our custom one
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
+
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    """Admin interface for managing notifications."""
+
+    list_display = ['user', 'notification_type', 'title', 'is_read', 'created_at']
+    list_filter = ['notification_type', 'is_read', 'created_at']
+    search_fields = ['title', 'message', 'user__username']
+    readonly_fields = ['created_at']
+    date_hierarchy = 'created_at'
+    actions = ['mark_as_read', 'mark_as_unread']
+
+    @admin.action(description='Marker som laest')
+    def mark_as_read(self, request, queryset):
+        count = queryset.update(is_read=True)
+        self.message_user(request, f'{count} notifikation(er) markeret som laest.')
+
+    @admin.action(description='Marker som ulaest')
+    def mark_as_unread(self, request, queryset):
+        count = queryset.update(is_read=False)
+        self.message_user(request, f'{count} notifikation(er) markeret som ulaest.')

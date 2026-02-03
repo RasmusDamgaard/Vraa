@@ -28,14 +28,33 @@ class Message(models.Model):
         auto_now=True,
         verbose_name='Opdateret',
     )
+    is_pinned = models.BooleanField(
+        default=False,
+        verbose_name='Fastgjort',
+        help_text='Fastgjorte beskeder vises øverst på opslagstavlen',
+    )
+    pinned_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Fastgjort tidspunkt',
+    )
+    pinned_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='pinned_messages',
+        verbose_name='Fastgjort af',
+    )
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['-is_pinned', '-pinned_at', '-created_at']
         verbose_name = 'Besked'
         verbose_name_plural = 'Beskeder'
         indexes = [
             models.Index(fields=['-created_at']),
             models.Index(fields=['author']),
+            models.Index(fields=['-is_pinned', '-pinned_at', '-created_at']),
         ]
 
     def __str__(self) -> str:
@@ -172,3 +191,60 @@ class Booking(models.Model):
     def duration_days(self) -> int:
         """Return the number of days for this booking."""
         return (self.end_date - self.start_date).days
+
+
+class Notification(models.Model):
+    """User notification for various events."""
+
+    NOTIFICATION_TYPES = [
+        ('comment', 'Ny kommentar'),
+        ('booking_approved', 'Booking godkendt'),
+        ('booking_rejected', 'Booking afvist'),
+        ('mention', 'Du blev nævnt'),
+        ('reply', 'Svar på din kommentar'),
+    ]
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='notifications',
+        verbose_name='Bruger',
+    )
+    notification_type = models.CharField(
+        max_length=20,
+        choices=NOTIFICATION_TYPES,
+        verbose_name='Type',
+    )
+    title = models.CharField(
+        max_length=100,
+        verbose_name='Titel',
+    )
+    message = models.TextField(
+        max_length=500,
+        verbose_name='Besked',
+    )
+    link = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name='Link',
+    )
+    is_read = models.BooleanField(
+        default=False,
+        verbose_name='Læst',
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Oprettet',
+    )
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Notifikation'
+        verbose_name_plural = 'Notifikationer'
+        indexes = [
+            models.Index(fields=['user', '-created_at']),
+            models.Index(fields=['user', 'is_read']),
+        ]
+
+    def __str__(self) -> str:
+        return f'{self.user.username}: {self.title}'

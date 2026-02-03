@@ -32,10 +32,94 @@
         {% endif %}
     </div>
 
-    {% if message_list %}
+    {% if pinned_messages %}
+    <div class="pinned-messages mb-4">
+        <h5 class="text-muted mb-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+                <path d="M4.146.146A.5.5 0 0 1 4.5 0h7a.5.5 0 0 1 .5.5c0 .68-.342 1.174-.646 1.479-.126.125-.25.224-.354.298v4.431l.078.048c.203.127.476.314.751.555C12.36 7.775 13 8.527 13 9.5a.5.5 0 0 1-.5.5h-4v4.5c0 .276-.224 1.5-.5 1.5s-.5-1.224-.5-1.5V10h-4a.5.5 0 0 1-.5-.5c0-.973.64-1.725 1.17-2.189A5.921 5.921 0 0 1 5 6.708V2.277a2.77 2.77 0 0 1-.354-.298C4.342 1.674 4 1.179 4 .5a.5.5 0 0 1 .146-.354z"/>
+            </svg>
+            Fastgjorte beskeder
+        </h5>
+        <div class="messages-list">
+            {% for message in pinned_messages %}
+            <article class="message-card pinned-message" id="message-{{ message.pk }}">
+                <header class="message-header">
+                    <div>
+                        <span class="badge bg-primary me-2">Fastgjort</span>
+                        <strong>{{ message.author.username }}</strong>
+                    </div>
+                    <small class="text-muted">
+                        {{ message.created_at|date:"d. M Y, H:i" }}
+                    </small>
+                </header>
+                <div class="message-content">
+                    {{ message.content|linebreaks }}
+                </div>
+                {% if user == message.author %}
+                <footer class="message-actions">
+                    <a href="{% url 'main:message_update' message.pk %}" class="btn btn-sm btn-outline-secondary">
+                        Rediger
+                    </a>
+                    <a href="{% url 'main:message_delete' message.pk %}" class="btn btn-sm btn-outline-danger">
+                        Slet
+                    </a>
+                </footer>
+                {% endif %}
+
+                <!-- Comments Section -->
+                <div class="comments-section">
+                    {% if message.comments.all %}
+                    <div class="comments-list">
+                        <small class="text-muted">{{ message.comments.count }} kommentar{{ message.comments.count|pluralize:"er" }}</small>
+                        {% for comment in message.comments.all %}
+                        <div class="comment-item">
+                            <div class="comment-header">
+                                <strong>{{ comment.author.username }}</strong>
+                                <small class="text-muted">{{ comment.created_at|date:"d. M Y, H:i" }}</small>
+                            </div>
+                            <div class="comment-content">
+                                {{ comment.content|linebreaks }}
+                            </div>
+                            {% if user == comment.author %}
+                            <a href="{% url 'main:comment_delete' comment.pk %}" class="btn btn-sm btn-outline-danger">
+                                Slet
+                            </a>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    {% if user.is_authenticated %}
+                    <button class="btn btn-sm btn-outline-primary mt-2" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#comment-form-{{ message.pk }}"
+                            aria-expanded="false" aria-controls="comment-form-{{ message.pk }}">
+                        Tilfoj kommentar
+                    </button>
+                    <div class="collapse mt-2" id="comment-form-{{ message.pk }}">
+                        <form method="post" action="{% url 'main:comment_create' message.pk %}">
+                            {% csrf_token %}
+                            <div class="input-group">
+                                <input type="text" name="content" class="form-control form-control-sm"
+                                       placeholder="Skriv en kommentar..." maxlength="1000" required />
+                                <button type="submit" class="btn btn-sm btn-primary">Send</button>
+                            </div>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if regular_messages %}
+    {% if pinned_messages %}
+    <h5 class="text-muted mb-3">Alle beskeder</h5>
+    {% endif %}
     <div class="messages-list">
-        {% for message in message_list %}
-        <article class="message-card">
+        {% for message in regular_messages %}
+        <article class="message-card" id="message-{{ message.pk }}">
             <header class="message-header">
                 <strong>{{ message.author.username }}</strong>
                 <small class="text-muted">
@@ -83,7 +167,7 @@
                 <button class="btn btn-sm btn-outline-primary mt-2" type="button"
                         data-bs-toggle="collapse" data-bs-target="#comment-form-{{ message.pk }}"
                         aria-expanded="false" aria-controls="comment-form-{{ message.pk }}">
-                    Tilføj kommentar
+                    Tilfoj kommentar
                 </button>
                 <div class="collapse mt-2" id="comment-form-{{ message.pk }}">
                     <form method="post" action="{% url 'main:comment_create' message.pk %}">
@@ -114,15 +198,16 @@
             </li>
             {% if page_obj.has_next %}
             <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Næste</a>
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Naeste</a>
             </li>
             {% endif %}
         </ul>
     </nav>
     {% endif %}
+    {% endif %}
 
-    {% else %}
-    <p class="text-muted">Ingen beskeder endnu. Vær den første til at skrive!</p>
+    {% if not message_list %}
+    <p class="text-muted">Ingen beskeder endnu. Vaer den forste til at skrive!</p>
     {% endif %}
 </section>
 {% endblock %}

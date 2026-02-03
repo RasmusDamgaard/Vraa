@@ -105,6 +105,19 @@
                   >Min profil</a
                 >
               </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link {% if title == 'Notifikationer' %}active{% endif %} position-relative"
+                  href="{% url 'main:notifications' %}"
+                  >Notifikationer
+                  {% if unread_notification_count > 0 %}
+                  <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge">
+                    {{ unread_notification_count }}
+                    <span class="visually-hidden">ulæste notifikationer</span>
+                  </span>
+                  {% endif %}
+                </a>
+              </li>
               {% endif %}
 
               <!-- Help Section -->
