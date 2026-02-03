@@ -3,11 +3,17 @@ Administration configuration for the ``main`` app.
 """
 from __future__ import annotations
 
+import logging
+
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.core.mail import send_mail
 
 from .models import Booking, Comment, Message
+
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
@@ -57,14 +63,83 @@ class BookingAdmin(admin.ModelAdmin):
     date_hierarchy = 'start_date'
     actions = ['approve_bookings', 'reject_bookings']
 
+    def save_model(self, request, obj, form, change):
+        """Send notification email when status changes."""
+        if change:  # Only for updates, not new objects
+            try:
+                old_obj = Booking.objects.get(pk=obj.pk)
+                status_changed = old_obj.status != obj.status
+            except Booking.DoesNotExist:
+                status_changed = False
+        else:
+            status_changed = False
+
+        super().save_model(request, obj, form, change)
+
+        if status_changed and obj.user.email:
+            self._send_status_notification(obj)
+
+    def _send_status_notification(self, booking):
+        """Send email notification about booking status change."""
+        if booking.status == 'confirmed':
+            subject = 'Din booking er godkendt - Vraa'
+            message = (
+                f'Hej {booking.user.username},\n\n'
+                f'Din booking er blevet godkendt!\n\n'
+                f'Detaljer:\n'
+                f'- Ankomst: {booking.start_date.strftime("%d. %B %Y")}\n'
+                f'- Afrejse: {booking.end_date.strftime("%d. %B %Y")}\n'
+                f'- Antal dage: {booking.duration_days}\n\n'
+                f'Vi glaeder os til at se dig!\n\n'
+                f'Venlig hilsen,\nVraa'
+            )
+        elif booking.status == 'cancelled':
+            subject = 'Din booking er afvist - Vraa'
+            message = (
+                f'Hej {booking.user.username},\n\n'
+                f'Desvaerre er din booking blevet afvist.\n\n'
+                f'Booking detaljer:\n'
+                f'- Ankomst: {booking.start_date.strftime("%d. %B %Y")}\n'
+                f'- Afrejse: {booking.end_date.strftime("%d. %B %Y")}\n\n'
+                f'Kontakt venligst en administrator for mere information.\n\n'
+                f'Venlig hilsen,\nVraa'
+            )
+        else:
+            return  # Don't send for 'pending' status
+
+        try:
+            send_mail(
+                subject=subject,
+                message=message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[booking.user.email],
+                fail_silently=True,
+            )
+        except Exception as e:
+            logger.error(f'Failed to send booking notification: {e}')
+
     @admin.action(description='Godkend valgte bookinger')
     def approve_bookings(self, request, queryset):
-        count = queryset.filter(status='pending').update(status='confirmed')
+        """Bulk approve bookings and send notifications."""
+        count = 0
+        for booking in queryset.filter(status='pending'):
+            booking.status = 'confirmed'
+            booking.save()
+            if booking.user.email:
+                self._send_status_notification(booking)
+            count += 1
         self.message_user(request, f'{count} booking(er) er nu godkendt.')
 
     @admin.action(description='Afvis valgte bookinger')
     def reject_bookings(self, request, queryset):
-        count = queryset.filter(status='pending').update(status='cancelled')
+        """Bulk reject bookings and send notifications."""
+        count = 0
+        for booking in queryset.filter(status='pending'):
+            booking.status = 'cancelled'
+            booking.save()
+            if booking.user.email:
+                self._send_status_notification(booking)
+            count += 1
         self.message_user(request, f'{count} booking(er) er afvist.')
 
 
