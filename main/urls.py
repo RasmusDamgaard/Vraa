@@ -4,7 +4,7 @@ URL configuration for the ``main`` application.
 from __future__ import annotations
 
 from django.contrib.auth import views as auth_views
-from django.urls import path
+from django.urls import path, reverse_lazy
 
 from . import views
 
@@ -46,4 +46,34 @@ urlpatterns = [
     # Documentation
     path('brugervejledning/', views.BrugervejledningView.as_view(), name='brugervejledning'),
     path('admin-vejledning/', views.AdminVejledningView.as_view(), name='admin_vejledning'),
+
+    # Password reset flow
+    path('password-reset/',
+         auth_views.PasswordResetView.as_view(
+             template_name='main/password_reset.html',
+             email_template_name='main/password_reset_email.html',
+             subject_template_name='main/password_reset_subject.txt',
+             success_url=reverse_lazy('main:password_reset_done'),
+             extra_context={'title': 'Nulstil adgangskode'},
+         ),
+         name='password_reset'),
+    path('password-reset/done/',
+         auth_views.PasswordResetDoneView.as_view(
+             template_name='main/password_reset_done.html',
+             extra_context={'title': 'E-mail sendt'},
+         ),
+         name='password_reset_done'),
+    path('password-reset/<uidb64>/<token>/',
+         auth_views.PasswordResetConfirmView.as_view(
+             template_name='main/password_reset_confirm.html',
+             success_url=reverse_lazy('main:password_reset_complete'),
+             extra_context={'title': 'Ny adgangskode'},
+         ),
+         name='password_reset_confirm'),
+    path('password-reset/complete/',
+         auth_views.PasswordResetCompleteView.as_view(
+             template_name='main/password_reset_complete.html',
+             extra_context={'title': 'Adgangskode nulstillet'},
+         ),
+         name='password_reset_complete'),
 ]

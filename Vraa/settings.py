@@ -48,6 +48,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'main.middleware.LoginRequiredMiddleware',  # Require login for entire site
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -138,17 +139,23 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@vraa.org')
 
 # =============================================================================
-# CACHING CONFIGURATION
+# TEST CONFIGURATION
 # =============================================================================
-# Use dummy cache during tests to avoid interference, local memory cache otherwise
+# Special settings for running tests
 import sys
 if 'test' in sys.argv:
+    # Use dummy cache to avoid interference
     CACHES = {
         'default': {
             'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
         }
     }
+    # Use simpler static files storage (no manifest required)
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 else:
+    # =============================================================================
+    # CACHING CONFIGURATION
+    # =============================================================================
     # Local memory cache for development, can upgrade to Redis in production
     CACHES = {
         'default': {

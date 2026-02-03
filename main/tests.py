@@ -437,69 +437,185 @@ class BookingModelTests(BaseTestCase):
 
 
 # =============================================================================
-# View Tests - Public Pages
+# View Tests - Login Required Middleware
 # =============================================================================
 
 
-class PublicPageTests(TestCase):
-    """Tests for pages that don't require authentication."""
+class LoginRequiredMiddlewareTests(BaseTestCase):
+    """Tests for site-wide login requirement middleware."""
 
-    def test_frontpage_accessible(self):
-        """Frontpage is accessible without login."""
+    def test_anonymous_redirect_frontpage(self):
+        """Anonymous users are redirected to login from frontpage."""
+        response = self.client.get(reverse('main:frontpage'))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/login/', response.url)
+
+    def test_anonymous_redirect_information(self):
+        """Anonymous users are redirected to login from information page."""
+        response = self.client.get(reverse('main:information'))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/login/', response.url)
+
+    def test_anonymous_redirect_referater(self):
+        """Anonymous users are redirected to login from referater page."""
+        response = self.client.get(reverse('main:referater'))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/login/', response.url)
+
+    def test_anonymous_redirect_vedtaegter(self):
+        """Anonymous users are redirected to login from vedtaegter page."""
+        response = self.client.get(reverse('main:vedtaegter'))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/login/', response.url)
+
+    def test_login_page_accessible_without_auth(self):
+        """Login page is accessible without authentication."""
+        response = self.client.get(reverse('main:login'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_register_page_accessible_without_auth(self):
+        """Register page is accessible without authentication."""
+        response = self.client.get(reverse('main:register'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_brugervejledning_accessible_without_auth(self):
+        """Brugervejledning page is accessible without authentication."""
+        response = self.client.get(reverse('main:brugervejledning'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_password_reset_accessible_without_auth(self):
+        """Password reset page is accessible without authentication."""
+        response = self.client.get(reverse('main:password_reset'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_redirect_preserves_next_parameter(self):
+        """Redirect includes ?next parameter with original path."""
+        response = self.client.get(reverse('main:frontpage'))
+        self.assertIn('?next=/', response.url)
+
+    def test_authenticated_user_can_access_frontpage(self):
+        """Authenticated users can access the frontpage."""
+        self.login_as_user()
+        response = self.client.get(reverse('main:frontpage'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_authenticated_user_can_access_information(self):
+        """Authenticated users can access the information page."""
+        self.login_as_user()
+        response = self.client.get(reverse('main:information'))
+        self.assertEqual(response.status_code, 200)
+
+
+# =============================================================================
+# View Tests - Password Reset
+# =============================================================================
+
+
+class PasswordResetTests(TestCase):
+    """Tests for password reset functionality."""
+
+    def test_password_reset_page_accessible(self):
+        """Password reset page is accessible."""
+        response = self.client.get(reverse('main:password_reset'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_password_reset_uses_correct_template(self):
+        """Password reset page uses correct template."""
+        response = self.client.get(reverse('main:password_reset'))
+        self.assertTemplateUsed(response, 'main/password_reset.html')
+
+    def test_password_reset_form_submission(self):
+        """Password reset form submission works."""
+        User.objects.create_user('testuser', 'test@example.com', 'testpass')
+        response = self.client.post(
+            reverse('main:password_reset'),
+            {'email': 'test@example.com'},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('main:password_reset_done'))
+
+    def test_password_reset_done_page(self):
+        """Password reset done page is accessible."""
+        response = self.client.get(reverse('main:password_reset_done'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_password_reset_complete_page(self):
+        """Password reset complete page is accessible."""
+        response = self.client.get(reverse('main:password_reset_complete'))
+        self.assertEqual(response.status_code, 200)
+
+
+# =============================================================================
+# View Tests - Authenticated Pages (formerly Public Pages)
+# =============================================================================
+
+
+class AuthenticatedPageTests(BaseTestCase):
+    """Tests for pages that require authentication."""
+
+    def test_frontpage_accessible_when_logged_in(self):
+        """Frontpage is accessible when logged in."""
+        self.login_as_user()
         response = self.client.get(reverse('main:frontpage'))
         self.assertEqual(response.status_code, 200)
 
     def test_frontpage_uses_correct_template(self):
         """Frontpage uses frontpage.html template."""
+        self.login_as_user()
         response = self.client.get(reverse('main:frontpage'))
         self.assertTemplateUsed(response, 'main/frontpage.html')
 
     def test_frontpage_contains_messages(self):
         """Frontpage displays messages from database."""
-        user = User.objects.create_user('testuser', password='pass')
-        Message.objects.create(author=user, content='Hello World')
+        self.login_as_user()
+        Message.objects.create(author=self.user, content='Hello World')
         response = self.client.get(reverse('main:frontpage'))
         self.assertContains(response, 'Hello World')
 
     def test_frontpage_pagination(self):
         """Frontpage paginates at 20 messages."""
-        user = User.objects.create_user('testuser', password='pass')
+        self.login_as_user()
         for i in range(25):
-            Message.objects.create(author=user, content=f'Message {i}')
+            Message.objects.create(author=self.user, content=f'Message {i}')
         response = self.client.get(reverse('main:frontpage'))
         self.assertEqual(len(response.context['message_list']), 20)
         self.assertTrue(response.context['is_paginated'])
 
     def test_frontpage_pagination_page_2(self):
         """Frontpage page 2 shows remaining messages."""
-        user = User.objects.create_user('testuser', password='pass')
+        self.login_as_user()
         for i in range(25):
-            Message.objects.create(author=user, content=f'Message {i}')
+            Message.objects.create(author=self.user, content=f'Message {i}')
         response = self.client.get(reverse('main:frontpage') + '?page=2')
         self.assertEqual(len(response.context['message_list']), 5)
 
     def test_information_page_accessible(self):
-        """Information page is accessible without login."""
+        """Information page is accessible when logged in."""
+        self.login_as_user()
         response = self.client.get(reverse('main:information'))
         self.assertEqual(response.status_code, 200)
 
     def test_information_page_uses_correct_template(self):
         """Information page uses information.html template."""
+        self.login_as_user()
         response = self.client.get(reverse('main:information'))
         self.assertTemplateUsed(response, 'main/information.html')
 
     def test_referater_page_accessible(self):
-        """Referater page is accessible without login."""
+        """Referater page is accessible when logged in."""
+        self.login_as_user()
         response = self.client.get(reverse('main:referater'))
         self.assertEqual(response.status_code, 200)
 
     def test_vedtaegter_page_accessible(self):
-        """Vedtaegter page is accessible without login."""
+        """Vedtaegter page is accessible when logged in."""
+        self.login_as_user()
         response = self.client.get(reverse('main:vedtaegter'))
         self.assertEqual(response.status_code, 200)
 
     def test_bootstrap_included_in_base_template(self):
         """Base template includes Bootstrap 5.3.3."""
+        self.login_as_user()
         response = self.client.get(reverse('main:frontpage'))
         self.assertContains(response, 'bootstrap@5.3.3')
 
@@ -1018,8 +1134,9 @@ class RegistrationViewTests(TestCase):
             reverse('main:register'),
             {
                 'username': 'newuser',
-                'password1': 'complexpass123!',
-                'password2': 'complexpass123!',
+                'email': 'newuser@example.com',
+                'password1': 'VraaTest2026Secure!',
+                'password2': 'VraaTest2026Secure!',
             },
         )
         self.assertEqual(response.status_code, 302)
@@ -1031,8 +1148,9 @@ class RegistrationViewTests(TestCase):
             reverse('main:register'),
             {
                 'username': 'newuser',
-                'password1': 'complexpass123!',
-                'password2': 'complexpass123!',
+                'email': 'newuser@example.com',
+                'password1': 'VraaTest2026Secure!',
+                'password2': 'VraaTest2026Secure!',
             },
         )
         user = User.objects.get(username='newuser')
@@ -1044,8 +1162,9 @@ class RegistrationViewTests(TestCase):
             reverse('main:register'),
             {
                 'username': 'newuser',
-                'password1': 'complexpass123!',
-                'password2': 'complexpass123!',
+                'email': 'newuser@example.com',
+                'password1': 'VraaTest2026Secure!',
+                'password2': 'VraaTest2026Secure!',
             },
         )
         self.assertRedirects(response, reverse('main:login'))
@@ -1200,6 +1319,7 @@ class MessageCommentIntegrationTests(BaseTestCase):
 
     def test_frontpage_displays_messages_with_comments(self):
         """Frontpage shows messages with their comments."""
+        self.login_as_user()
         message = Message.objects.create(
             author=self.user, content='Main message'
         )
@@ -1214,6 +1334,7 @@ class MessageCommentIntegrationTests(BaseTestCase):
 
     def test_message_with_multiple_comments_displays_all(self):
         """Message with multiple comments displays all of them."""
+        self.login_as_user()
         message = Message.objects.create(author=self.user, content='Message')
         Comment.objects.create(message=message, author=self.user, content='Comment 1')
         Comment.objects.create(message=message, author=self.user, content='Comment 2')
@@ -1236,8 +1357,9 @@ class UserWorkflowTests(TestCase):
             reverse('main:register'),
             {
                 'username': 'newuser',
-                'password1': 'complexpass123!',
-                'password2': 'complexpass123!',
+                'email': 'newuser@example.com',
+                'password1': 'VraaTest2026Secure!',
+                'password2': 'VraaTest2026Secure!',
             },
         )
         user = User.objects.get(username='newuser')
@@ -1245,7 +1367,7 @@ class UserWorkflowTests(TestCase):
 
         # Step 2: Cannot login while inactive
         login_success = self.client.login(
-            username='newuser', password='complexpass123!'
+            username='newuser', password='VraaTest2026Secure!'
         )
         self.assertFalse(login_success)
 
@@ -1255,7 +1377,7 @@ class UserWorkflowTests(TestCase):
 
         # Step 4: User can now login
         login_success = self.client.login(
-            username='newuser', password='complexpass123!'
+            username='newuser', password='VraaTest2026Secure!'
         )
         self.assertTrue(login_success)
 

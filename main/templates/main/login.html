@@ -23,6 +23,10 @@
         <button type="submit" class="btn btn-primary">Log ind</button>
     </form>
 
+    <p class="mt-2">
+        <a href="{% url 'main:password_reset' %}">Glemt adgangskode?</a>
+    </p>
+
     <p class="mt-4">
         Har du ikke en konto? <a href="{% url 'main:register' %}">Registrer dig her</a>
     </p>
