@@ -65,7 +65,8 @@ Vraa/
 ├── Procfile                 # Heroku deployment config
 ├── db.sqlite3               # Local SQLite database
 ├── .gitignore               # Git ignore rules
-└── README.md                # User-facing documentation
+├── README.md                # User-facing documentation
+└── TODO.md                  # Feature roadmap and backlog
 ```
 
 ---
@@ -492,7 +493,25 @@ Currently no automated tests exist. When adding tests:
 
 ## Active TODO Items
 
-No pending tasks at this time. All planned features have been implemented.
+See **[TODO.md](TODO.md)** for the complete feature roadmap and backlog.
+
+### High Priority (P1)
+- **Password Reset Functionality** - Users have no way to recover forgotten passwords
+- **Email Notifications for Booking Status** - Notify users when bookings are approved/rejected
+
+### Medium Priority (P2)
+- **User Profile & "My Bookings" Page** - Let users see their booking history
+- **Calendar - Click Booking for Details** - Show who made a booking when clicked
+- **Calendar Export (ICS)** - Sync with personal calendars
+- **In-App Notification System** - Alert users to comments and booking updates
+- **Pin Important Messages** - Keep announcements at top of message board
+- **Document Management System** - Upload referater/vedtaegter via admin
+- **HTMX for Dynamic Interactions** - Better UX without page refreshes
+
+### Low Priority (P3)
+- Search functionality, dark mode, weather widget, maintenance requests, PWA support, and more
+
+For full details, effort estimates, and implementation notes, see TODO.md.
 
 ---
 
@@ -536,8 +555,8 @@ For human developers:
 
 ---
 
-**Document Version**: 1.1
-**Last Updated**: 2026-01-31
+**Document Version**: 1.2
+**Last Updated**: 2026-02-03
 **Python Version**: 3.11.4
 **Django Version**: 4.x
 **Deployment**: Heroku
