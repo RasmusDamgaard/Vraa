@@ -13,7 +13,7 @@ from django.core.mail import send_mail
 
 from django.utils import timezone
 
-from .models import AuditLog, Booking, Comment, Document, HeritageLine, MaintenanceRequest, Message, Notification, UserProfile
+from .models import AuditLog, Booking, Comment, Document, HeritageLine, MaintenanceRequest, Message, Notification, ReservedWeek, UserProfile
 from .services import AuditService, NotificationService
 
 logger = logging.getLogger(__name__)
@@ -109,6 +109,58 @@ class HeritageLineAdmin(admin.ModelAdmin):
         """Return the number of members in this heritage line."""
         return obj.members.count()
     member_count.short_description = 'Medlemmer'
+
+
+@admin.register(ReservedWeek)
+class ReservedWeekAdmin(admin.ModelAdmin):
+    """Admin interface for managing reserved weeks."""
+
+    list_display = ['heritage_line', 'year', 'week_number', 'start_date', 'end_date', 'is_locked', 'created_at']
+    list_filter = ['heritage_line', 'year', 'is_locked']
+    ordering = ['year', 'week_number']
+    date_hierarchy = 'start_date'
+    readonly_fields = ['start_date', 'end_date', 'created_at', 'updated_at']
+    search_fields = ['heritage_line__name', 'heritage_line__short_name', 'notes']
+    autocomplete_fields = ['heritage_line']
+
+    fieldsets = (
+        (None, {
+            'fields': ('heritage_line', 'year', 'week_number')
+        }),
+        ('Datoer (auto-beregnet)', {
+            'fields': ('start_date', 'end_date'),
+            'classes': ('collapse',),
+        }),
+        ('Indstillinger', {
+            'fields': ('is_locked', 'notes', 'created_by')
+        }),
+        ('Metadata', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+    actions = ['generate_next_year', 'lock_reservations', 'unlock_reservations']
+
+    @admin.action(description='Generer reserverede uger for næste år')
+    def generate_next_year(self, request, queryset):
+        """Generate reserved weeks for the next year."""
+        from datetime import datetime
+        next_year = datetime.now().year + 1
+        count = ReservedWeek.generate_for_year(next_year, request.user)
+        self.message_user(request, f'Genererede {count} reserverede uger for {next_year}.')
+
+    @admin.action(description='Lås valgte reservationer')
+    def lock_reservations(self, request, queryset):
+        """Lock selected reservations."""
+        count = queryset.update(is_locked=True)
+        self.message_user(request, f'{count} reservation(er) er nu låst.')
+
+    @admin.action(description='Lås op for valgte reservationer')
+    def unlock_reservations(self, request, queryset):
+        """Unlock selected reservations."""
+        count = queryset.update(is_locked=False)
+        self.message_user(request, f'{count} reservation(er) er nu låst op.')
 
 
 @admin.register(UserProfile)

@@ -51,13 +51,26 @@
     </div>
 
     <!-- Calendar Legend -->
-    <div class="calendar-legend mb-3">
-        <span class="legend-item">
-            <span class="legend-color confirmed"></span> Bekræftet
-        </span>
-        <span class="legend-item">
-            <span class="legend-color pending"></span> Afventer
-        </span>
+    <div class="calendar-legend-container mb-3">
+        <div class="calendar-legend mb-2">
+            <span class="legend-item">
+                <span class="legend-color confirmed"></span> Bekræftet booking
+            </span>
+            <span class="legend-item">
+                <span class="legend-color pending"></span> Afventer godkendelse
+            </span>
+        </div>
+        {% if heritage_lines %}
+        <div class="calendar-legend heritage-legend">
+            <span class="legend-label">Reserverede uger:</span>
+            {% for line in heritage_lines %}
+            <span class="legend-item">
+                <span class="legend-color" style="background-color: {{ line.color }}; opacity: 0.4;"></span>
+                {{ line.short_name }}
+            </span>
+            {% endfor %}
+        </div>
+        {% endif %}
     </div>
 
     <!-- Booking Details Modal -->
@@ -160,7 +173,18 @@ document.addEventListener('DOMContentLoaded', function() {
             var event = info.event;
             var props = event.extendedProps;
 
-            // Populate modal
+            // Handle reserved week events differently
+            if (props.type === 'reserved_week') {
+                // Show simple alert or tooltip for reserved weeks
+                var message = 'Reserveret for ' + props.heritage_line_name + ' (Uge ' + props.week_number + ')';
+                if (props.is_locked) {
+                    message += '\n\nDenne uge er låst - kun medlemmer af denne familielinje kan booke i denne periode.';
+                }
+                alert(message);
+                return;
+            }
+
+            // Regular booking event - populate modal
             document.getElementById('modal-user').textContent = event.title;
             document.getElementById('modal-dates').textContent =
                 formatDate(event.start) + ' - ' + formatDate(event.end);
@@ -169,6 +193,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 '<span class="badge ' + (props.status === 'confirmed' ? 'bg-success' : 'bg-warning text-dark') + '">' +
                 props.status_display + '</span>';
             document.getElementById('modal-created').textContent = props.created_at;
+
+            // Heritage line badge (if applicable)
+            var heritageHtml = '';
+            if (props.heritage_line) {
+                heritageHtml = ' <span class="badge bg-secondary">' + props.heritage_line + '</span>';
+            }
+            document.getElementById('modal-user').innerHTML = event.title + heritageHtml;
 
             // Notes (hide if empty)
             var notesContainer = document.getElementById('modal-notes-container');
