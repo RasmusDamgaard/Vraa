@@ -22,7 +22,7 @@ from django_ratelimit.decorators import ratelimit
 from django_ratelimit.exceptions import Ratelimited
 
 from .forms import BookingForm, CustomUserCreationForm, UserProfileForm
-from .models import AuditLog, Booking, Comment, Document, MaintenanceRequest, Message, Notification, UserProfile
+from .models import AuditLog, Booking, Comment, Document, HeritageLine, MaintenanceRequest, Message, Notification, ReservedWeek, UserProfile
 from .services import AuditService, NotificationService, WeatherService
 
 logger = logging.getLogger(__name__)
@@ -81,7 +81,7 @@ class VedtaegterView(TemplateView):
 
 
 class KalenderView(LoginRequiredMixin, ListView):
-    """Display calendar with bookings."""
+    """Display calendar with bookings and reserved weeks."""
 
     model = Booking
     template_name = 'main/kalender.html'
@@ -92,7 +92,13 @@ class KalenderView(LoginRequiredMixin, ListView):
         return Booking.objects.filter(
             status__in=['pending', 'confirmed'],
             end_date__gte=timezone.now().date(),
-        ).select_related('user')
+        ).select_related('user', 'user__profile', 'user__profile__heritage_line')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Add heritage lines for the legend
+        context['heritage_lines'] = HeritageLine.objects.all().order_by('order')
+        return context
 
 
 class RegisterView(CreateView):
@@ -307,14 +313,15 @@ class BookingDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 @method_decorator(ratelimit(key='user', rate='60/h', method='GET', block=True), name='get')
 class BookingAPIView(LoginRequiredMixin, View):
-    """API endpoint for calendar data (JSON) with rate limiting."""
+    """API endpoint for calendar data (JSON) with rate limiting, including reserved weeks."""
 
     def get(self, request):
+        from datetime import datetime, timedelta
         from django.urls import reverse
 
         bookings = Booking.objects.filter(
             status__in=['pending', 'confirmed'],
-        ).select_related('user', 'user__profile')
+        ).select_related('user', 'user__profile', 'user__profile__heritage_line')
 
         events = []
         for booking in bookings:
@@ -327,13 +334,17 @@ class BookingAPIView(LoginRequiredMixin, View):
             else:
                 title = booking.user.username
 
+            # Get booking color based on status and heritage line
+            color = self._get_booking_color(booking)
+
             events.append({
-                'id': booking.pk,
+                'id': f'booking-{booking.pk}',
                 'title': title,
                 'start': booking.start_date.isoformat(),
                 'end': booking.end_date.isoformat(),
-                'color': '#28a745' if booking.status == 'confirmed' else '#ffc107',
+                'color': color,
                 'extendedProps': {
+                    'type': 'booking',
                     'status': booking.status,
                     'status_display': booking.get_status_display(),
                     'is_owner': is_owner,
@@ -342,10 +353,62 @@ class BookingAPIView(LoginRequiredMixin, View):
                     'created_at': booking.created_at.strftime('%d. %B %Y'),
                     'edit_url': reverse('main:booking_update', args=[booking.pk]) if can_edit else '',
                     'delete_url': reverse('main:booking_delete', args=[booking.pk]) if is_owner else '',
+                    'heritage_line': (
+                        booking.user.profile.heritage_line.short_name
+                        if hasattr(booking.user, 'profile') and booking.user.profile.heritage_line
+                        else None
+                    ),
+                },
+            })
+
+        # Add reserved weeks to the calendar
+        start_str = request.GET.get('start')
+        end_str = request.GET.get('end')
+
+        if start_str and end_str:
+            try:
+                start_date = datetime.fromisoformat(start_str.replace('Z', '+00:00')).date()
+                end_date = datetime.fromisoformat(end_str.replace('Z', '+00:00')).date()
+            except ValueError:
+                # Fallback: show reserved weeks for current year +/- 1 year
+                today = datetime.now().date()
+                start_date = today.replace(month=1, day=1)
+                end_date = today.replace(month=12, day=31)
+        else:
+            # No date range provided, use sensible defaults
+            today = datetime.now().date()
+            start_date = today - timedelta(days=30)
+            end_date = today + timedelta(days=365)
+
+        reserved_weeks = ReservedWeek.get_reserved_for_date_range(start_date, end_date)
+
+        for reservation in reserved_weeks:
+            # End date needs +1 day for FullCalendar to show correctly
+            events.append({
+                'id': f'reserved-{reservation.pk}',
+                'title': f'{reservation.heritage_line.short_name} - Reserveret',
+                'start': reservation.start_date.isoformat(),
+                'end': (reservation.end_date + timedelta(days=1)).isoformat(),
+                'color': reservation.heritage_line.color,
+                'display': 'background',  # Shows as background event
+                'extendedProps': {
+                    'type': 'reserved_week',
+                    'heritage_line': reservation.heritage_line.short_name,
+                    'heritage_line_name': reservation.heritage_line.name,
+                    'week_number': reservation.week_number,
+                    'is_locked': reservation.is_locked,
                 },
             })
 
         return JsonResponse(events, safe=False)
+
+    def _get_booking_color(self, booking):
+        """Get color for booking based on status and heritage line."""
+        if booking.status == 'pending':
+            return '#ffc107'  # Yellow for pending
+        if hasattr(booking.user, 'profile') and booking.user.profile.heritage_line:
+            return booking.user.profile.heritage_line.color
+        return '#28a745'  # Default green for confirmed
 
 
 @method_decorator(cache_page(60 * 60), name='dispatch')

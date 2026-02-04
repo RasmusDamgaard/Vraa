@@ -1037,7 +1037,7 @@ class BookingAPIViewTests(BaseTestCase):
         self.login_as_user()
         response = self.client.get(reverse('main:booking_api'))
         event = response.json()[0]
-        self.assertEqual(event['id'], booking.pk)
+        self.assertEqual(event['id'], f'booking-{booking.pk}')  # ID format is 'booking-{pk}'
         self.assertEqual(event['title'], self.user.username)
         self.assertEqual(event['start'], self.future_date(5).isoformat())
         self.assertEqual(event['end'], self.future_date(10).isoformat())
