@@ -14,31 +14,88 @@ This document tracks potential features and improvements for the Vraa vacation h
 
 ## Security & Privacy
 
-### P1: Require Login for Entire Site
-- [ ] Add `LoginRequiredMixin` to all views (or use middleware)
-- [ ] Create custom login-required middleware for site-wide protection
-- [ ] Exempt only login and registration pages
-- [ ] Redirect unauthenticated users to login page
-- [ ] Update brugervejledning to reflect login requirement
+### P0: Security Headers for Corporate Network Access *(NEW)*
+- [ ] Add Content Security Policy (CSP) headers via django-csp
+- [ ] Add Subresource Integrity (SRI) hashes to CDN resources
+- [ ] Add Permissions-Policy header
+- [ ] Enable HSTS preload (`SECURE_HSTS_PRELOAD = True`)
+- [ ] Add `SECURE_REFERRER_POLICY` setting
+- [ ] Verify with SSL Labs and Security Headers scanners
+- [ ] Test access from corporate network
 
-**Why**: Family privacy - the site contains private information, meeting minutes, and booking details that should only be visible to family members.
+**Why**: Users report being blocked from accessing the site on corporate networks due to "site not secure" warnings. Modern corporate proxies and firewalls require proper security headers.
 
-**Implementation options**:
-1. **Middleware approach** (recommended): Create middleware that checks authentication on every request
-2. **Mixin approach**: Add `LoginRequiredMixin` to every view class
-3. **URL decorator**: Use `login_required` decorator in urls.py
+**Implementation**: See `implementation_plan.md` Phase 1 for detailed steps.
+
+### P1: Require Login for Entire Site *(COMPLETED)*
+- [x] Add `LoginRequiredMixin` to all views (or use middleware)
+- [x] Create custom login-required middleware for site-wide protection
+- [x] Exempt only login and registration pages
+- [x] Redirect unauthenticated users to login page
+- [x] Update brugervejledning to reflect login requirement
+
+**Status**: Implemented via `LoginRequiredMiddleware` in `main/middleware.py`
 
 ---
 
 ## High-Impact User Features
 
-### P1: Password Reset Functionality
-- [ ] Add Django's built-in password reset views
-- [ ] Create email templates for password reset flow
-- [ ] Configure email backend for production
-- [ ] Add "Forgot password?" link on login page
+### P1: User Profile with Display Names *(NEW)*
+- [ ] Create `UserProfile` model with `display_name` field
+- [ ] Add signal to auto-create profile when user is created
+- [ ] Update registration form to include display name field
+- [ ] Restrict username to no whitespace (best practice)
+- [ ] Allow display name to contain whitespace (e.g., "Rasmus Damgaard")
+- [ ] Update all templates to show display name instead of username
+- [ ] Create profile edit view for users to update their display name
+- [ ] Create management command to create profiles for existing users
 
-**Why**: Users currently have no way to recover forgotten passwords. Critical for self-service.
+**Why**: Users want human-readable names displayed on messages and bookings, while keeping usernames simple for login.
+
+**Implementation**: See `implementation_plan.md` Phase 2 for detailed steps.
+
+### P1: Family Heritage Line System *(NEW)*
+- [ ] Create `HeritageLine` model with name, color, and badge class
+- [ ] Add `heritage_line` ForeignKey to UserProfile
+- [ ] Add `family_role` field (member, elder, head)
+- [ ] Create template tag to display heritage line badges
+- [ ] Show badges on message board posts
+- [ ] Show badges on user profiles
+- [ ] Admin interface for managing heritage lines
+- [ ] Create fixture with initial 4 family lines
+
+**Why**: The family summerhouse consists of 4 heritage lines. Users should have visible tags showing which line they belong to.
+
+**Implementation**: See `implementation_plan.md` Phase 3 for detailed steps.
+
+### P1: Reserved Weeks Calendar System *(NEW)*
+- [ ] Create `ReservedWeek` model linking to heritage lines
+- [ ] Implement rolling week allocation algorithm
+- [ ] Show reserved weeks as background events on calendar
+- [ ] Color-code reserved weeks by heritage line
+- [ ] Add calendar legend showing line colors
+- [ ] Update booking validation to check for reserved week conflicts
+- [ ] Management command to generate reserved weeks for a year
+- [ ] Admin interface for managing reserved weeks
+
+**Why**: Each heritage line has 2 reserved weeks per year, rotating annually. This should be visible on the calendar and enforced during booking.
+
+**Rotation Example** (4 lines, 2 weeks each):
+| Year | Line 1 | Line 2 | Line 3 | Line 4 |
+|------|--------|--------|--------|--------|
+| 2024 | 26-27 | 28-29 | 30-31 | 32-33 |
+| 2025 | 28-29 | 30-31 | 32-33 | 26-27 |
+| 2026 | 30-31 | 32-33 | 26-27 | 28-29 |
+
+**Implementation**: See `implementation_plan.md` Phase 4 for detailed steps.
+
+### P1: Password Reset Functionality *(COMPLETED)*
+- [x] Add Django's built-in password reset views
+- [x] Create email templates for password reset flow
+- [x] Configure email backend for production
+- [x] Add "Forgot password?" link on login page
+
+**Status**: Implemented with Django built-in password reset flow.
 
 ### P1: Email Notifications for Booking Status
 - [ ] Send email when booking is approved
@@ -84,18 +141,27 @@ This document tracks potential features and improvements for the Vraa vacation h
 
 ## Communication Enhancements
 
-### P2: In-App Notification System
-- [ ] Create Notification model (user, message, read status, timestamp)
-- [ ] Add notification bell icon in navigation
-- [ ] Show unread count badge
-- [ ] Dropdown list of recent notifications
-- [ ] Mark as read on click
-- [ ] Trigger notifications for:
-  - [ ] Comments on user's messages
-  - [ ] Booking approved/rejected
-  - [ ] New replies to comments user participated in
+### P1: Enhanced Notification System *(NEW - Extends existing)*
+- [x] Create Notification model (user, message, read status, timestamp)
+- [x] Add notification bell icon in navigation
+- [x] Show unread count badge
+- [x] Dropdown list of recent notifications
+- [x] Mark as read on click
+- [x] Trigger notifications for comments on user's messages
+- [x] Trigger notifications for booking approved/rejected
+- [ ] **NEW**: Email notifications for new messages (opt-in)
+- [ ] **NEW**: Email notifications for comments on your messages
+- [ ] **NEW**: @mention system with notifications
+- [ ] **NEW**: User notification preferences (all, mentions only, none)
+- [ ] **NEW**: Notify users when new messages are posted to message board
+- [ ] **NEW**: Create email notification templates
+- [ ] **NEW**: Add SITE_URL environment variable for email links
 
-**Why**: Users miss important updates without active notifications.
+**Why**: Users want to be notified when new messages or comments are written on the message board, especially via email.
+
+**Current Status**: In-app notifications work for comments and booking status. Email notifications only for booking status changes.
+
+**Implementation**: See `implementation_plan.md` Phase 5 for detailed steps.
 
 ### P2: Pin Important Messages
 - [ ] Add `is_pinned` boolean field to Message model
@@ -319,3 +385,19 @@ See CLAUDE.md for list of completed features including:
 ---
 
 **Last Updated**: 2026-02-04
+
+---
+
+## New Features Summary (Implementation Plan)
+
+The following new features have been requested and documented in `implementation_plan.md`:
+
+| Phase | Feature | Priority | Status |
+|-------|---------|----------|--------|
+| 1 | Security Headers (Corporate Access) | P0 | Planned |
+| 2 | User Profile & Display Names | P1 | Planned |
+| 3 | Family Heritage Line System | P1 | Planned |
+| 4 | Reserved Weeks Calendar | P1 | Planned |
+| 5 | Enhanced Email Notifications | P1 | Planned |
+
+For full implementation details, see **[implementation_plan.md](implementation_plan.md)**.
