@@ -17,11 +17,11 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import cache_page
-from django.views.generic import CreateView, DeleteView, ListView, TemplateView, UpdateView
+from django.views.generic import CreateView, DeleteView, DetailView, ListView, TemplateView, UpdateView
 
 from .forms import BookingForm, CustomUserCreationForm
-from .models import AuditLog, Booking, Comment, Document, Message, Notification
-from .services import AuditService, NotificationService
+from .models import AuditLog, Booking, Comment, Document, MaintenanceRequest, Message, Notification
+from .services import AuditService, NotificationService, WeatherService
 
 logger = logging.getLogger(__name__)
 
@@ -52,10 +52,17 @@ class FrontpageView(ListView):
         return context
 
 
-@method_decorator(cache_page(60 * 60), name='dispatch')
 class InformationView(TemplateView):
+    """Display information page with weather widget."""
+
     template_name = 'main/information.html'
     extra_context = {'title': 'Information'}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Add weather data (cached in WeatherService)
+        context['weather'] = WeatherService.get_weather()
+        return context
 
 
 @method_decorator(cache_page(60 * 60), name='dispatch')
@@ -640,3 +647,113 @@ class VedtaegterDynamicView(TemplateView):
         context['dynamic_documents'] = documents
         context['has_dynamic_documents'] = documents.exists()
         return context
+
+
+# =============================================================================
+# MAINTENANCE REQUEST VIEWS
+# =============================================================================
+
+
+class MaintenanceListView(LoginRequiredMixin, ListView):
+    """List all maintenance requests."""
+
+    model = MaintenanceRequest
+    template_name = 'main/maintenance_list.html'
+    context_object_name = 'requests'
+    paginate_by = 20
+    extra_context = {'title': 'Vedligeholdelse'}
+
+    def get_queryset(self):
+        queryset = MaintenanceRequest.objects.select_related('reporter')
+
+        # Filter by status if specified
+        status = self.request.GET.get('status')
+        if status and status in dict(MaintenanceRequest.STATUS_CHOICES):
+            queryset = queryset.filter(status=status)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['status_choices'] = MaintenanceRequest.STATUS_CHOICES
+        context['selected_status'] = self.request.GET.get('status', '')
+        context['pending_count'] = MaintenanceRequest.objects.filter(status='pending').count()
+        context['in_progress_count'] = MaintenanceRequest.objects.filter(status='in_progress').count()
+        return context
+
+
+class MaintenanceCreateView(LoginRequiredMixin, CreateView):
+    """Create a new maintenance request."""
+
+    model = MaintenanceRequest
+    fields = ['title', 'description', 'location', 'priority']
+    template_name = 'main/maintenance_form.html'
+    success_url = reverse_lazy('main:maintenance_list')
+    extra_context = {'title': 'Ny anmodning'}
+
+    def form_valid(self, form):
+        form.instance.reporter = self.request.user
+        response = super().form_valid(form)
+        messages.success(
+            self.request,
+            'Din vedligeholdelsesanmodning er oprettet.',
+        )
+        return response
+
+
+class MaintenanceDetailView(LoginRequiredMixin, DetailView):
+    """View a specific maintenance request."""
+
+    model = MaintenanceRequest
+    template_name = 'main/maintenance_detail.html'
+    context_object_name = 'request'
+    extra_context = {'title': 'Anmodning'}
+
+    def get_queryset(self):
+        return MaintenanceRequest.objects.select_related('reporter')
+
+
+class MaintenanceUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    """Update a maintenance request (staff only for status changes)."""
+
+    model = MaintenanceRequest
+    template_name = 'main/maintenance_form.html'
+    extra_context = {'title': 'Opdater anmodning'}
+
+    def test_func(self):
+        maintenance = self.get_object()
+        # Reporter can edit their own pending requests, staff can edit all
+        if self.request.user.is_staff:
+            return True
+        return maintenance.reporter == self.request.user and maintenance.status == 'pending'
+
+    def get_fields(self):
+        """Return different fields based on user permissions."""
+        if self.request.user.is_staff:
+            return ['title', 'description', 'location', 'priority', 'status', 'admin_notes']
+        return ['title', 'description', 'location', 'priority']
+
+    def get_form_class(self):
+        from django import forms
+
+        class DynamicMaintenanceForm(forms.ModelForm):
+            class Meta:
+                model = MaintenanceRequest
+                fields = self.get_fields()
+
+        return DynamicMaintenanceForm
+
+    def form_valid(self, form):
+        # If status changed to resolved, set resolved_at
+        if 'status' in form.changed_data:
+            if form.cleaned_data['status'] == 'resolved':
+                form.instance.resolved_at = timezone.now()
+            else:
+                form.instance.resolved_at = None
+
+        response = super().form_valid(form)
+        messages.success(self.request, 'Anmodningen er opdateret.')
+        return response
+
+    def get_success_url(self):
+        return reverse_lazy('main:maintenance_detail', kwargs={'pk': self.object.pk})

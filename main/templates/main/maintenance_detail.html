@@ -1,0 +1,113 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'main:maintenance_list' %}">Vedligeholdelse</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{ request.title|truncatewords:5 }}</li>
+  </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-3">
+  <h1 class="mb-0">{{ request.title }}</h1>
+  <div class="d-flex gap-2">
+    {% if user.is_staff or request.reporter == user and request.status == 'pending' %}
+    <a href="{% url 'main:maintenance_update' request.pk %}" class="btn btn-outline-primary">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+        <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+      </svg>
+      Rediger
+    </a>
+    {% endif %}
+    <a href="{% url 'main:maintenance_list' %}" class="btn btn-outline-secondary">Tilbage</a>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-8">
+    <!-- Status and Priority Badges -->
+    <div class="mb-4">
+      <span class="maintenance-status {{ request.status }} me-2">{{ request.get_status_display }}</span>
+      <span class="maintenance-priority {{ request.priority }}">{{ request.get_priority_display }}</span>
+    </div>
+
+    <!-- Description -->
+    <div class="mb-4">
+      <h2 class="h5 mb-3">Beskrivelse</h2>
+      <div class="maintenance-description" style="white-space: pre-wrap;">{{ request.description }}</div>
+    </div>
+
+    {% if request.location %}
+    <!-- Location -->
+    <div class="mb-4">
+      <h2 class="h5 mb-3">Placering</h2>
+      <div class="d-flex align-items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="text-muted" viewBox="0 0 16 16">
+          <path d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A31.493 31.493 0 0 1 8 14.58a31.481 31.481 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94zM8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10z"/>
+          <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+        </svg>
+        <span>{{ request.location }}</span>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if user.is_staff and request.admin_notes %}
+    <!-- Admin Notes (staff only) -->
+    <div class="mb-4">
+      <h2 class="h5 mb-3">Admin noter</h2>
+      <div class="alert alert-secondary" style="white-space: pre-wrap;">{{ request.admin_notes }}</div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="col-md-4">
+    <!-- Meta Information -->
+    <div class="card">
+      <div class="card-body">
+        <h3 class="h6 mb-3">Detaljer</h3>
+
+        <dl class="mb-0">
+          <dt class="text-muted small">Indberettet af</dt>
+          <dd class="mb-3">{{ request.reporter.username }}</dd>
+
+          <dt class="text-muted small">Oprettet</dt>
+          <dd class="mb-3">{{ request.created_at|date:"d. F Y, H:i" }}</dd>
+
+          <dt class="text-muted small">Sidst opdateret</dt>
+          <dd class="mb-3">{{ request.updated_at|date:"d. F Y, H:i" }}</dd>
+
+          {% if request.resolved_at %}
+          <dt class="text-muted small">Loest</dt>
+          <dd class="mb-0">{{ request.resolved_at|date:"d. F Y, H:i" }}</dd>
+          {% endif %}
+        </dl>
+      </div>
+    </div>
+
+    {% if request.status == 'resolved' %}
+    <div class="alert alert-success mt-3">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="me-2" viewBox="0 0 16 16">
+        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+      </svg>
+      Denne anmodning er loest.
+    </div>
+    {% elif request.status == 'wont_fix' %}
+    <div class="alert alert-secondary mt-3">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="me-2" viewBox="0 0 16 16">
+        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+      </svg>
+      Denne anmodning er afvist.
+    </div>
+    {% elif request.status == 'in_progress' %}
+    <div class="alert alert-info mt-3">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="me-2" viewBox="0 0 16 16">
+        <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
+        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+      </svg>
+      Under behandling.
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

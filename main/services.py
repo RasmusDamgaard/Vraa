@@ -1,11 +1,18 @@
 """
-Services for sending notifications and emails.
+Services for sending notifications, emails, and external API integrations.
 """
 from __future__ import annotations
 
+import logging
+from datetime import datetime
+
+import requests
+from django.core.cache import cache
 from django.urls import reverse
 
 from .models import AuditLog, Notification
+
+logger = logging.getLogger(__name__)
 
 
 class NotificationService:
@@ -151,3 +158,148 @@ class AuditService:
                 'category': document.category,
             },
         )
+
+
+class WeatherService:
+    """Service for fetching weather data from yr.no (MET Norway API)."""
+
+    # Anholt coordinates (Vraa is on Anholt island)
+    LAT = 56.7167
+    LON = 11.5167
+    LOCATION_NAME = 'Anholt'
+
+    CACHE_KEY = 'vraa_weather'
+    CACHE_TIMEOUT = 3600  # 1 hour
+
+    # Weather symbol codes to emoji mapping
+    WEATHER_SYMBOLS = {
+        'clearsky': '☀️',
+        'fair': '🌤️',
+        'partlycloudy': '⛅',
+        'cloudy': '☁️',
+        'fog': '🌫️',
+        'lightrainshowers': '🌦️',
+        'rainshowers': '🌧️',
+        'heavyrainshowers': '🌧️',
+        'lightrain': '🌧️',
+        'rain': '🌧️',
+        'heavyrain': '🌧️',
+        'lightsleet': '🌨️',
+        'sleet': '🌨️',
+        'heavysleet': '🌨️',
+        'lightsnow': '🌨️',
+        'snow': '❄️',
+        'heavysnow': '❄️',
+        'lightsleetshowers': '🌨️',
+        'sleetshowers': '🌨️',
+        'heavysleetshowers': '🌨️',
+        'lightsnowshowers': '🌨️',
+        'snowshowers': '❄️',
+        'heavysnowshowers': '❄️',
+        'thunder': '⛈️',
+        'thundershowers': '⛈️',
+    }
+
+    # Day/night variants map to base symbol
+    DAY_NIGHT_SUFFIXES = ['_day', '_night', '_polartwilight']
+
+    @classmethod
+    def get_base_symbol(cls, symbol_code):
+        """Extract base symbol from symbol code (remove day/night suffix)."""
+        if not symbol_code:
+            return None
+        for suffix in cls.DAY_NIGHT_SUFFIXES:
+            if symbol_code.endswith(suffix):
+                return symbol_code[:-len(suffix)]
+        return symbol_code
+
+    @classmethod
+    def get_weather_emoji(cls, symbol_code):
+        """Get emoji for a weather symbol code."""
+        base_symbol = cls.get_base_symbol(symbol_code)
+        return cls.WEATHER_SYMBOLS.get(base_symbol, '🌡️')
+
+    @classmethod
+    def get_weather(cls):
+        """
+        Fetch current weather and forecast from yr.no API.
+        Returns cached data if available, otherwise fetches fresh data.
+
+        Returns:
+            dict or None: Weather data or None if fetch failed
+        """
+        # Check cache first
+        cached_data = cache.get(cls.CACHE_KEY)
+        if cached_data:
+            return cached_data
+
+        try:
+            url = (
+                f'https://api.met.no/weatherapi/locationforecast/2.0/compact'
+                f'?lat={cls.LAT}&lon={cls.LON}'
+            )
+            headers = {
+                'User-Agent': 'VraaVacationHome/1.0 (https://vraa.org)',
+            }
+
+            response = requests.get(url, headers=headers, timeout=10)
+            response.raise_for_status()
+
+            data = response.json()
+            timeseries = data.get('properties', {}).get('timeseries', [])
+
+            if not timeseries:
+                logger.warning('No timeseries data in weather response')
+                return None
+
+            # Current weather (first entry)
+            current_entry = timeseries[0]
+            current_instant = current_entry.get('data', {}).get('instant', {}).get('details', {})
+            current_next = current_entry.get('data', {}).get('next_1_hours', {})
+            symbol_code = current_next.get('summary', {}).get('symbol_code', '')
+
+            weather = {
+                'location': cls.LOCATION_NAME,
+                'temperature': round(current_instant.get('air_temperature', 0)),
+                'wind_speed': round(current_instant.get('wind_speed', 0)),
+                'humidity': round(current_instant.get('relative_humidity', 0)),
+                'symbol_code': symbol_code,
+                'emoji': cls.get_weather_emoji(symbol_code),
+                'updated': current_entry.get('time', ''),
+                'forecast': [],
+            }
+
+            # 3-day forecast (take readings at noon each day)
+            forecast_hours = [24, 48, 72]  # Hours from now
+            for i, hours in enumerate(forecast_hours):
+                if hours < len(timeseries):
+                    entry = timeseries[min(hours, len(timeseries) - 1)]
+                    instant = entry.get('data', {}).get('instant', {}).get('details', {})
+                    next_hours = entry.get('data', {}).get('next_6_hours', {}) or entry.get('data', {}).get('next_1_hours', {})
+                    forecast_symbol = next_hours.get('summary', {}).get('symbol_code', '')
+
+                    # Parse the time to get the day name
+                    entry_time = entry.get('time', '')
+                    try:
+                        dt = datetime.fromisoformat(entry_time.replace('Z', '+00:00'))
+                        day_names = ['Man', 'Tir', 'Ons', 'Tor', 'Fre', 'Lør', 'Søn']
+                        day_name = day_names[dt.weekday()]
+                    except (ValueError, IndexError):
+                        day_name = f'Dag {i + 1}'
+
+                    weather['forecast'].append({
+                        'day': day_name,
+                        'temp': round(instant.get('air_temperature', 0)),
+                        'emoji': cls.get_weather_emoji(forecast_symbol),
+                    })
+
+            # Cache the result
+            cache.set(cls.CACHE_KEY, weather, cls.CACHE_TIMEOUT)
+            return weather
+
+        except requests.exceptions.RequestException as e:
+            logger.error(f'Failed to fetch weather data: {e}')
+            return None
+        except (KeyError, ValueError, TypeError) as e:
+            logger.error(f'Error parsing weather data: {e}')
+            return None

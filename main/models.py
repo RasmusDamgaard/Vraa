@@ -313,6 +313,90 @@ class Document(models.Model):
         return f'{self.get_category_display()}: {self.title}'
 
 
+class MaintenanceRequest(models.Model):
+    """A maintenance request for reporting issues at the vacation home."""
+
+    STATUS_CHOICES = [
+        ('pending', 'Afventer'),
+        ('in_progress', 'Under behandling'),
+        ('resolved', 'Løst'),
+        ('wont_fix', 'Afvist'),
+    ]
+
+    PRIORITY_CHOICES = [
+        ('low', 'Lav'),
+        ('medium', 'Normal'),
+        ('high', 'Høj'),
+        ('urgent', 'Akut'),
+    ]
+
+    reporter = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='maintenance_requests',
+        verbose_name='Indberetter',
+    )
+    title = models.CharField(
+        max_length=200,
+        verbose_name='Titel',
+    )
+    description = models.TextField(
+        max_length=2000,
+        verbose_name='Beskrivelse',
+    )
+    location = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name='Placering',
+        help_text='Hvor på ejendommen er problemet?',
+    )
+    priority = models.CharField(
+        max_length=10,
+        choices=PRIORITY_CHOICES,
+        default='medium',
+        verbose_name='Prioritet',
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='pending',
+        verbose_name='Status',
+    )
+    admin_notes = models.TextField(
+        blank=True,
+        max_length=1000,
+        verbose_name='Admin noter',
+        help_text='Interne noter fra administrator',
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Oprettet',
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Opdateret',
+    )
+    resolved_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Løst',
+    )
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Vedligeholdelsesanmodning'
+        verbose_name_plural = 'Vedligeholdelsesanmodninger'
+        indexes = [
+            models.Index(fields=['-created_at']),
+            models.Index(fields=['status']),
+            models.Index(fields=['reporter']),
+            models.Index(fields=['priority']),
+        ]
+
+    def __str__(self) -> str:
+        return f'{self.title} ({self.get_status_display()})'
+
+
 class AuditLog(models.Model):
     """Log of important actions for accountability."""
 
@@ -324,6 +408,8 @@ class AuditLog(models.Model):
         ('message_deleted', 'Besked slettet'),
         ('document_uploaded', 'Dokument uploadet'),
         ('document_deleted', 'Dokument slettet'),
+        ('maintenance_created', 'Vedligeholdelsesanmodning oprettet'),
+        ('maintenance_updated', 'Vedligeholdelsesanmodning opdateret'),
     ]
 
     user = models.ForeignKey(
