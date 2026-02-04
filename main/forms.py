@@ -11,11 +11,11 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 
-from .models import Booking
+from .models import Booking, UserProfile
 
 
 class CustomUserCreationForm(UserCreationForm):
-    """Extended user creation form with email field and whitespace-friendly username."""
+    """Extended user creation form with email, display name, and no-whitespace username."""
 
     email = forms.EmailField(
         required=True,
@@ -24,10 +24,18 @@ class CustomUserCreationForm(UserCreationForm):
         widget=forms.EmailInput(attrs={'class': 'form-control'}),
     )
 
-    # Custom username validator that allows whitespace
+    display_name = forms.CharField(
+        max_length=100,
+        required=False,
+        label='Visningsnavn',
+        help_text="Dit navn som det vises på beskeder (f.eks. 'Rasmus Damgaard'). Kan indeholde mellemrum.",
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+    )
+
+    # Username validator - no whitespace allowed
     username_validator = RegexValidator(
-        regex=r'^[\w\s.@+-]+$',
-        message='Brugernavn må kun indeholde bogstaver, tal, mellemrum og @/./+/-/_.',
+        regex=r'^[\w.@+-]+$',
+        message='Brugernavn må kun indeholde bogstaver, tal og @/./+/-/_. Ingen mellemrum.',
     )
 
     class Meta:
@@ -38,7 +46,7 @@ class CustomUserCreationForm(UserCreationForm):
         super().__init__(*args, **kwargs)
         # Override the default username field with our custom validator
         self.fields['username'].validators = [self.username_validator]
-        self.fields['username'].help_text = 'Brugernavn må indeholde bogstaver, tal, mellemrum og @/./+/-/_.'
+        self.fields['username'].help_text = 'Brugernavn bruges til login. Må ikke indeholde mellemrum.'
         self.fields['username'].widget.attrs['class'] = 'form-control'
         self.fields['password1'].widget.attrs['class'] = 'form-control'
         self.fields['password2'].widget.attrs['class'] = 'form-control'
@@ -46,6 +54,11 @@ class CustomUserCreationForm(UserCreationForm):
     def clean_username(self):
         username = self.cleaned_data.get('username')
         if username:
+            # No whitespace allowed in username
+            if ' ' in username:
+                raise ValidationError(
+                    'Brugernavn må ikke indeholde mellemrum. Brug dit visningsnavn til navn med mellemrum.'
+                )
             # Check if username already exists (case-insensitive)
             if User.objects.filter(username__iexact=username).exists():
                 raise ValidationError('Dette brugernavn er allerede i brug.')
@@ -64,7 +77,23 @@ class CustomUserCreationForm(UserCreationForm):
         user.email = self.cleaned_data['email']
         if commit:
             user.save()
+            # Update the profile with display_name (profile is auto-created by signal)
+            if hasattr(user, 'profile'):
+                user.profile.display_name = self.cleaned_data.get('display_name', '')
+                user.profile.save()
         return user
+
+
+class UserProfileForm(forms.ModelForm):
+    """Form for editing user profile."""
+
+    class Meta:
+        model = UserProfile
+        fields = ['display_name', 'bio']
+        widgets = {
+            'display_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
 
 
 class BookingForm(forms.ModelForm):

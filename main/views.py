@@ -21,8 +21,8 @@ from django.views.generic import CreateView, DeleteView, DetailView, ListView, T
 from django_ratelimit.decorators import ratelimit
 from django_ratelimit.exceptions import Ratelimited
 
-from .forms import BookingForm, CustomUserCreationForm
-from .models import AuditLog, Booking, Comment, Document, MaintenanceRequest, Message, Notification
+from .forms import BookingForm, CustomUserCreationForm, UserProfileForm
+from .models import AuditLog, Booking, Comment, Document, MaintenanceRequest, Message, Notification, UserProfile
 from .services import AuditService, NotificationService, WeatherService
 
 logger = logging.getLogger(__name__)
@@ -38,11 +38,12 @@ class FrontpageView(ListView):
     extra_context = {'title': 'Forside'}
 
     def get_queryset(self):
-        # Optimize queries: prefetch comments and their authors
+        # Optimize queries: prefetch comments and their authors with profiles
         # Messages are ordered by -is_pinned, -pinned_at, -created_at (in model Meta)
-        return Message.objects.select_related('author').prefetch_related(
+        return Message.objects.select_related('author', 'author__profile').prefetch_related(
             'comments',
             'comments__author',
+            'comments__author__profile',
         )
 
     def get_context_data(self, **kwargs):
@@ -313,16 +314,22 @@ class BookingAPIView(LoginRequiredMixin, View):
 
         bookings = Booking.objects.filter(
             status__in=['pending', 'confirmed'],
-        ).select_related('user')
+        ).select_related('user', 'user__profile')
 
         events = []
         for booking in bookings:
             is_owner = booking.user == request.user
             can_edit = is_owner and booking.status == 'pending'
 
+            # Use display name if profile exists, otherwise fall back to username
+            if hasattr(booking.user, 'profile'):
+                title = booking.user.profile.get_display_name()
+            else:
+                title = booking.user.username
+
             events.append({
                 'id': booking.pk,
-                'title': booking.user.username,
+                'title': title,
                 'start': booking.start_date.isoformat(),
                 'end': booking.end_date.isoformat(),
                 'color': '#28a745' if booking.status == 'confirmed' else '#ffc107',
@@ -371,6 +378,10 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         user = self.request.user
         today = timezone.now().date()
 
+        # Ensure user has a profile
+        if not hasattr(user, 'profile'):
+            UserProfile.objects.create(user=user)
+
         # Separate bookings by time and status
         context['upcoming_bookings'] = Booking.objects.filter(
             user=user,
@@ -394,6 +405,26 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         context['total_comments'] = Comment.objects.filter(author=user).count()
 
         return context
+
+
+class ProfileEditView(LoginRequiredMixin, UpdateView):
+    """Allow users to edit their display name and bio."""
+
+    model = UserProfile
+    form_class = UserProfileForm
+    template_name = 'main/profile_edit.html'
+    success_url = reverse_lazy('main:profile')
+    extra_context = {'title': 'Rediger profil'}
+
+    def get_object(self, queryset=None):
+        """Return the current user's profile, creating one if needed."""
+        user = self.request.user
+        profile, created = UserProfile.objects.get_or_create(user=user)
+        return profile
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Din profil er opdateret.')
+        return super().form_valid(form)
 
 
 class BookingICSView(LoginRequiredMixin, View):

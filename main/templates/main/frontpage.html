@@ -46,7 +46,7 @@
                 <header class="message-header">
                     <div>
                         <span class="badge bg-primary me-2">Fastgjort</span>
-                        <strong>{{ message.author.username }}</strong>
+                        <strong>{{ message.author.profile.full_display_name }}</strong>
                     </div>
                     <small class="text-muted">
                         {{ message.created_at|date:"d. M Y, H:i" }}
@@ -74,7 +74,7 @@
                         {% for comment in message.comments.all %}
                         <div class="comment-item" id="comment-{{ comment.pk }}">
                             <div class="comment-header">
-                                <strong>{{ comment.author.username }}</strong>
+                                <strong>{{ comment.author.profile.full_display_name }}</strong>
                                 <small class="text-muted">{{ comment.created_at|date:"d. M Y, H:i" }}</small>
                             </div>
                             <div class="comment-content">
@@ -128,7 +128,7 @@
         {% for message in regular_messages %}
         <article class="message-card" id="message-{{ message.pk }}">
             <header class="message-header">
-                <strong>{{ message.author.username }}</strong>
+                <strong>{{ message.author.profile.full_display_name }}</strong>
                 <small class="text-muted">
                     {{ message.created_at|date:"d. M Y, H:i" }}
                 </small>
@@ -155,7 +155,7 @@
                     {% for comment in message.comments.all %}
                     <div class="comment-item" id="comment-{{ comment.pk }}">
                         <div class="comment-header">
-                            <strong>{{ comment.author.username }}</strong>
+                            <strong>{{ comment.author.profile.full_display_name }}</strong>
                             <small class="text-muted">{{ comment.created_at|date:"d. M Y, H:i" }}</small>
                         </div>
                         <div class="comment-content">
