@@ -89,10 +89,36 @@ class UserProfileForm(forms.ModelForm):
 
     class Meta:
         model = UserProfile
-        fields = ['display_name', 'bio']
+        fields = [
+            'display_name',
+            'bio',
+            'email_notification_pref',
+            'notify_new_messages',
+            'notify_comments',
+        ]
         widgets = {
             'display_name': forms.TextInput(attrs={'class': 'form-control'}),
             'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'email_notification_pref': forms.Select(attrs={'class': 'form-select'}),
+            'notify_new_messages': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'notify_comments': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+
+class NotificationPreferencesForm(forms.ModelForm):
+    """Form for editing notification preferences only."""
+
+    class Meta:
+        model = UserProfile
+        fields = [
+            'email_notification_pref',
+            'notify_new_messages',
+            'notify_comments',
+        ]
+        widgets = {
+            'email_notification_pref': forms.Select(attrs={'class': 'form-select'}),
+            'notify_new_messages': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'notify_comments': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
 

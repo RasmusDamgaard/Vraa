@@ -147,6 +147,9 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@vraa.org')
 
+# Site URL for email links
+SITE_URL = os.environ.get('SITE_URL', 'https://vraa.org')
+
 # =============================================================================
 # TEST CONFIGURATION
 # =============================================================================

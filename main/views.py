@@ -169,7 +169,19 @@ class MessageCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.author = self.request.user
-        return super().form_valid(form)
+        response = super().form_valid(form)
+
+        # Notify users about new message
+        NotificationService.notify_new_message(self.object)
+
+        # Check for @mentions
+        NotificationService.parse_and_notify_mentions(
+            self.object.content,
+            self.request.user,
+            self.object,
+        )
+
+        return response
 
 
 class MessageUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
@@ -215,6 +227,13 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
         # Send notification to the message author
         message = Message.objects.get(pk=self.kwargs['message_pk'])
         NotificationService.notify_comment_on_message(message, self.object)
+
+        # Check for @mentions in comment
+        NotificationService.parse_and_notify_mentions(
+            self.object.content,
+            self.request.user,
+            self.object,
+        )
 
         # If HTMX request, return partial template
         if self.request.headers.get('HX-Request'):

@@ -4,13 +4,18 @@ Services for sending notifications, emails, and external API integrations.
 from __future__ import annotations
 
 import logging
+import re
 from datetime import datetime
 
 import requests
+from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.cache import cache
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
 from django.urls import reverse
 
-from .models import AuditLog, Notification
+from .models import AuditLog, Notification, UserProfile
 
 logger = logging.getLogger(__name__)
 
@@ -19,27 +24,184 @@ class NotificationService:
     """Service for creating and sending notifications."""
 
     @staticmethod
+    def get_site_url():
+        """Get the site URL for email links."""
+        return getattr(settings, 'SITE_URL', 'https://vraa.org')
+
+    @staticmethod
+    def notify_new_message(message):
+        """
+        Notify users who have opted in to new message notifications.
+        Excludes the message author.
+        """
+        # Get users who want new message notifications
+        profiles = UserProfile.objects.filter(
+            notify_new_messages=True,
+        ).exclude(user=message.author).select_related('user')
+
+        # Get author display name
+        if hasattr(message.author, 'profile'):
+            author_name = message.author.profile.get_display_name()
+        else:
+            author_name = message.author.username
+
+        content_preview = message.content[:50]
+        if len(message.content) > 50:
+            content_preview += '...'
+
+        notifications_created = []
+        for profile in profiles:
+            notification = Notification.objects.create(
+                user=profile.user,
+                notification_type='new_message',
+                title='Ny besked på opslagstavlen',
+                message=f'{author_name} har skrevet en ny besked: "{content_preview}"',
+                link=reverse('main:frontpage') + f'#message-{message.pk}',
+            )
+            notifications_created.append(notification)
+
+            # Send email if user wants it
+            if profile.email_notification_pref == 'all':
+                NotificationService.send_notification_email(notification)
+
+        return notifications_created
+
+    @staticmethod
     def notify_comment_on_message(message, comment):
-        """Notify message author when someone comments."""
+        """
+        Enhanced: Notify message author when someone comments.
+        Respects user notification preferences.
+        """
+        # Skip if commenting on own message
         if message.author == comment.author:
-            return  # Don't notify self
+            return None
+
+        # Get author display name
+        if hasattr(comment.author, 'profile'):
+            author_name = comment.author.profile.get_display_name()
+        else:
+            author_name = comment.author.username
 
         content_preview = comment.content[:100]
         if len(comment.content) > 100:
             content_preview += '...'
 
-        Notification.objects.create(
+        notification = Notification.objects.create(
             user=message.author,
             notification_type='comment',
             title='Ny kommentar på din besked',
-            message=f'{comment.author.username} kommenterede: "{content_preview}"',
+            message=f'{author_name} kommenterede: "{content_preview}"',
             link=reverse('main:frontpage') + f'#message-{message.pk}',
         )
+
+        # Send email if user profile allows
+        if hasattr(message.author, 'profile'):
+            profile = message.author.profile
+            if profile.email_notification_pref in ('all', 'mentions_only') and profile.notify_comments:
+                NotificationService.send_notification_email(notification)
+
+        return notification
+
+    @staticmethod
+    def notify_mention(mentioned_user, source_object, author):
+        """Notify a user when they are mentioned with @username."""
+        if mentioned_user == author:
+            return None
+
+        # Get author display name
+        if hasattr(author, 'profile'):
+            author_name = author.profile.get_display_name()
+        else:
+            author_name = author.username
+
+        content_preview = source_object.content[:50]
+        if len(source_object.content) > 50:
+            content_preview += '...'
+
+        # Determine link based on object type
+        if hasattr(source_object, 'message'):
+            # It's a comment
+            link = reverse('main:frontpage') + f'#message-{source_object.message.pk}'
+        else:
+            # It's a message
+            link = reverse('main:frontpage') + f'#message-{source_object.pk}'
+
+        notification = Notification.objects.create(
+            user=mentioned_user,
+            notification_type='mention',
+            title='Du blev nævnt i en besked',
+            message=f'{author_name} nævnte dig: "{content_preview}"',
+            link=link,
+        )
+
+        # Always email for mentions (unless completely disabled)
+        if hasattr(mentioned_user, 'profile'):
+            if mentioned_user.profile.email_notification_pref != 'none':
+                NotificationService.send_notification_email(notification)
+
+        return notification
+
+    @staticmethod
+    def parse_and_notify_mentions(content, author, source_object):
+        """
+        Parse @username mentions in content and create notifications.
+        Returns list of mentioned users.
+        """
+        User = get_user_model()
+
+        # Find all @mentions
+        mention_pattern = r'@(\w+)'
+        usernames = re.findall(mention_pattern, content)
+
+        mentioned_users = []
+        for username in usernames:
+            try:
+                user = User.objects.get(username__iexact=username)
+                NotificationService.notify_mention(user, source_object, author)
+                mentioned_users.append(user)
+            except User.DoesNotExist:
+                pass
+
+        return mentioned_users
+
+    @staticmethod
+    def send_notification_email(notification):
+        """Send email for a notification."""
+        if not notification.user.email:
+            return False
+
+        site_url = NotificationService.get_site_url()
+
+        try:
+            html_message = render_to_string('main/email/notification.html', {
+                'notification': notification,
+                'site_url': site_url,
+            })
+        except Exception as e:
+            logger.error(f'Failed to render notification email template: {e}')
+            html_message = None
+
+        plain_message = f"{notification.message}\n\nSe mere: {site_url}{notification.link}"
+
+        try:
+            send_mail(
+                subject=notification.title,
+                message=plain_message,
+                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', None),
+                recipient_list=[notification.user.email],
+                html_message=html_message,
+                fail_silently=True,
+            )
+            logger.info(f'Notification email sent to {notification.user.email}')
+            return True
+        except Exception as e:
+            logger.error(f'Failed to send notification email: {e}')
+            return False
 
     @staticmethod
     def notify_booking_approved(booking):
         """Notify user when booking is approved."""
-        Notification.objects.create(
+        notification = Notification.objects.create(
             user=booking.user,
             notification_type='booking_approved',
             title='Din booking er godkendt!',
@@ -47,16 +209,28 @@ class NotificationService:
             link=reverse('main:kalender'),
         )
 
+        # Send email notification
+        if hasattr(booking.user, 'profile') and booking.user.profile.email_notification_pref != 'none':
+            NotificationService.send_notification_email(notification)
+
+        return notification
+
     @staticmethod
     def notify_booking_rejected(booking):
         """Notify user when booking is rejected."""
-        Notification.objects.create(
+        notification = Notification.objects.create(
             user=booking.user,
             notification_type='booking_rejected',
             title='Din booking er afvist',
             message=f'Din booking fra {booking.start_date.strftime("%d. %B %Y")} til {booking.end_date.strftime("%d. %B %Y")} er desværre blevet afvist.',
             link=reverse('main:kalender'),
         )
+
+        # Send email notification
+        if hasattr(booking.user, 'profile') and booking.user.profile.email_notification_pref != 'none':
+            NotificationService.send_notification_email(notification)
+
+        return notification
 
 
 class AuditService:

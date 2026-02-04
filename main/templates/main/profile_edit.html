@@ -31,6 +31,49 @@
                     {% endif %}
                 </div>
 
+                <hr class="my-4">
+                <h5 class="mb-3">Notifikationsindstillinger</h5>
+
+                <div class="mb-3">
+                    <label for="id_email_notification_pref" class="form-label">E-mailnotifikationer</label>
+                    {{ form.email_notification_pref }}
+                    <div class="form-text">
+                        Bestem hvornaar du vil modtage e-mailnotifikationer.
+                    </div>
+                    {% if form.email_notification_pref.errors %}
+                    <div class="text-danger">{{ form.email_notification_pref.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <div class="form-check">
+                        {{ form.notify_new_messages }}
+                        <label class="form-check-label" for="id_notify_new_messages">
+                            Notificer mig ved nye beskeder paa opslagstavlen
+                        </label>
+                    </div>
+                    <div class="form-text">
+                        Modtag notifikationer naar andre brugere poster nye beskeder.
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="form-check">
+                        {{ form.notify_comments }}
+                        <label class="form-check-label" for="id_notify_comments">
+                            Notificer mig ved kommentarer paa mine beskeder
+                        </label>
+                    </div>
+                    <div class="form-text">
+                        Modtag notifikationer naar nogen kommenterer dine beskeder.
+                    </div>
+                </div>
+
+                <div class="alert alert-info" role="alert">
+                    <strong>Tip:</strong> Du kan naevne andre brugere med @brugernavn i beskeder og kommentarer.
+                    De vil modtage en notifikation naar de bliver naevnt.
+                </div>
+
                 <div class="d-flex gap-2">
                     <button type="submit" class="btn btn-primary">Gem aendringer</button>
                     <a href="{% url 'main:profile' %}" class="btn btn-outline-secondary">Annuller</a>
