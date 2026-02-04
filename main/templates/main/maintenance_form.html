@@ -1,0 +1,95 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="message-form-container">
+  <h1 class="mb-4">{{ title }}</h1>
+
+  <form method="post" class="needs-validation" novalidate>
+    {% csrf_token %}
+
+    {% if form.errors %}
+    <div class="alert alert-danger">
+      <ul class="mb-0">
+        {% for field in form %}
+          {% for error in field.errors %}
+          <li>{{ field.label }}: {{ error }}</li>
+          {% endfor %}
+        {% endfor %}
+        {% for error in form.non_field_errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <div class="mb-3">
+      <label for="id_title" class="form-label">Titel</label>
+      <input type="text" class="form-control {% if form.title.errors %}is-invalid{% endif %}"
+             id="id_title" name="title" value="{{ form.title.value|default:'' }}"
+             maxlength="200" required placeholder="Kort beskrivelse af problemet">
+      <div class="form-text">F.eks. "Utaet vandhane i koekken" eller "Knust vindue i stue"</div>
+    </div>
+
+    <div class="mb-3">
+      <label for="id_description" class="form-label">Beskrivelse</label>
+      <textarea class="form-control {% if form.description.errors %}is-invalid{% endif %}"
+                id="id_description" name="description" rows="5" maxlength="2000" required
+                placeholder="Beskriv problemet i detaljer...">{{ form.description.value|default:'' }}</textarea>
+      <div class="form-text">Giv en detaljeret beskrivelse af problemet, inklusive hvornaar det opstod og evt. omstaendigheder.</div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label for="id_location" class="form-label">Placering</label>
+        <input type="text" class="form-control {% if form.location.errors %}is-invalid{% endif %}"
+               id="id_location" name="location" value="{{ form.location.value|default:'' }}"
+               maxlength="100" placeholder="F.eks. Koekken, Badevaerelse, Udendoers">
+        <div class="form-text">Hvor paa ejendommen er problemet?</div>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label for="id_priority" class="form-label">Prioritet</label>
+        <select class="form-select {% if form.priority.errors %}is-invalid{% endif %}"
+                id="id_priority" name="priority">
+          {% for value, label in form.fields.priority.choices %}
+          <option value="{{ value }}" {% if form.priority.value == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        <div class="form-text">Vaelg "Akut" kun ved kritiske problemer som vandskade eller sikkerhedsrisiko.</div>
+      </div>
+    </div>
+
+    {% if user.is_staff and form.fields.status %}
+    <hr class="my-4">
+    <h3 class="mb-3">Administrator</h3>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label for="id_status" class="form-label">Status</label>
+        <select class="form-select {% if form.status.errors %}is-invalid{% endif %}"
+                id="id_status" name="status">
+          {% for value, label in form.fields.status.choices %}
+          <option value="{{ value }}" {% if form.status.value == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="id_admin_notes" class="form-label">Admin noter</label>
+      <textarea class="form-control {% if form.admin_notes.errors %}is-invalid{% endif %}"
+                id="id_admin_notes" name="admin_notes" rows="3" maxlength="1000"
+                placeholder="Interne noter om problemets loesning...">{{ form.admin_notes.value|default:'' }}</textarea>
+      <div class="form-text">Disse noter er kun synlige for administratorer.</div>
+    </div>
+    {% endif %}
+
+    <div class="d-flex gap-2 mt-4">
+      <button type="submit" class="btn btn-primary">
+        {% if object %}Gem aendringer{% else %}Opret anmodning{% endif %}
+      </button>
+      <a href="{% url 'main:maintenance_list' %}" class="btn btn-outline-secondary">Annuller</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

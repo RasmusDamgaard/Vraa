@@ -94,4 +94,10 @@ urlpatterns = [
     path('admin-dashboard/brugere/<int:pk>/aktiver/', views.UserActivateView.as_view(), name='user_activate'),
     path('admin-dashboard/brugere/<int:pk>/deaktiver/', views.UserDeactivateView.as_view(), name='user_deactivate'),
     path('admin-dashboard/aktivitetslog/', views.AuditLogListView.as_view(), name='audit_log'),
+
+    # Maintenance requests
+    path('vedligeholdelse/', views.MaintenanceListView.as_view(), name='maintenance_list'),
+    path('vedligeholdelse/ny/', views.MaintenanceCreateView.as_view(), name='maintenance_create'),
+    path('vedligeholdelse/<int:pk>/', views.MaintenanceDetailView.as_view(), name='maintenance_detail'),
+    path('vedligeholdelse/<int:pk>/rediger/', views.MaintenanceUpdateView.as_view(), name='maintenance_update'),
 ]

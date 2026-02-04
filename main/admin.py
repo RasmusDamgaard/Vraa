@@ -13,7 +13,7 @@ from django.core.mail import send_mail
 
 from django.utils import timezone
 
-from .models import AuditLog, Booking, Comment, Document, Message, Notification
+from .models import AuditLog, Booking, Comment, Document, MaintenanceRequest, Message, Notification
 from .services import AuditService, NotificationService
 
 logger = logging.getLogger(__name__)
@@ -278,3 +278,53 @@ class AuditLogAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         """Disable deletion of audit logs."""
         return False
+
+
+@admin.register(MaintenanceRequest)
+class MaintenanceRequestAdmin(admin.ModelAdmin):
+    """Admin interface for managing maintenance requests."""
+
+    list_display = ['title', 'reporter', 'priority', 'status', 'location', 'created_at']
+    list_filter = ['status', 'priority', 'created_at']
+    search_fields = ['title', 'description', 'location', 'reporter__username']
+    date_hierarchy = 'created_at'
+    readonly_fields = ['created_at', 'updated_at', 'resolved_at']
+    actions = ['mark_in_progress', 'mark_resolved', 'mark_wont_fix']
+
+    fieldsets = (
+        (None, {
+            'fields': ('reporter', 'title', 'description', 'location', 'priority')
+        }),
+        ('Status', {
+            'fields': ('status', 'admin_notes', 'resolved_at')
+        }),
+        ('Metadata', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+    def save_model(self, request, obj, form, change):
+        """Set resolved_at when status changes to resolved."""
+        if 'status' in form.changed_data:
+            if obj.status == 'resolved':
+                obj.resolved_at = timezone.now()
+            else:
+                obj.resolved_at = None
+        super().save_model(request, obj, form, change)
+
+    @admin.action(description='Marker som under behandling')
+    def mark_in_progress(self, request, queryset):
+        count = queryset.update(status='in_progress', resolved_at=None)
+        self.message_user(request, f'{count} anmodning(er) markeret som under behandling.')
+
+    @admin.action(description='Marker som loest')
+    def mark_resolved(self, request, queryset):
+        now = timezone.now()
+        count = queryset.update(status='resolved', resolved_at=now)
+        self.message_user(request, f'{count} anmodning(er) markeret som loest.')
+
+    @admin.action(description='Marker som afvist')
+    def mark_wont_fix(self, request, queryset):
+        count = queryset.update(status='wont_fix', resolved_at=None)
+        self.message_user(request, f'{count} anmodning(er) markeret som afvist.')
