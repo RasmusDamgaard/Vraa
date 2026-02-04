@@ -2,14 +2,25 @@
 
 {% block content %}
 <div class="profile-container">
-    <h1>Min profil</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Min profil</h1>
+        <a href="{% url 'main:profile_edit' %}" class="btn btn-outline-primary">Rediger profil</a>
+    </div>
 
     <div class="card mb-4">
         <div class="card-body">
-            <h5 class="card-title">Kontoinformation</h5>
+            <h5 class="card-title">Profilinformation</h5>
+            {% if user.profile.display_name %}
+            <p><strong>Visningsnavn:</strong> {{ user.profile.display_name }}</p>
+            {% endif %}
             <p><strong>Brugernavn:</strong> {{ user.username }}</p>
             <p><strong>E-mail:</strong> {{ user.email|default:"Ikke angivet" }}</p>
             <p><strong>Medlem siden:</strong> {{ user.date_joined|date:"d. F Y" }}</p>
+            {% if user.profile.bio %}
+            <hr>
+            <p class="mb-0"><strong>Om mig:</strong></p>
+            <p class="text-muted">{{ user.profile.bio }}</p>
+            {% endif %}
         </div>
     </div>
 

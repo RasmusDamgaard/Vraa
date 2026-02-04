@@ -13,7 +13,7 @@ from django.core.mail import send_mail
 
 from django.utils import timezone
 
-from .models import AuditLog, Booking, Comment, Document, MaintenanceRequest, Message, Notification
+from .models import AuditLog, Booking, Comment, Document, MaintenanceRequest, Message, Notification, UserProfile
 from .services import AuditService, NotificationService
 
 logger = logging.getLogger(__name__)
@@ -75,6 +75,27 @@ class CommentAdmin(admin.ModelAdmin):
             return obj.content[:50] + '...'
         return obj.content
     content_preview.short_description = 'Kommentar'
+
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    """Admin interface for managing user profiles."""
+
+    list_display = ['user', 'display_name', 'created_at', 'updated_at']
+    list_filter = ['created_at']
+    search_fields = ['user__username', 'display_name', 'bio']
+    readonly_fields = ['created_at', 'updated_at']
+    raw_id_fields = ['user']
+
+    fieldsets = (
+        (None, {
+            'fields': ('user', 'display_name', 'bio')
+        }),
+        ('Metadata', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
 
 
 @admin.register(Booking)

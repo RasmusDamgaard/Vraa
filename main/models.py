@@ -8,6 +8,59 @@ from django.core.validators import FileExtensionValidator
 from django.db import models
 
 
+class UserProfile(models.Model):
+    """
+    Extended user profile with display name and additional info.
+    Created automatically via signal when User is created.
+    """
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='profile',
+        verbose_name='Bruger',
+    )
+    display_name = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name='Visningsnavn',
+        help_text="Navn som vises på beskeder og bookinger (f.eks. 'Rasmus Damgaard')",
+    )
+    bio = models.TextField(
+        max_length=500,
+        blank=True,
+        verbose_name='Om mig',
+        help_text='Kort beskrivelse (valgfrit)',
+    )
+    # Heritage line will be added in Phase 3
+    # heritage_line = models.ForeignKey('HeritageLine', ...)
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Oprettet',
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Opdateret',
+    )
+
+    class Meta:
+        verbose_name = 'Brugerprofil'
+        verbose_name_plural = 'Brugerprofiler'
+
+    def __str__(self) -> str:
+        return f"{self.user.username}'s profil"
+
+    def get_display_name(self) -> str:
+        """Return display name if set, otherwise username."""
+        return self.display_name if self.display_name else self.user.username
+
+    @property
+    def full_display_name(self) -> str:
+        """Alias for get_display_name() for template convenience."""
+        return self.get_display_name()
+
+
 class Message(models.Model):
     """A message on the message board."""
 

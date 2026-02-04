@@ -53,6 +53,7 @@ urlpatterns = [
 
     # User profile
     path('profil/', views.ProfileView.as_view(), name='profile'),
+    path('profil/rediger/', views.ProfileEditView.as_view(), name='profile_edit'),
 
     # Notifications
     path('notifikationer/', views.NotificationListView.as_view(), name='notifications'),
