@@ -68,11 +68,11 @@
 
                 <!-- Comments Section -->
                 <div class="comments-section">
-                    {% if message.comments.all %}
-                    <div class="comments-list">
+                    <div class="comments-list" id="comments-{{ message.pk }}">
+                        {% if message.comments.all %}
                         <small class="text-muted">{{ message.comments.count }} kommentar{{ message.comments.count|pluralize:"er" }}</small>
                         {% for comment in message.comments.all %}
-                        <div class="comment-item">
+                        <div class="comment-item" id="comment-{{ comment.pk }}">
                             <div class="comment-header">
                                 <strong>{{ comment.author.username }}</strong>
                                 <small class="text-muted">{{ comment.created_at|date:"d. M Y, H:i" }}</small>
@@ -81,14 +81,18 @@
                                 {{ comment.content|linebreaks }}
                             </div>
                             {% if user == comment.author %}
-                            <a href="{% url 'main:comment_delete' comment.pk %}" class="btn btn-sm btn-outline-danger">
-                                Slet
-                            </a>
+                            <form hx-delete="{% url 'main:comment_delete' comment.pk %}"
+                                  hx-target="#comment-{{ comment.pk }}"
+                                  hx-swap="outerHTML"
+                                  hx-confirm="Er du sikker pa at du vil slette denne kommentar?">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Slet</button>
+                            </form>
                             {% endif %}
                         </div>
                         {% endfor %}
+                        {% endif %}
                     </div>
-                    {% endif %}
                     {% if user.is_authenticated %}
                     <button class="btn btn-sm btn-outline-primary mt-2" type="button"
                             data-bs-toggle="collapse" data-bs-target="#comment-form-{{ message.pk }}"
@@ -96,7 +100,10 @@
                         Tilfoj kommentar
                     </button>
                     <div class="collapse mt-2" id="comment-form-{{ message.pk }}">
-                        <form method="post" action="{% url 'main:comment_create' message.pk %}">
+                        <form hx-post="{% url 'main:comment_create' message.pk %}"
+                              hx-target="#comments-{{ message.pk }}"
+                              hx-swap="beforeend"
+                              hx-on::after-request="this.reset()">
                             {% csrf_token %}
                             <div class="input-group">
                                 <input type="text" name="content" class="form-control form-control-sm"
@@ -142,11 +149,11 @@
 
             <!-- Comments Section -->
             <div class="comments-section">
-                {% if message.comments.all %}
-                <div class="comments-list">
+                <div class="comments-list" id="comments-{{ message.pk }}">
+                    {% if message.comments.all %}
                     <small class="text-muted">{{ message.comments.count }} kommentar{{ message.comments.count|pluralize:"er" }}</small>
                     {% for comment in message.comments.all %}
-                    <div class="comment-item">
+                    <div class="comment-item" id="comment-{{ comment.pk }}">
                         <div class="comment-header">
                             <strong>{{ comment.author.username }}</strong>
                             <small class="text-muted">{{ comment.created_at|date:"d. M Y, H:i" }}</small>
@@ -155,14 +162,18 @@
                             {{ comment.content|linebreaks }}
                         </div>
                         {% if user == comment.author %}
-                        <a href="{% url 'main:comment_delete' comment.pk %}" class="btn btn-sm btn-outline-danger">
-                            Slet
-                        </a>
+                        <form hx-delete="{% url 'main:comment_delete' comment.pk %}"
+                              hx-target="#comment-{{ comment.pk }}"
+                              hx-swap="outerHTML"
+                              hx-confirm="Er du sikker pa at du vil slette denne kommentar?">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Slet</button>
+                        </form>
                         {% endif %}
                     </div>
                     {% endfor %}
+                    {% endif %}
                 </div>
-                {% endif %}
                 {% if user.is_authenticated %}
                 <button class="btn btn-sm btn-outline-primary mt-2" type="button"
                         data-bs-toggle="collapse" data-bs-target="#comment-form-{{ message.pk }}"
@@ -170,7 +181,10 @@
                     Tilfoj kommentar
                 </button>
                 <div class="collapse mt-2" id="comment-form-{{ message.pk }}">
-                    <form method="post" action="{% url 'main:comment_create' message.pk %}">
+                    <form hx-post="{% url 'main:comment_create' message.pk %}"
+                          hx-target="#comments-{{ message.pk }}"
+                          hx-swap="beforeend"
+                          hx-on::after-request="this.reset()">
                         {% csrf_token %}
                         <div class="input-group">
                             <input type="text" name="content" class="form-control form-control-sm"

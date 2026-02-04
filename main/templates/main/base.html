@@ -1,9 +1,18 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Vraa – {{ title }}</title>
+
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="{% static 'main/manifest.json' %}">
+    <meta name="theme-color" content="#2C5F7C">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Vraa">
+    <link rel="apple-touch-icon" href="{% static 'main/img/logo-192.png' %}">
 
     <!-- Resource hints for faster loading -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
@@ -17,7 +26,6 @@
       crossorigin="anonymous"
     />
 
-    {% load static %}
     <link rel="icon" type="image/png" href="{% static 'main/img/logo.png' %}" />
     <link rel="stylesheet" href="{% static 'main/css/style.css' %}" />
 
@@ -208,7 +216,25 @@
       crossorigin="anonymous"
     ></script>
 
+    <!-- HTMX for dynamic interactions -->
+    <script src="https://unpkg.com/htmx.org@1.9.10" crossorigin="anonymous"></script>
+
     <!-- Theme Toggle JS -->
     <script src="{% static 'main/js/theme.js' %}"></script>
+
+    <!-- Service Worker Registration for PWA -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('{% static "main/sw.js" %}')
+            .then(function(registration) {
+              console.log('ServiceWorker registration successful');
+            })
+            .catch(function(err) {
+              console.log('ServiceWorker registration failed: ', err);
+            });
+        });
+      }
+    </script>
   </body>
 </html>
