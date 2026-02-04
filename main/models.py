@@ -259,6 +259,30 @@ class UserProfile(models.Model):
         help_text='Rolle i familielinjen',
     )
 
+    # Notification preferences
+    NOTIFICATION_PREF_CHOICES = [
+        ('all', 'Alle notifikationer'),
+        ('mentions_only', 'Kun nævnelser'),
+        ('none', 'Ingen e-mailnotifikationer'),
+    ]
+    email_notification_pref = models.CharField(
+        max_length=20,
+        choices=NOTIFICATION_PREF_CHOICES,
+        default='all',
+        verbose_name='E-mailnotifikationer',
+        help_text='Hvornår skal du modtage e-mailnotifikationer?',
+    )
+    notify_new_messages = models.BooleanField(
+        default=True,
+        verbose_name='Notificer ved nye beskeder',
+        help_text='Modtag notifikationer når nye beskeder postes på opslagstavlen',
+    )
+    notify_comments = models.BooleanField(
+        default=True,
+        verbose_name='Notificer ved kommentarer',
+        help_text='Modtag notifikationer når nogen kommenterer dine beskeder',
+    )
+
     created_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Oprettet',
@@ -510,6 +534,8 @@ class Notification(models.Model):
         ('booking_rejected', 'Booking afvist'),
         ('mention', 'Du blev nævnt'),
         ('reply', 'Svar på din kommentar'),
+        ('new_message', 'Ny besked på opslagstavlen'),
+        ('booking_reminder', 'Påmindelse om kommende booking'),
     ]
 
     user = models.ForeignKey(
