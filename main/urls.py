@@ -88,4 +88,10 @@ urlpatterns = [
              extra_context={'title': 'Adgangskode nulstillet'},
          ),
          name='password_reset_complete'),
+
+    # Admin dashboard (staff only)
+    path('admin-dashboard/brugere/', views.UserManagementView.as_view(), name='user_management'),
+    path('admin-dashboard/brugere/<int:pk>/aktiver/', views.UserActivateView.as_view(), name='user_activate'),
+    path('admin-dashboard/brugere/<int:pk>/deaktiver/', views.UserDeactivateView.as_view(), name='user_deactivate'),
+    path('admin-dashboard/aktivitetslog/', views.AuditLogListView.as_view(), name='audit_log'),
 ]

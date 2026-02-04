@@ -20,8 +20,8 @@ from django.views.decorators.cache import cache_page
 from django.views.generic import CreateView, DeleteView, ListView, TemplateView, UpdateView
 
 from .forms import BookingForm, CustomUserCreationForm
-from .models import Booking, Comment, Message, Notification
-from .services import NotificationService
+from .models import AuditLog, Booking, Comment, Document, Message, Notification
+from .services import AuditService, NotificationService
 
 logger = logging.getLogger(__name__)
 
@@ -483,3 +483,160 @@ class NotificationMarkAllReadView(LoginRequiredMixin, View):
             return JsonResponse({'success': True})
 
         return HttpResponse(status=204)
+
+
+# =============================================================================
+# ADMIN DASHBOARD VIEWS
+# =============================================================================
+
+
+class UserManagementView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    """Dashboard for managing users (staff only)."""
+
+    model = User
+    template_name = 'main/user_management.html'
+    context_object_name = 'users'
+    extra_context = {'title': 'Brugerstyring'}
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get_queryset(self):
+        return User.objects.all().order_by('-date_joined')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['pending_users'] = User.objects.filter(is_active=False).order_by('-date_joined')
+        context['active_users'] = User.objects.filter(is_active=True).order_by('username')
+        context['total_users'] = User.objects.count()
+        context['pending_count'] = context['pending_users'].count()
+        context['active_count'] = context['active_users'].count()
+        return context
+
+
+class UserActivateView(LoginRequiredMixin, UserPassesTestMixin, View):
+    """Activate a pending user (staff only)."""
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def post(self, request, pk):
+        user = get_object_or_404(User, pk=pk)
+        user.is_active = True
+        user.save()
+
+        # Log the action
+        AuditService.log_user_activated(request, user)
+
+        # Send welcome email
+        if user.email:
+            try:
+                send_mail(
+                    subject='Din konto er aktiveret - Vraa',
+                    message=(
+                        f'Hej {user.username},\n\n'
+                        f'Din konto på Vraa-hjemmesiden er nu aktiveret.\n'
+                        f'Du kan nu logge ind og bruge siden.\n\n'
+                        f'Venlig hilsen,\nVraa'
+                    ),
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[user.email],
+                    fail_silently=True,
+                )
+            except Exception as e:
+                logger.error(f'Failed to send activation email: {e}')
+
+        messages.success(request, f'Brugeren {user.username} er nu aktiveret.')
+        return HttpResponse(status=204, headers={'HX-Trigger': 'userUpdated'})
+
+
+class UserDeactivateView(LoginRequiredMixin, UserPassesTestMixin, View):
+    """Deactivate a user (staff only)."""
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def post(self, request, pk):
+        user = get_object_or_404(User, pk=pk)
+        if user == request.user:
+            messages.error(request, 'Du kan ikke deaktivere din egen konto.')
+            return HttpResponse(status=400)
+
+        user.is_active = False
+        user.save()
+
+        # Log the action
+        AuditService.log_user_deactivated(request, user)
+
+        messages.success(request, f'Brugeren {user.username} er nu deaktiveret.')
+        return HttpResponse(status=204, headers={'HX-Trigger': 'userUpdated'})
+
+
+class AuditLogListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    """View audit logs (staff only)."""
+
+    model = AuditLog
+    template_name = 'main/audit_log.html'
+    context_object_name = 'logs'
+    paginate_by = 50
+    extra_context = {'title': 'Aktivitetslog'}
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get_queryset(self):
+        queryset = AuditLog.objects.select_related('user')
+
+        # Filter by action if specified
+        action = self.request.GET.get('action')
+        if action:
+            queryset = queryset.filter(action=action)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['action_choices'] = AuditLog.ACTION_CHOICES
+        context['selected_action'] = self.request.GET.get('action', '')
+        return context
+
+
+class ReferaterDynamicView(TemplateView):
+    """Display referater from database with fallback to static files."""
+
+    template_name = 'main/referater.html'
+    extra_context = {'title': 'Referater'}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Get documents from database
+        documents = Document.objects.filter(category='referat')
+
+        # Group by year
+        years = {}
+        for doc in documents:
+            year = doc.document_date.year
+            if year not in years:
+                years[year] = []
+            years[year].append(doc)
+
+        context['documents_by_year'] = dict(sorted(years.items(), reverse=True))
+        context['has_dynamic_documents'] = documents.exists()
+        return context
+
+
+class VedtaegterDynamicView(TemplateView):
+    """Display vedtaegter from database with fallback to static files."""
+
+    template_name = 'main/vedtaegter.html'
+    extra_context = {'title': 'Vedtægter'}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Get documents from database
+        documents = Document.objects.filter(category='vedtaegt')
+        context['dynamic_documents'] = documents
+        context['has_dynamic_documents'] = documents.exists()
+        return context
