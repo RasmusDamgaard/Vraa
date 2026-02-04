@@ -4,6 +4,7 @@ Models for the ``main`` application.
 from __future__ import annotations
 
 from django.conf import settings
+from django.core.validators import FileExtensionValidator
 from django.db import models
 
 
@@ -248,3 +249,128 @@ class Notification(models.Model):
 
     def __str__(self) -> str:
         return f'{self.user.username}: {self.title}'
+
+
+def document_upload_path(instance, filename):
+    """Generate upload path based on category and year."""
+    year = instance.document_date.year if instance.document_date else 'other'
+    return f'documents/{instance.category}/{year}/{filename}'
+
+
+class Document(models.Model):
+    """A document (referat, vedtaegt, etc.)"""
+
+    CATEGORY_CHOICES = [
+        ('referat', 'Referat'),
+        ('vedtaegt', 'Vedtægt'),
+        ('other', 'Andet'),
+    ]
+
+    title = models.CharField(
+        max_length=200,
+        verbose_name='Titel',
+    )
+    category = models.CharField(
+        max_length=20,
+        choices=CATEGORY_CHOICES,
+        verbose_name='Kategori',
+    )
+    file = models.FileField(
+        upload_to=document_upload_path,
+        verbose_name='Fil',
+        validators=[FileExtensionValidator(['pdf', 'doc', 'docx'])],
+    )
+    document_date = models.DateField(
+        verbose_name='Dokument dato',
+        help_text='Datoen for dokumentet (f.eks. dato for generalforsamling)',
+    )
+    description = models.TextField(
+        blank=True,
+        max_length=500,
+        verbose_name='Beskrivelse',
+    )
+    uploaded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='uploaded_documents',
+        verbose_name='Uploadet af',
+    )
+    uploaded_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Uploadet',
+    )
+
+    class Meta:
+        ordering = ['-document_date']
+        verbose_name = 'Dokument'
+        verbose_name_plural = 'Dokumenter'
+        indexes = [
+            models.Index(fields=['category', '-document_date']),
+        ]
+
+    def __str__(self) -> str:
+        return f'{self.get_category_display()}: {self.title}'
+
+
+class AuditLog(models.Model):
+    """Log of important actions for accountability."""
+
+    ACTION_CHOICES = [
+        ('booking_approved', 'Booking godkendt'),
+        ('booking_rejected', 'Booking afvist'),
+        ('user_activated', 'Bruger aktiveret'),
+        ('user_deactivated', 'Bruger deaktiveret'),
+        ('message_deleted', 'Besked slettet'),
+        ('document_uploaded', 'Dokument uploadet'),
+        ('document_deleted', 'Dokument slettet'),
+    ]
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='audit_logs',
+        verbose_name='Bruger',
+    )
+    action = models.CharField(
+        max_length=30,
+        choices=ACTION_CHOICES,
+        verbose_name='Handling',
+    )
+    target_type = models.CharField(
+        max_length=50,
+        verbose_name='Måltype',
+        help_text='Model name of the affected object',
+    )
+    target_id = models.PositiveIntegerField(
+        verbose_name='Mål-ID',
+        help_text='Primary key of the affected object',
+    )
+    details = models.JSONField(
+        default=dict,
+        blank=True,
+        verbose_name='Detaljer',
+    )
+    ip_address = models.GenericIPAddressField(
+        null=True,
+        blank=True,
+        verbose_name='IP-adresse',
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Tidspunkt',
+    )
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Aktivitetslog'
+        verbose_name_plural = 'Aktivitetslogs'
+        indexes = [
+            models.Index(fields=['-created_at']),
+            models.Index(fields=['action']),
+            models.Index(fields=['user']),
+        ]
+
+    def __str__(self) -> str:
+        return f'{self.user}: {self.get_action_display()} ({self.created_at})'

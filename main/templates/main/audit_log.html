@@ -1,0 +1,172 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Aktivitetslog</h1>
+        <a href="{% url 'main:user_management' %}" class="btn btn-outline-secondary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left me-1" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+            </svg>
+            Tilbage til brugerstyring
+        </a>
+    </div>
+
+    <!-- Filter -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="action-filter" class="form-label">Filtrer efter handling</label>
+                    <select name="action" id="action-filter" class="form-select">
+                        <option value="">Alle handlinger</option>
+                        {% for value, label in action_choices %}
+                        <option value="{{ value }}" {% if selected_action == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary">Filtrer</button>
+                    {% if selected_action %}
+                    <a href="{% url 'main:audit_log' %}" class="btn btn-outline-secondary">Nulstil</a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Log Table -->
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Tidspunkt</th>
+                            <th>Bruger</th>
+                            <th>Handling</th>
+                            <th>Type</th>
+                            <th>ID</th>
+                            <th>Detaljer</th>
+                            <th>IP-adresse</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td>
+                                <small>{{ log.created_at|date:"d. M Y" }}</small><br>
+                                <small class="text-muted">{{ log.created_at|time:"H:i:s" }}</small>
+                            </td>
+                            <td>
+                                {% if log.user %}
+                                <strong>{{ log.user.username }}</strong>
+                                {% else %}
+                                <span class="text-muted">System</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if log.action == 'booking_approved' %}
+                                <span class="badge bg-success">{{ log.get_action_display }}</span>
+                                {% elif log.action == 'booking_rejected' %}
+                                <span class="badge bg-danger">{{ log.get_action_display }}</span>
+                                {% elif log.action == 'user_activated' %}
+                                <span class="badge bg-success">{{ log.get_action_display }}</span>
+                                {% elif log.action == 'user_deactivated' %}
+                                <span class="badge bg-warning text-dark">{{ log.get_action_display }}</span>
+                                {% elif log.action == 'document_uploaded' %}
+                                <span class="badge bg-info">{{ log.get_action_display }}</span>
+                                {% elif log.action == 'document_deleted' %}
+                                <span class="badge bg-secondary">{{ log.get_action_display }}</span>
+                                {% else %}
+                                <span class="badge bg-secondary">{{ log.get_action_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td><code>{{ log.target_type }}</code></td>
+                            <td><code>{{ log.target_id }}</code></td>
+                            <td>
+                                {% if log.details %}
+                                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#detailsModal{{ log.pk }}">
+                                    Vis detaljer
+                                </button>
+                                <!-- Details Modal -->
+                                <div class="modal fade" id="detailsModal{{ log.pk }}" tabindex="-1" aria-labelledby="detailsModalLabel{{ log.pk }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="detailsModalLabel{{ log.pk }}">Detaljer</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Luk"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <dl class="mb-0">
+                                                    {% for key, value in log.details.items %}
+                                                    <dt>{{ key }}</dt>
+                                                    <dd>{{ value }}</dd>
+                                                    {% endfor %}
+                                                </dl>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Luk</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if log.ip_address %}
+                                <code class="small">{{ log.ip_address }}</code>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">
+                                {% if selected_action %}
+                                Ingen aktiviteter fundet med dette filter.
+                                {% else %}
+                                Ingen aktiviteter registreret endnu.
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Sidenavigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1{% if selected_action %}&action={{ selected_action }}{% endif %}">Første</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_action %}&action={{ selected_action }}{% endif %}">Forrige</a>
+            </li>
+            {% endif %}
+
+            <li class="page-item disabled">
+                <span class="page-link">Side {{ page_obj.number }} af {{ page_obj.paginator.num_pages }}</span>
+            </li>
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_action %}&action={{ selected_action }}{% endif %}">Næste</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if selected_action %}&action={{ selected_action }}{% endif %}">Sidste</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

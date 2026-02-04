@@ -13,8 +13,8 @@ from django.core.mail import send_mail
 
 from django.utils import timezone
 
-from .models import Booking, Comment, Message, Notification
-from .services import NotificationService
+from .models import AuditLog, Booking, Comment, Document, Message, Notification
+from .services import AuditService, NotificationService
 
 logger = logging.getLogger(__name__)
 
@@ -224,3 +224,57 @@ class NotificationAdmin(admin.ModelAdmin):
     def mark_as_unread(self, request, queryset):
         count = queryset.update(is_read=False)
         self.message_user(request, f'{count} notifikation(er) markeret som ulaest.')
+
+
+@admin.register(Document)
+class DocumentAdmin(admin.ModelAdmin):
+    """Admin interface for managing documents."""
+
+    list_display = ['title', 'category', 'document_date', 'uploaded_by', 'uploaded_at']
+    list_filter = ['category', 'document_date']
+    search_fields = ['title', 'description']
+    date_hierarchy = 'document_date'
+    readonly_fields = ['uploaded_by', 'uploaded_at']
+
+    def save_model(self, request, obj, form, change):
+        """Set uploaded_by on create and log the action."""
+        if not change:  # New object
+            obj.uploaded_by = request.user
+        super().save_model(request, obj, form, change)
+        # Log the upload action
+        if not change:
+            AuditService.log_document_uploaded(request, obj)
+
+    def delete_model(self, request, obj):
+        """Log document deletion before deleting."""
+        AuditService.log_document_deleted(request, obj)
+        super().delete_model(request, obj)
+
+    def delete_queryset(self, request, queryset):
+        """Log document deletions for bulk delete."""
+        for doc in queryset:
+            AuditService.log_document_deleted(request, doc)
+        super().delete_queryset(request, queryset)
+
+
+@admin.register(AuditLog)
+class AuditLogAdmin(admin.ModelAdmin):
+    """Admin interface for viewing audit logs (read-only)."""
+
+    list_display = ['created_at', 'user', 'action', 'target_type', 'target_id', 'ip_address']
+    list_filter = ['action', 'created_at', 'target_type']
+    search_fields = ['user__username', 'target_type', 'ip_address']
+    date_hierarchy = 'created_at'
+    readonly_fields = ['user', 'action', 'target_type', 'target_id', 'details', 'ip_address', 'created_at']
+
+    def has_add_permission(self, request):
+        """Disable manual creation of audit logs."""
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        """Disable editing of audit logs."""
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        """Disable deletion of audit logs."""
+        return False

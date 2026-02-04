@@ -139,6 +139,25 @@
                   >Admin Vejledning</a
                 >
               </li>
+
+              <!-- Admin Dashboard Section -->
+              <li class="nav-item mt-3">
+                <small class="text-muted px-3">Administration</small>
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link {% if title == 'Brugerstyring' %}active{% endif %}"
+                  href="{% url 'main:user_management' %}"
+                  >Brugerstyring</a
+                >
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link {% if title == 'Aktivitetslog' %}active{% endif %}"
+                  href="{% url 'main:audit_log' %}"
+                  >Aktivitetslog</a
+                >
+              </li>
               {% endif %}
             </ul>
 
