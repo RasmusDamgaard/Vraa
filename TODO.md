@@ -209,22 +209,26 @@ This document tracks potential features and improvements for the Vraa vacation h
 ## Technical Improvements
 
 ### P2: HTMX for Dynamic Interactions
-- [ ] Add HTMX library
-- [ ] Convert comment add/delete to HTMX (no page refresh)
+- [x] Add HTMX library
+- [x] Convert comment add/delete to HTMX (no page refresh)
 - [ ] Inline message editing
 - [ ] Dynamic booking form validation
 - [ ] Loading indicators for async operations
 
 **Why**: Better UX while maintaining Django simplicity (no JS framework needed).
 
+**Status**: Partially implemented - HTMX added to base template, comment create/delete now work without page refresh.
+
 ### P3: Progressive Web App (PWA)
-- [ ] Add web app manifest
-- [ ] Create service worker for offline caching
-- [ ] Add to home screen capability
-- [ ] Cache static assets for offline access
+- [x] Add web app manifest
+- [x] Create service worker for offline caching
+- [x] Add to home screen capability
+- [x] Cache static assets for offline access
 - [ ] Future: Push notifications
 
 **Why**: Better mobile experience, works offline for viewing cached content.
+
+**Status**: Implemented - manifest.json, service worker (sw.js), and PWA meta tags added.
 
 ### P3: Accessibility Audit
 - [ ] Run automated accessibility tests (axe, WAVE)
@@ -237,11 +241,13 @@ This document tracks potential features and improvements for the Vraa vacation h
 **Why**: Ensure site is usable by all family members.
 
 ### P3: API Rate Limiting
-- [ ] Add rate limiting to booking API endpoint
-- [ ] Consider django-ratelimit or similar
-- [ ] Protect against abuse
+- [x] Add rate limiting to booking API endpoint
+- [x] Consider django-ratelimit or similar
+- [x] Protect against abuse
 
 **Why**: API endpoint is currently unprotected.
+
+**Status**: Implemented - django-ratelimit added with 60 requests/hour limit on BookingAPIView.
 
 ---
 
@@ -294,7 +300,22 @@ See CLAUDE.md for list of completed features including:
 - On-site documentation (user guide, admin guide)
 - Performance optimizations
 - HTTPS security
+- Dark mode toggle
+- Weather widget
+- Notification system
+- Pin important messages
+- User profile page
+- Calendar click booking details
+- ICS calendar export
+- Document management system
+- User management dashboard
+- Audit/Activity log
+- Maintenance request system
+- **Phase 6: Technical Improvements**
+  - HTMX integration for dynamic comment interactions
+  - Progressive Web App (PWA) support
+  - API rate limiting
 
 ---
 
-**Last Updated**: 2026-02-03
+**Last Updated**: 2026-02-04

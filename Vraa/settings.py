@@ -199,3 +199,11 @@ if not DEBUG:
     # Additional Security Headers
     SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevent MIME type sniffing
     X_FRAME_OPTIONS = 'DENY'  # Prevent clickjacking (already set by middleware, explicit here)
+
+# =============================================================================
+# RATE LIMITING CONFIGURATION
+# =============================================================================
+# Using django-ratelimit to protect API endpoints from abuse
+RATELIMIT_ENABLE = True
+RATELIMIT_USE_CACHE = 'default'
+RATELIMIT_VIEW = 'main.views.ratelimit_error_view'  # Custom error view for rate limit exceeded

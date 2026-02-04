@@ -1,0 +1,18 @@
+<div class="comment-item" id="comment-{{ comment.pk }}">
+    <div class="comment-header">
+        <strong>{{ comment.author.username }}</strong>
+        <small class="text-muted">{{ comment.created_at|date:"d. M Y, H:i" }}</small>
+    </div>
+    <div class="comment-content">
+        {{ comment.content|linebreaks }}
+    </div>
+    {% if user == comment.author %}
+    <form hx-delete="{% url 'main:comment_delete' comment.pk %}"
+          hx-target="#comment-{{ comment.pk }}"
+          hx-swap="outerHTML"
+          hx-confirm="Er du sikker pa at du vil slette denne kommentar?">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-outline-danger">Slet</button>
+    </form>
+    {% endif %}
+</div>

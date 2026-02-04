@@ -18,6 +18,8 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import cache_page
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, TemplateView, UpdateView
+from django_ratelimit.decorators import ratelimit
+from django_ratelimit.exceptions import Ratelimited
 
 from .forms import BookingForm, CustomUserCreationForm
 from .models import AuditLog, Booking, Comment, Document, MaintenanceRequest, Message, Notification
@@ -197,15 +199,24 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
     extra_context = {'title': 'Tilføj kommentar'}
 
     def form_valid(self, form):
+        from django.shortcuts import render
+
         form.instance.author = self.request.user
         form.instance.message_id = self.kwargs['message_pk']
-        response = super().form_valid(form)
+        self.object = form.save()
 
         # Send notification to the message author
         message = Message.objects.get(pk=self.kwargs['message_pk'])
         NotificationService.notify_comment_on_message(message, self.object)
 
-        return response
+        # If HTMX request, return partial template
+        if self.request.headers.get('HX-Request'):
+            return render(self.request, 'main/partials/comment.html', {
+                'comment': self.object,
+                'user': self.request.user,
+            })
+
+        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse_lazy('main:frontpage')
@@ -226,6 +237,17 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def test_func(self):
         return self.get_object().author == self.request.user
+
+    def delete(self, request, *args, **kwargs):
+        """Handle DELETE request with HTMX support."""
+        self.object = self.get_object()
+        self.object.delete()
+
+        # If HTMX request, return empty response to remove element
+        if request.headers.get('HX-Request'):
+            return HttpResponse(status=200)
+
+        return HttpResponse(status=302, headers={'Location': self.success_url})
 
 
 class BookingCreateView(LoginRequiredMixin, CreateView):
@@ -282,8 +304,9 @@ class BookingDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return self.get_object().user == self.request.user
 
 
+@method_decorator(ratelimit(key='user', rate='60/h', method='GET', block=True), name='get')
 class BookingAPIView(LoginRequiredMixin, View):
-    """API endpoint for calendar data (JSON)."""
+    """API endpoint for calendar data (JSON) with rate limiting."""
 
     def get(self, request):
         from django.urls import reverse
@@ -757,3 +780,16 @@ class MaintenanceUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView)
 
     def get_success_url(self):
         return reverse_lazy('main:maintenance_detail', kwargs={'pk': self.object.pk})
+
+
+# =============================================================================
+# RATE LIMIT ERROR VIEW
+# =============================================================================
+
+
+def ratelimit_error_view(request, exception):
+    """Custom error view for rate limit exceeded."""
+    return JsonResponse(
+        {'error': 'For mange forespørgsler. Prøv igen senere.'},
+        status=429
+    )
