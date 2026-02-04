@@ -44,6 +44,10 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     # WhiteNoiseMiddleware sits after SecurityMiddleware
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    # CSP middleware for Content Security Policy headers
+    'csp.middleware.CSPMiddleware',
+    # Permissions-Policy middleware
+    'main.middleware.PermissionsPolicyMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -199,6 +203,69 @@ if not DEBUG:
     # Additional Security Headers
     SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevent MIME type sniffing
     X_FRAME_OPTIONS = 'DENY'  # Prevent clickjacking (already set by middleware, explicit here)
+
+    # Referrer Policy - controls how much referrer info is sent
+    SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+
+    # Cross-Origin Opener Policy - prevents window.opener attacks
+    SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'
+
+# =============================================================================
+# CONTENT SECURITY POLICY (CSP) CONFIGURATION
+# =============================================================================
+# django-csp settings - helps prevent XSS attacks
+# These settings apply to both development and production
+
+# Default source for all content types not explicitly configured
+CSP_DEFAULT_SRC = ("'self'",)
+
+# Allowed sources for stylesheets
+CSP_STYLE_SRC = (
+    "'self'",
+    "'unsafe-inline'",  # Required for Bootstrap and inline styles
+    "https://cdn.jsdelivr.net",
+    "https://fonts.googleapis.com",
+)
+
+# Allowed sources for scripts
+CSP_SCRIPT_SRC = (
+    "'self'",
+    "'unsafe-inline'",  # Required for Bootstrap and inline scripts
+    "https://cdn.jsdelivr.net",
+    "https://unpkg.com",
+)
+
+# Allowed sources for fonts
+CSP_FONT_SRC = (
+    "'self'",
+    "https://fonts.gstatic.com",
+    "https://cdn.jsdelivr.net",
+)
+
+# Allowed sources for images
+CSP_IMG_SRC = (
+    "'self'",
+    "data:",  # For inline images
+    "https:",  # Allow external images over HTTPS
+)
+
+# Allowed sources for AJAX/fetch requests
+CSP_CONNECT_SRC = (
+    "'self'",
+    "https://api.met.no",  # Weather API if used
+)
+
+# Prevent embedding in frames (clickjacking protection)
+CSP_FRAME_ANCESTORS = ("'none'",)
+
+# Restrict form submissions to same origin
+CSP_FORM_ACTION = ("'self'",)
+
+# Block all object/embed elements (Flash, etc.)
+CSP_OBJECT_SRC = ("'none'",)
+
+# Restrict base URI to same origin
+CSP_BASE_URI = ("'self'",)
 
 # =============================================================================
 # RATE LIMITING CONFIGURATION
