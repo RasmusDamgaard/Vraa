@@ -7,8 +7,9 @@
 ### Purpose
 - Serve as a central hub for family members to access information about the Vraa vacation home
 - Display historical meeting minutes and governance documents
-- Provide a calendar for booking/scheduling
+- Provide a calendar for booking/scheduling with heritage line reserved weeks
 - Modern, responsive design accessible on all devices
+- Support 4 family heritage lines with visual identification and reserved booking periods
 
 ### Tech Stack
 - **Framework**: Django 4.x
@@ -66,7 +67,8 @@ Vraa/
 ├── db.sqlite3               # Local SQLite database
 ├── .gitignore               # Git ignore rules
 ├── README.md                # User-facing documentation
-└── TODO.md                  # Feature roadmap and backlog
+├── TODO.md                  # Feature roadmap and backlog
+└── implementation_plan.md   # Detailed implementation plan for new features
 ```
 
 ---
@@ -494,25 +496,85 @@ Currently no automated tests exist. When adding tests:
 ## Active TODO Items
 
 See **[TODO.md](TODO.md)** for the complete feature roadmap and backlog.
+See **[implementation_plan.md](implementation_plan.md)** for detailed implementation plans for new features.
 
-### High Priority (P1)
-- **Require Login for Entire Site** - Privacy protection; all content visible only to authenticated family members
-- **Password Reset Functionality** - Users have no way to recover forgotten passwords
-- **Email Notifications for Booking Status** - Notify users when bookings are approved/rejected
+### Urgent Priority (P0)
+- **Security Headers for Corporate Access** - Add CSP, SRI, and other security headers to allow access from corporate networks
+
+### High Priority (P1) - New Features Planned
+- **User Profile with Display Names** - Allow whitespace in display names while keeping username as login identifier
+- **Family Heritage Line System** - 4 family lines with visible badges/tags on messages and profiles
+- **Reserved Weeks Calendar** - Each heritage line has 2 reserved weeks per year with rolling allocation
+- **Enhanced Notification System** - Email notifications for new messages and comments
 
 ### Medium Priority (P2)
-- **User Profile & "My Bookings" Page** - Let users see their booking history
-- **Calendar - Click Booking for Details** - Show who made a booking when clicked
-- **Calendar Export (ICS)** - Sync with personal calendars
-- **In-App Notification System** - Alert users to comments and booking updates
-- **Pin Important Messages** - Keep announcements at top of message board
-- **Document Management System** - Upload referater/vedtaegter via admin
-- **HTMX for Dynamic Interactions** - Better UX without page refreshes
+- **Search Functionality** - Full-text search on message board
+- **Accessibility Audit** - WCAG 2.1 AA compliance
 
 ### Low Priority (P3)
-- Search functionality, dark mode, weather widget, maintenance requests, PWA support, and more
+- Additional technical improvements as documented in TODO.md
 
-For full details, effort estimates, and implementation notes, see TODO.md.
+For full details, effort estimates, and implementation notes, see TODO.md and implementation_plan.md.
+
+---
+
+## Planned Architecture: Family Heritage System
+
+The following models and features are planned for implementation (see `implementation_plan.md` for full details):
+
+### Planned Models
+
+#### UserProfile Model
+```python
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    display_name = models.CharField(max_length=100, blank=True)  # Allows whitespace
+    heritage_line = models.ForeignKey('HeritageLine', null=True, blank=True)
+    family_role = models.CharField(choices=[('member', 'elder', 'head')])
+    email_notification_pref = models.CharField(choices=[('all', 'mentions_only', 'none')])
+    # ... additional fields
+```
+
+#### HeritageLine Model
+```python
+class HeritageLine(models.Model):
+    name = models.CharField(max_length=50)  # e.g., "Linje 1"
+    short_name = models.CharField(max_length=20)  # e.g., "L1"
+    color = models.CharField(max_length=7)  # Hex color for calendar
+    badge_class = models.CharField(max_length=30)  # Bootstrap badge class
+    order = models.PositiveSmallIntegerField()  # For rotation calculation
+    base_weeks = models.JSONField()  # Base week numbers for rotation
+```
+
+#### ReservedWeek Model
+```python
+class ReservedWeek(models.Model):
+    heritage_line = models.ForeignKey(HeritageLine)
+    year = models.PositiveIntegerField()
+    week_number = models.PositiveSmallIntegerField()
+    start_date = models.DateField()  # Auto-calculated
+    end_date = models.DateField()  # Auto-calculated
+    is_locked = models.BooleanField(default=True)
+```
+
+### Reserved Weeks Rotation
+
+The 4 heritage lines each have 2 reserved weeks per year, rotating annually:
+
+| Year | Line 1 | Line 2 | Line 3 | Line 4 |
+|------|--------|--------|--------|--------|
+| 2024 | 26-27 | 28-29 | 30-31 | 32-33 |
+| 2025 | 28-29 | 30-31 | 32-33 | 26-27 |
+| 2026 | 30-31 | 32-33 | 26-27 | 28-29 |
+| 2027 | 32-33 | 26-27 | 28-29 | 30-31 |
+
+### Implementation Phases
+
+1. **Phase 1**: Security headers (corporate access fix)
+2. **Phase 2**: UserProfile & display names
+3. **Phase 3**: Heritage line system
+4. **Phase 4**: Reserved weeks calendar
+5. **Phase 5**: Enhanced notifications
 
 ---
 
@@ -556,8 +618,21 @@ For human developers:
 
 ---
 
-**Document Version**: 1.2
-**Last Updated**: 2026-02-03
+**Document Version**: 1.3
+**Last Updated**: 2026-02-04
 **Python Version**: 3.11.4
 **Django Version**: 4.x
 **Deployment**: Heroku
+
+---
+
+## Implementation Plan Reference
+
+For detailed implementation steps for the new features (heritage lines, reserved weeks, notifications, display names, security), see **[implementation_plan.md](implementation_plan.md)**.
+
+The implementation plan covers:
+- Phase 1: Security improvements for corporate network access
+- Phase 2: User profiles with display names
+- Phase 3: Family heritage line system
+- Phase 4: Reserved weeks calendar with rolling allocation
+- Phase 5: Enhanced notification system with email support
