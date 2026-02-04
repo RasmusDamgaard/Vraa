@@ -1,0 +1,10 @@
+{% if has_heritage %}
+<span class="badge {{ heritage_line.badge_class }} heritage-badge" title="{{ heritage_line.name }}">
+    {{ heritage_line.short_name }}
+</span>
+{% if family_role and family_role != 'member' %}
+<span class="badge bg-secondary heritage-role-badge" title="{{ family_role_display }}">
+    {{ family_role_display }}
+</span>
+{% endif %}
+{% endif %}

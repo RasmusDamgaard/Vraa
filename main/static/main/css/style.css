@@ -1412,3 +1412,55 @@ html {
     height: 36px;
   }
 }
+
+/* ============================================
+   HERITAGE LINE BADGE STYLES
+   ============================================ */
+.heritage-badge {
+  font-size: 0.7rem;
+  padding: 0.2em 0.5em;
+  margin-left: var(--spacing-xs);
+  vertical-align: middle;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  border-radius: var(--radius-sm);
+}
+
+.heritage-role-badge {
+  font-size: 0.65rem;
+  padding: 0.15em 0.4em;
+  margin-left: var(--spacing-xs);
+  vertical-align: middle;
+  font-weight: 400;
+}
+
+/* Heritage line color variations for custom colors */
+.heritage-badge[style*="background-color"] {
+  border: none;
+}
+
+/* Message and comment header adjustments for badges */
+.message-header > div,
+.comment-header > div {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+.comment-header {
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+/* Mobile adjustments for heritage badges */
+@media (max-width: 767.98px) {
+  .heritage-badge {
+    font-size: 0.65rem;
+    padding: 0.15em 0.4em;
+  }
+
+  .heritage-role-badge {
+    font-size: 0.6rem;
+  }
+}

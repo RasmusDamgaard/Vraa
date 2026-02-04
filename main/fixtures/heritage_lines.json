@@ -1,0 +1,62 @@
+[
+    {
+        "model": "main.heritageline",
+        "pk": 1,
+        "fields": {
+            "name": "Linje 1",
+            "short_name": "L1",
+            "description": "Første familielinje",
+            "color": "#2C5F7C",
+            "badge_class": "bg-primary",
+            "order": 0,
+            "base_weeks": [26, 27],
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "main.heritageline",
+        "pk": 2,
+        "fields": {
+            "name": "Linje 2",
+            "short_name": "L2",
+            "description": "Anden familielinje",
+            "color": "#5FA8A0",
+            "badge_class": "bg-success",
+            "order": 1,
+            "base_weeks": [28, 29],
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "main.heritageline",
+        "pk": 3,
+        "fields": {
+            "name": "Linje 3",
+            "short_name": "L3",
+            "description": "Tredje familielinje",
+            "color": "#E8A838",
+            "badge_class": "bg-warning",
+            "order": 2,
+            "base_weeks": [30, 31],
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "main.heritageline",
+        "pk": 4,
+        "fields": {
+            "name": "Linje 4",
+            "short_name": "L4",
+            "description": "Fjerde familielinje",
+            "color": "#C75B5B",
+            "badge_class": "bg-danger",
+            "order": 3,
+            "base_weeks": [32, 33],
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z"
+        }
+    }
+]

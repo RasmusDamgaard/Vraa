@@ -13,7 +13,7 @@ from django.core.mail import send_mail
 
 from django.utils import timezone
 
-from .models import AuditLog, Booking, Comment, Document, MaintenanceRequest, Message, Notification, UserProfile
+from .models import AuditLog, Booking, Comment, Document, HeritageLine, MaintenanceRequest, Message, Notification, UserProfile
 from .services import AuditService, NotificationService
 
 logger = logging.getLogger(__name__)
@@ -77,19 +77,57 @@ class CommentAdmin(admin.ModelAdmin):
     content_preview.short_description = 'Kommentar'
 
 
+@admin.register(HeritageLine)
+class HeritageLineAdmin(admin.ModelAdmin):
+    """Admin interface for managing heritage lines."""
+
+    list_display = ['name', 'short_name', 'color', 'badge_class', 'order', 'member_count']
+    list_editable = ['order']
+    ordering = ['order']
+    search_fields = ['name', 'short_name', 'description']
+    readonly_fields = ['created_at', 'updated_at']
+
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'short_name', 'description')
+        }),
+        ('Visning', {
+            'fields': ('color', 'badge_class', 'order')
+        }),
+        ('Reserverede uger', {
+            'fields': ('base_weeks',),
+            'classes': ('collapse',),
+            'description': 'Basis ugenumre for rotation (f.eks. [26, 27])'
+        }),
+        ('Metadata', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+    def member_count(self, obj):
+        """Return the number of members in this heritage line."""
+        return obj.members.count()
+    member_count.short_description = 'Medlemmer'
+
+
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     """Admin interface for managing user profiles."""
 
-    list_display = ['user', 'display_name', 'created_at', 'updated_at']
-    list_filter = ['created_at']
+    list_display = ['user', 'display_name', 'heritage_line', 'family_role', 'created_at', 'updated_at']
+    list_filter = ['heritage_line', 'family_role', 'created_at']
     search_fields = ['user__username', 'display_name', 'bio']
     readonly_fields = ['created_at', 'updated_at']
     raw_id_fields = ['user']
+    autocomplete_fields = ['heritage_line']
 
     fieldsets = (
         (None, {
             'fields': ('user', 'display_name', 'bio')
+        }),
+        ('Familielinje', {
+            'fields': ('heritage_line', 'family_role')
         }),
         ('Metadata', {
             'fields': ('created_at', 'updated_at'),

@@ -8,11 +8,110 @@ from django.core.validators import FileExtensionValidator
 from django.db import models
 
 
+class HeritageLine(models.Model):
+    """
+    Represents one of the 4 family heritage lines.
+    Each line has reserved weeks allocated on a rolling basis.
+    """
+
+    name = models.CharField(
+        max_length=50,
+        unique=True,
+        verbose_name='Navn',
+        help_text="Navn på familielinjen (f.eks. 'Damgaard-linjen')",
+    )
+    short_name = models.CharField(
+        max_length=20,
+        verbose_name='Kort navn',
+        help_text="Kort visningsnavn til badges (f.eks. 'Damgaard')",
+    )
+    description = models.TextField(
+        blank=True,
+        verbose_name='Beskrivelse',
+        help_text='Beskrivelse af denne familielinje',
+    )
+    color = models.CharField(
+        max_length=7,
+        default='#2C5F7C',
+        verbose_name='Farve',
+        help_text="Hex-farvekode til kalenderbegivenheder (f.eks. '#2C5F7C')",
+    )
+    badge_class = models.CharField(
+        max_length=30,
+        default='bg-primary',
+        verbose_name='Badge klasse',
+        help_text="Bootstrap badge klasse (f.eks. 'bg-primary', 'bg-success')",
+    )
+    order = models.PositiveSmallIntegerField(
+        default=0,
+        verbose_name='Rækkefølge',
+        help_text='Visningsrækkefølge (lavere tal først)',
+    )
+    base_weeks = models.JSONField(
+        default=list,
+        blank=True,
+        verbose_name='Baseuger',
+        help_text='Basis ugenumre for år 0 rotation (f.eks. [26, 27])',
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Oprettet',
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Opdateret',
+    )
+
+    class Meta:
+        verbose_name = 'Familielinje'
+        verbose_name_plural = 'Familielinjer'
+        ordering = ['order', 'name']
+
+    def __str__(self) -> str:
+        return self.name
+
+    def get_reserved_weeks_for_year(self, year: int) -> list[int]:
+        """
+        Calculate reserved weeks for a specific year using rolling rotation.
+
+        The rotation works as follows:
+        - Base year (2024) = index 0
+        - Each subsequent year, weeks rotate forward by the line's order position
+
+        Example with 4 lines and 2 weeks each:
+        - Year 0: Line 1 gets weeks 26-27, Line 2 gets weeks 28-29, etc.
+        - Year 1: Line 1 gets weeks 28-29, Line 2 gets weeks 30-31, etc.
+        """
+        if not self.base_weeks:
+            return []
+
+        base_year = 2024  # Reference year for rotation calculation
+        year_offset = year - base_year
+        total_lines = HeritageLine.objects.count()
+
+        if total_lines == 0:
+            return []
+
+        weeks_per_line = len(self.base_weeks)
+        start_offset = ((self.order + year_offset) % total_lines) * weeks_per_line
+
+        # Get the actual week numbers
+        all_reserved_weeks = list(range(26, 26 + total_lines * weeks_per_line))
+        return all_reserved_weeks[start_offset:start_offset + weeks_per_line]
+
+
 class UserProfile(models.Model):
     """
     Extended user profile with display name and additional info.
     Created automatically via signal when User is created.
     """
+
+    FAMILY_ROLE_CHOICES = [
+        ('member', 'Medlem'),
+        ('elder', 'Ældste'),
+        ('head', 'Linjehoved'),
+    ]
 
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
@@ -32,8 +131,22 @@ class UserProfile(models.Model):
         verbose_name='Om mig',
         help_text='Kort beskrivelse (valgfrit)',
     )
-    # Heritage line will be added in Phase 3
-    # heritage_line = models.ForeignKey('HeritageLine', ...)
+    heritage_line = models.ForeignKey(
+        'HeritageLine',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='members',
+        verbose_name='Familielinje',
+        help_text='Familielinje denne bruger tilhører',
+    )
+    family_role = models.CharField(
+        max_length=20,
+        choices=FAMILY_ROLE_CHOICES,
+        default='member',
+        verbose_name='Familerolle',
+        help_text='Rolle i familielinjen',
+    )
 
     created_at = models.DateTimeField(
         auto_now_add=True,
