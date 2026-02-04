@@ -1,5 +1,6 @@
 {% extends 'main/base.html' %}
 {% load static %}
+{% load heritage_tags %}
 
 {% block content %}
 <picture>
@@ -47,6 +48,7 @@
                     <div>
                         <span class="badge bg-primary me-2">Fastgjort</span>
                         <strong>{{ message.author.profile.full_display_name }}</strong>
+                        {% heritage_badge message.author %}
                     </div>
                     <small class="text-muted">
                         {{ message.created_at|date:"d. M Y, H:i" }}
@@ -74,7 +76,10 @@
                         {% for comment in message.comments.all %}
                         <div class="comment-item" id="comment-{{ comment.pk }}">
                             <div class="comment-header">
-                                <strong>{{ comment.author.profile.full_display_name }}</strong>
+                                <div>
+                                    <strong>{{ comment.author.profile.full_display_name }}</strong>
+                                    {% heritage_badge comment.author %}
+                                </div>
                                 <small class="text-muted">{{ comment.created_at|date:"d. M Y, H:i" }}</small>
                             </div>
                             <div class="comment-content">
@@ -128,7 +133,10 @@
         {% for message in regular_messages %}
         <article class="message-card" id="message-{{ message.pk }}">
             <header class="message-header">
-                <strong>{{ message.author.profile.full_display_name }}</strong>
+                <div>
+                    <strong>{{ message.author.profile.full_display_name }}</strong>
+                    {% heritage_badge message.author %}
+                </div>
                 <small class="text-muted">
                     {{ message.created_at|date:"d. M Y, H:i" }}
                 </small>
@@ -155,7 +163,10 @@
                     {% for comment in message.comments.all %}
                     <div class="comment-item" id="comment-{{ comment.pk }}">
                         <div class="comment-header">
-                            <strong>{{ comment.author.profile.full_display_name }}</strong>
+                            <div>
+                                <strong>{{ comment.author.profile.full_display_name }}</strong>
+                                {% heritage_badge comment.author %}
+                            </div>
                             <small class="text-muted">{{ comment.created_at|date:"d. M Y, H:i" }}</small>
                         </div>
                         <div class="comment-content">
