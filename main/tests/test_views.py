@@ -12,8 +12,8 @@ from django.core.exceptions import ValidationError
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from .forms import BookingForm
-from .models import Booking, Comment, Message
+from main.forms import BookingForm
+from main.models import Booking, Comment, Message
 
 
 # =============================================================================
