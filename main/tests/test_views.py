@@ -1577,3 +1577,46 @@ class KalenderViewIntegrationTests(BaseTestCase):
         bookings = response.context['bookings']
         self.assertEqual(len(bookings), 1)
         self.assertEqual(bookings[0].status, 'confirmed')
+
+
+# =============================================================================
+# Health Check Tests
+# =============================================================================
+
+
+class HealthCheckTests(TestCase):
+    """Tests for the health check endpoint."""
+
+    def test_health_check_no_auth_required(self):
+        """Health check endpoint does not require authentication."""
+        response = self.client.get(reverse('main:health_check'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_health_check_returns_json(self):
+        """Health check endpoint returns JSON response."""
+        response = self.client.get(reverse('main:health_check'))
+        self.assertEqual(response.get('Content-Type'), 'application/json')
+
+    def test_health_check_includes_status(self):
+        """Health check response includes status field."""
+        response = self.client.get(reverse('main:health_check'))
+        data = response.json()
+        self.assertIn('status', data)
+        self.assertEqual(data['status'], 'healthy')
+
+    def test_health_check_includes_database_check(self):
+        """Health check response includes database check."""
+        response = self.client.get(reverse('main:health_check'))
+        data = response.json()
+        self.assertIn('checks', data)
+        self.assertIn('database', data['checks'])
+        self.assertEqual(data['checks']['database'], 'ok')
+
+    def test_health_check_includes_cache_check(self):
+        """Health check response includes cache check."""
+        response = self.client.get(reverse('main:health_check'))
+        data = response.json()
+        self.assertIn('checks', data)
+        self.assertIn('cache', data['checks'])
+        # DummyCache used in tests returns 'unavailable', real cache returns 'ok'
+        self.assertIn(data['checks']['cache'], ['ok', 'unavailable'])

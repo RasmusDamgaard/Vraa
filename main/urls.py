@@ -11,6 +11,9 @@ from . import views
 app_name = 'main'
 
 urlpatterns = [
+    # Health check (for monitoring and load balancer probes)
+    path('health/', views.health_check, name='health_check'),
+
     # Pages
     path('', views.FrontpageView.as_view(), name='frontpage'),
     path('information/', views.InformationView.as_view(), name='information'),

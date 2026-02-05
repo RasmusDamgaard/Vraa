@@ -21,10 +21,23 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-local-dev-key-change-
 # On Heroku, you set DEBUG=False in the config, so it will be safe there.
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-# ALLOWED_HOSTS needed for production
-ALLOWED_HOSTS = ['*']
-# For stricter security in future:
-# ALLOWED_HOSTS = ['vraa.org', 'www.vraa.org', 'your-app-name.herokuapp.com', '127.0.0.1', 'localhost']
+# ALLOWED_HOSTS configuration
+# In DEBUG mode, allow localhost and common development hosts
+# In production, use environment variable or defaults
+if DEBUG:
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', '.localhost']
+else:
+    # Allow setting ALLOWED_HOSTS via environment variable (comma-separated)
+    _allowed_hosts_env = os.environ.get('ALLOWED_HOSTS', '')
+    if _allowed_hosts_env:
+        ALLOWED_HOSTS = [h.strip() for h in _allowed_hosts_env.split(',') if h.strip()]
+    else:
+        # Default production hosts
+        ALLOWED_HOSTS = [
+            'vraa.org',
+            'www.vraa.org',
+            '.herokuapp.com',  # Allows any Heroku subdomain
+        ]
 
 # Application definition
 INSTALLED_APPS = [
@@ -185,13 +198,6 @@ else:
 # These settings are only applied when DEBUG is False (production environment)
 
 if not DEBUG:
-    # Restrict allowed hosts to actual domains
-    ALLOWED_HOSTS = [
-        'vraa.org',
-        'www.vraa.org',
-        '.herokuapp.com',  # Allows any Heroku subdomain
-    ]
-
     # HTTPS/SSL Settings
     SECURE_SSL_REDIRECT = True  # Redirect all HTTP requests to HTTPS
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')  # Trust Heroku's proxy
@@ -280,6 +286,60 @@ CSP_BASE_URI = ("'self'",)
 RATELIMIT_ENABLE = True
 RATELIMIT_USE_CACHE = 'default'
 RATELIMIT_VIEW = 'main.views.ratelimit_error_view'  # Custom error view for rate limit exceeded
+
+# =============================================================================
+# SENTRY ERROR TRACKING (Production Only)
+# =============================================================================
+# Configure Sentry for error tracking and monitoring in production
+# Set SENTRY_DSN environment variable to enable
+SENTRY_DSN = os.environ.get('SENTRY_DSN')
+
+if not DEBUG and SENTRY_DSN:
+    try:
+        import sentry_sdk
+        from sentry_sdk.integrations.django import DjangoIntegration
+
+        sentry_sdk.init(
+            dsn=SENTRY_DSN,
+            integrations=[DjangoIntegration()],
+            traces_sample_rate=0.1,  # 10% of transactions for performance monitoring
+            send_default_pii=False,  # Don't send personally identifiable information
+            environment=os.environ.get('ENVIRONMENT', 'production'),
+        )
+    except ImportError:
+        import warnings
+        warnings.warn(
+            "SENTRY_DSN is set but sentry-sdk is not installed. "
+            "Install it with: pip install sentry-sdk",
+            RuntimeWarning
+        )
+
+# =============================================================================
+# PRODUCTION ENVIRONMENT VALIDATION
+# =============================================================================
+# Validate critical environment variables in production
+if not DEBUG and not _is_testing:
+    required_env_vars = [
+        'SECRET_KEY',
+        'DATABASE_URL',
+    ]
+
+    missing_vars = [var for var in required_env_vars if not os.environ.get(var)]
+
+    if missing_vars:
+        import warnings
+        warnings.warn(
+            f"Missing required environment variables: {', '.join(missing_vars)}. "
+            "Application may not function correctly.",
+            RuntimeWarning
+        )
+
+    # Validate SECRET_KEY is not the default insecure value
+    if SECRET_KEY == 'django-insecure-local-dev-key-change-me':
+        raise ValueError(
+            "SECRET_KEY is set to the default development value. "
+            "Set a secure SECRET_KEY environment variable for production."
+        )
 
 # =============================================================================
 # TEST OVERRIDES (must come last to override production settings)

@@ -995,6 +995,55 @@ class SearchView(LoginRequiredMixin, ListView):
 
 
 # =============================================================================
+# HEALTH CHECK ENDPOINT
+# =============================================================================
+
+
+def health_check(request):
+    """
+    Health check endpoint for monitoring and load balancer health probes.
+
+    Returns a JSON response indicating the health status of the application,
+    including checks for database connectivity and cache availability.
+
+    This endpoint is exempt from authentication to allow external monitoring.
+    """
+    from django.db import connection
+    from django.core.cache import cache
+
+    health = {
+        'status': 'healthy',
+        'checks': {}
+    }
+
+    # Database connectivity check
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT 1')
+        health['checks']['database'] = 'ok'
+    except Exception as e:
+        health['status'] = 'unhealthy'
+        health['checks']['database'] = f'error: {str(e)}'
+        logger.error(f'Health check database error: {e}')
+
+    # Cache connectivity check
+    # Note: Cache failures are not critical - app can function without cache
+    try:
+        cache.set('health_check', 'ok', 10)
+        if cache.get('health_check') == 'ok':
+            health['checks']['cache'] = 'ok'
+        else:
+            # DummyCache (used in tests) doesn't persist values
+            health['checks']['cache'] = 'unavailable'
+    except Exception as e:
+        health['checks']['cache'] = f'error: {str(e)}'
+        logger.warning(f'Health check cache error: {e}')
+
+    status_code = 200 if health['status'] == 'healthy' else 503
+    return JsonResponse(health, status=status_code)
+
+
+# =============================================================================
 # RATE LIMIT ERROR VIEW
 # =============================================================================
 
