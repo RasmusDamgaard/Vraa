@@ -154,8 +154,11 @@ SITE_URL = os.environ.get('SITE_URL', 'https://vraa.org')
 # TEST CONFIGURATION
 # =============================================================================
 # Special settings for running tests
+# Note: Test-specific overrides (ALLOWED_HOSTS, SSL redirect) are applied
+# at the end of this file to ensure they override production settings.
 import sys
-if 'test' in sys.argv:
+_is_testing = 'test' in sys.argv or 'pytest' in sys.modules
+if _is_testing:
     # Use dummy cache to avoid interference
     CACHES = {
         'default': {
@@ -277,3 +280,22 @@ CSP_BASE_URI = ("'self'",)
 RATELIMIT_ENABLE = True
 RATELIMIT_USE_CACHE = 'default'
 RATELIMIT_VIEW = 'main.views.ratelimit_error_view'  # Custom error view for rate limit exceeded
+
+# =============================================================================
+# TEST OVERRIDES (must come last to override production settings)
+# =============================================================================
+# These settings are applied after all other settings to ensure tests work
+# correctly even when DEBUG=False (e.g., in CI environments)
+if _is_testing:
+    # Allow test hosts - Django's test client uses 'testserver' by default
+    ALLOWED_HOSTS = ['testserver', 'localhost', '127.0.0.1']
+
+    # Disable SSL redirect during tests to avoid 301 redirects
+    SECURE_SSL_REDIRECT = False
+
+    # Disable HSTS during tests
+    SECURE_HSTS_SECONDS = 0
+
+    # Disable secure cookie settings during tests (test client doesn't use HTTPS)
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
