@@ -896,6 +896,85 @@ class MaintenanceUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView)
 
 
 # =============================================================================
+# SEARCH VIEW
+# =============================================================================
+
+
+class SearchView(LoginRequiredMixin, ListView):
+    """Search messages and documents."""
+
+    template_name = 'main/search_results.html'
+    context_object_name = 'results'
+    paginate_by = 20
+    extra_context = {'title': 'Søg'}
+
+    def get_queryset(self):
+        from django.contrib.postgres.search import SearchQuery, SearchRank
+        from django.db import connection
+        from django.db.models import F, Q
+
+        query = self.request.GET.get('q', '').strip()
+        search_type = self.request.GET.get('type', 'all')
+
+        if not query:
+            return []
+
+        results = []
+
+        # Search messages
+        if search_type in ('all', 'messages'):
+            if connection.vendor == 'postgresql':
+                # PostgreSQL full-text search with Danish config
+                search_query = SearchQuery(query, config='danish')
+                message_results = Message.objects.annotate(
+                    rank=SearchRank(F('search_vector'), search_query)
+                ).filter(
+                    search_vector=search_query
+                ).select_related(
+                    'author', 'author__profile', 'author__profile__heritage_line'
+                ).order_by('-rank')
+            else:
+                # Fallback for SQLite (development): simple contains search
+                message_results = Message.objects.filter(
+                    content__icontains=query
+                ).select_related(
+                    'author', 'author__profile', 'author__profile__heritage_line'
+                ).order_by('-created_at')
+
+            for msg in message_results:
+                results.append({
+                    'type': 'message',
+                    'object': msg,
+                    'rank': getattr(msg, 'rank', 0.5),
+                })
+
+        # Search documents
+        if search_type in ('all', 'documents'):
+            documents = Document.objects.filter(
+                Q(title__icontains=query) |
+                Q(description__icontains=query)
+            ).order_by('-document_date')
+
+            for doc in documents:
+                results.append({
+                    'type': 'document',
+                    'object': doc,
+                    'rank': 0.5,  # Lower rank than text match
+                })
+
+        # Sort by rank (highest first)
+        results.sort(key=lambda x: x['rank'], reverse=True)
+
+        return results
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['query'] = self.request.GET.get('q', '')
+        context['search_type'] = self.request.GET.get('type', 'all')
+        return context
+
+
+# =============================================================================
 # RATE LIMIT ERROR VIEW
 # =============================================================================
 

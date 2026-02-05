@@ -47,6 +47,9 @@ urlpatterns = [
     ), name='logout'),
     path('register/', views.RegisterView.as_view(), name='register'),
 
+    # Search
+    path('soeg/', views.SearchView.as_view(), name='search'),
+
     # Documentation
     path('brugervejledning/', views.BrugervejledningView.as_view(), name='brugervejledning'),
     path('admin-vejledning/', views.AdminVejledningView.as_view(), name='admin_vejledning'),
