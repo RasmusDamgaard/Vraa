@@ -4,11 +4,16 @@
 <div class="message-form-container">
   <h1 class="mb-4">{{ title }}</h1>
 
-  <form method="post" class="needs-validation" novalidate>
+  <p id="form-instructions" class="text-muted mb-3">
+    Felter markeret med <span class="required-indicator" aria-hidden="true">*</span> er påkrævede.
+  </p>
+
+  <form method="post" class="needs-validation" novalidate aria-describedby="form-instructions">
     {% csrf_token %}
 
     {% if form.errors %}
-    <div class="alert alert-danger">
+    <div class="alert alert-danger" role="alert" aria-live="assertive">
+      <span class="visually-hidden">Formularfejl: </span>
       <ul class="mb-0">
         {% for field in form %}
           {% for error in field.errors %}
@@ -23,19 +28,25 @@
     {% endif %}
 
     <div class="mb-3">
-      <label for="id_title" class="form-label">Titel</label>
+      <label for="id_title" class="form-label">
+        Titel <span class="required-indicator" aria-hidden="true">*</span>
+      </label>
       <input type="text" class="form-control {% if form.title.errors %}is-invalid{% endif %}"
              id="id_title" name="title" value="{{ form.title.value|default:'' }}"
-             maxlength="200" required placeholder="Kort beskrivelse af problemet">
-      <div class="form-text">F.eks. "Utaet vandhane i koekken" eller "Knust vindue i stue"</div>
+             maxlength="200" required aria-required="true" aria-describedby="title_help"
+             placeholder="Kort beskrivelse af problemet">
+      <div id="title_help" class="form-text">F.eks. "Utaet vandhane i koekken" eller "Knust vindue i stue"</div>
     </div>
 
     <div class="mb-3">
-      <label for="id_description" class="form-label">Beskrivelse</label>
+      <label for="id_description" class="form-label">
+        Beskrivelse <span class="required-indicator" aria-hidden="true">*</span>
+      </label>
       <textarea class="form-control {% if form.description.errors %}is-invalid{% endif %}"
                 id="id_description" name="description" rows="5" maxlength="2000" required
+                aria-required="true" aria-describedby="description_help"
                 placeholder="Beskriv problemet i detaljer...">{{ form.description.value|default:'' }}</textarea>
-      <div class="form-text">Giv en detaljeret beskrivelse af problemet, inklusive hvornaar det opstod og evt. omstaendigheder.</div>
+      <div id="description_help" class="form-text">Giv en detaljeret beskrivelse af problemet, inklusive hvornaar det opstod og evt. omstaendigheder.</div>
     </div>
 
     <div class="row">
@@ -43,19 +54,20 @@
         <label for="id_location" class="form-label">Placering</label>
         <input type="text" class="form-control {% if form.location.errors %}is-invalid{% endif %}"
                id="id_location" name="location" value="{{ form.location.value|default:'' }}"
-               maxlength="100" placeholder="F.eks. Koekken, Badevaerelse, Udendoers">
-        <div class="form-text">Hvor paa ejendommen er problemet?</div>
+               maxlength="100" aria-describedby="location_help"
+               placeholder="F.eks. Koekken, Badevaerelse, Udendoers">
+        <div id="location_help" class="form-text">Hvor paa ejendommen er problemet?</div>
       </div>
 
       <div class="col-md-6 mb-3">
         <label for="id_priority" class="form-label">Prioritet</label>
         <select class="form-select {% if form.priority.errors %}is-invalid{% endif %}"
-                id="id_priority" name="priority">
+                id="id_priority" name="priority" aria-describedby="priority_help">
           {% for value, label in form.fields.priority.choices %}
           <option value="{{ value }}" {% if form.priority.value == value %}selected{% endif %}>{{ label }}</option>
           {% endfor %}
         </select>
-        <div class="form-text">Vaelg "Akut" kun ved kritiske problemer som vandskade eller sikkerhedsrisiko.</div>
+        <div id="priority_help" class="form-text">Vaelg "Akut" kun ved kritiske problemer som vandskade eller sikkerhedsrisiko.</div>
       </div>
     </div>
 
@@ -67,11 +79,12 @@
       <div class="col-md-6 mb-3">
         <label for="id_status" class="form-label">Status</label>
         <select class="form-select {% if form.status.errors %}is-invalid{% endif %}"
-                id="id_status" name="status">
+                id="id_status" name="status" aria-describedby="status_help">
           {% for value, label in form.fields.status.choices %}
           <option value="{{ value }}" {% if form.status.value == value %}selected{% endif %}>{{ label }}</option>
           {% endfor %}
         </select>
+        <div id="status_help" class="form-text visually-hidden">Vaelg status for vedligeholdelsesanmodningen</div>
       </div>
     </div>
 
@@ -79,8 +92,9 @@
       <label for="id_admin_notes" class="form-label">Admin noter</label>
       <textarea class="form-control {% if form.admin_notes.errors %}is-invalid{% endif %}"
                 id="id_admin_notes" name="admin_notes" rows="3" maxlength="1000"
+                aria-describedby="admin_notes_help"
                 placeholder="Interne noter om problemets loesning...">{{ form.admin_notes.value|default:'' }}</textarea>
-      <div class="form-text">Disse noter er kun synlige for administratorer.</div>
+      <div id="admin_notes_help" class="form-text">Disse noter er kun synlige for administratorer.</div>
     </div>
     {% endif %}
 

@@ -5,20 +5,27 @@
     <h1>Log ind</h1>
 
     {% if form.errors %}
-    <div class="alert alert-danger">
+    <div class="alert alert-danger" role="alert">
+        <span class="visually-hidden">Fejl: </span>
         Ugyldigt brugernavn eller adgangskode. Bemærk at din konto skal være godkendt af administrator.
     </div>
     {% endif %}
 
-    <form method="post">
+    <form method="post" novalidate>
         {% csrf_token %}
         <div class="mb-3">
-            <label for="id_username" class="form-label">Brugernavn</label>
-            <input type="text" name="username" id="id_username" class="form-control" required autofocus>
+            <label for="id_username" class="form-label">
+                Brugernavn <span class="required-indicator" aria-hidden="true">*</span>
+            </label>
+            <input type="text" name="username" id="id_username" class="form-control"
+                   required aria-required="true" autocomplete="username" autofocus>
         </div>
         <div class="mb-3">
-            <label for="id_password" class="form-label">Adgangskode</label>
-            <input type="password" name="password" id="id_password" class="form-control" required>
+            <label for="id_password" class="form-label">
+                Adgangskode <span class="required-indicator" aria-hidden="true">*</span>
+            </label>
+            <input type="password" name="password" id="id_password" class="form-control"
+                   required aria-required="true" autocomplete="current-password">
         </div>
         <button type="submit" class="btn btn-primary">Log ind</button>
     </form>

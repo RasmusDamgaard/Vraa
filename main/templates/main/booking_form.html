@@ -4,32 +4,50 @@
 <div class="message-form-container">
     <h1>{% if object %}Rediger booking{% else %}Ny booking{% endif %}</h1>
 
-    <form method="post">
+    <p id="form-instructions" class="text-muted mb-3">
+        Felter markeret med <span class="required-indicator" aria-hidden="true">*</span> er påkrævede.
+    </p>
+
+    <form method="post" aria-describedby="form-instructions" novalidate>
         {% csrf_token %}
         <div class="mb-3">
-            <label for="id_start_date" class="form-label">Start dato</label>
+            <label for="id_start_date" class="form-label">
+                Start dato <span class="required-indicator" aria-hidden="true">*</span>
+            </label>
             {{ form.start_date }}
             {% if form.start_date.errors %}
-            <div class="text-danger">{{ form.start_date.errors }}</div>
+            <div id="start_date_error" class="invalid-feedback d-block" role="alert">
+                {{ form.start_date.errors|join:", " }}
+            </div>
             {% endif %}
+            <div id="start_date_help" class="form-text">Vælg den første dag for din booking</div>
         </div>
         <div class="mb-3">
-            <label for="id_end_date" class="form-label">Slut dato</label>
+            <label for="id_end_date" class="form-label">
+                Slut dato <span class="required-indicator" aria-hidden="true">*</span>
+            </label>
             {{ form.end_date }}
             {% if form.end_date.errors %}
-            <div class="text-danger">{{ form.end_date.errors }}</div>
+            <div id="end_date_error" class="invalid-feedback d-block" role="alert">
+                {{ form.end_date.errors|join:", " }}
+            </div>
             {% endif %}
+            <div id="end_date_help" class="form-text">Vælg den sidste dag for din booking</div>
         </div>
         <div class="mb-3">
             <label for="id_notes" class="form-label">Noter (valgfrit)</label>
             {{ form.notes }}
             {% if form.notes.errors %}
-            <div class="text-danger">{{ form.notes.errors }}</div>
+            <div id="notes_error" class="invalid-feedback d-block" role="alert">
+                {{ form.notes.errors|join:", " }}
+            </div>
             {% endif %}
-            <div class="form-text">Eventuelle bemærkninger til bookingen</div>
+            <div id="notes_help" class="form-text">Eventuelle bemærkninger til bookingen</div>
         </div>
         {% if form.non_field_errors %}
-        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        <div class="alert alert-danger" role="alert">
+            <span class="visually-hidden">Fejl: </span>{{ form.non_field_errors }}
+        </div>
         {% endif %}
         <div class="d-flex gap-2">
             <button type="submit" class="btn btn-primary">
@@ -39,7 +57,7 @@
         </div>
     </form>
 
-    <div class="alert alert-info mt-4">
+    <div class="alert alert-info mt-4" role="note">
         <strong>Bemærk:</strong> Alle bookinger skal godkendes af administrator før de er bekræftet.
     </div>
 </div>
