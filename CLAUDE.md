@@ -68,7 +68,8 @@ Vraa/
 ├── .gitignore               # Git ignore rules
 ├── README.md                # User-facing documentation
 ├── TODO.md                  # Feature roadmap and backlog
-└── implementation_plan.md   # Detailed implementation plan for new features
+├── implementation_plan.md   # Detailed implementation plan for new features
+└── implementation_plan_final_polish.md  # Quality review improvements (testing, accessibility, search)
 ```
 
 ---
@@ -618,8 +619,8 @@ For human developers:
 
 ---
 
-**Document Version**: 1.3
-**Last Updated**: 2026-02-04
+**Document Version**: 1.4
+**Last Updated**: 2026-02-05
 **Python Version**: 3.11.4
 **Django Version**: 4.x
 **Deployment**: Heroku
@@ -636,3 +637,16 @@ The implementation plan covers:
 - Phase 3: Family heritage line system
 - Phase 4: Reserved weeks calendar with rolling allocation
 - Phase 5: Enhanced notification system with email support
+
+### Final Polish Implementation Plan
+
+For quality improvements identified during the comprehensive codebase review on 2026-02-05, see **[implementation_plan_final_polish.md](implementation_plan_final_polish.md)**.
+
+The final polish plan covers:
+- Phase 6: Automated test suite (pytest, factories, CI/CD)
+- Phase 7: Accessibility audit & fixes (WCAG 2.1 AA compliance)
+- Phase 8: Search functionality (PostgreSQL full-text search)
+- Phase 9: Print styles (printable documents and booking confirmations)
+- Phase 10: Production hardening (ALLOWED_HOSTS, health checks, monitoring)
+
+These improvements will elevate the project quality from 8.4/10 to 9.5/10.

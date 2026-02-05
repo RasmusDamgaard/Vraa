@@ -384,7 +384,7 @@ See CLAUDE.md for list of completed features including:
 
 ---
 
-**Last Updated**: 2026-02-04
+**Last Updated**: 2026-02-05
 
 ---
 
@@ -401,3 +401,72 @@ The following new features have been requested and documented in `implementation
 | 5 | Enhanced Email Notifications | P1 | Planned |
 
 For full implementation details, see **[implementation_plan.md](implementation_plan.md)**.
+
+---
+
+## Final Polish Features (Quality Review)
+
+The following improvements were identified during the comprehensive quality review on 2026-02-05. These will elevate the project from **8.4/10 to 9.5/10** quality rating.
+
+| Phase | Feature | Priority | Status |
+|-------|---------|----------|--------|
+| 6 | Automated Test Suite | P1 | Planned |
+| 7 | Accessibility Audit & Fixes | P2 | Planned |
+| 8 | Search Functionality | P2 | Planned |
+| 9 | Print Styles | P3 | Planned |
+| 10 | Production Hardening | P1 | Planned |
+
+### Phase 6: Automated Test Suite (P1)
+- [ ] Set up pytest with pytest-django
+- [ ] Create model factories with factory-boy
+- [ ] Write model tests (target 90% coverage)
+- [ ] Write view tests (target 80% coverage)
+- [ ] Write form tests (target 90% coverage)
+- [ ] Write service tests (target 85% coverage)
+- [ ] Configure GitHub Actions CI pipeline
+- [ ] Achieve overall 70% coverage
+
+**Why**: Critical for long-term maintainability, regression prevention, and deployment confidence.
+
+### Phase 7: Accessibility Audit (P2)
+- [ ] Run automated accessibility tests (pa11y/axe)
+- [ ] Fix color contrast issues (WCAG AA 4.5:1)
+- [ ] Add skip link to main content
+- [ ] Add missing ARIA labels and landmarks
+- [ ] Improve form accessibility (error association)
+- [ ] Implement keyboard navigation enhancements
+- [ ] Test with screen reader (VoiceOver/NVDA)
+- [ ] Verify heading hierarchy
+
+**Why**: Ensure site is usable by all family members, including those with disabilities.
+
+### Phase 8: Search Functionality (P2)
+- [ ] Add PostgreSQL full-text search to Message model
+- [ ] Create SearchView with pagination
+- [ ] Build search results template
+- [ ] Add search box to navigation
+- [ ] Include document search
+- [ ] Add search type filters (messages/documents/all)
+
+**Why**: Users cannot find old content as the message board grows.
+
+### Phase 9: Print Styles (P3)
+- [ ] Create print.css stylesheet
+- [ ] Hide non-essential elements when printing
+- [ ] Style printable booking confirmation
+- [ ] Add print button component
+- [ ] Configure page breaks and margins
+- [ ] Show link URLs in print
+
+**Why**: Users may want to print meeting minutes, booking confirmations, etc.
+
+### Phase 10: Production Hardening (P1)
+- [ ] Finalize ALLOWED_HOSTS configuration
+- [ ] Add environment variable validation
+- [ ] Add health check endpoint
+- [ ] Configure Sentry error tracking (optional)
+- [ ] Validate SECRET_KEY is not default
+
+**Why**: Ensure production deployment is secure and monitorable.
+
+For full implementation details, see **[implementation_plan_final_polish.md](implementation_plan_final_polish.md)**.
