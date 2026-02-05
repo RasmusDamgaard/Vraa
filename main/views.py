@@ -282,7 +282,6 @@ class BookingCreateView(LoginRequiredMixin, CreateView):
     model = Booking
     form_class = BookingForm
     template_name = 'main/booking_form.html'
-    success_url = reverse_lazy('main:kalender')
     extra_context = {'title': 'Ny booking'}
 
     def get_initial(self):
@@ -293,6 +292,10 @@ class BookingCreateView(LoginRequiredMixin, CreateView):
         if 'end' in self.request.GET:
             initial['end_date'] = self.request.GET['end']
         return initial
+
+    def get_success_url(self):
+        # Redirect to booking detail page for print/confirmation
+        return reverse_lazy('main:booking_detail', kwargs={'pk': self.object.pk})
 
     def form_valid(self, form):
         form.instance.user = self.request.user
@@ -328,6 +331,23 @@ class BookingDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def test_func(self):
         return self.get_object().user == self.request.user
+
+
+class BookingDetailView(LoginRequiredMixin, DetailView):
+    """Display booking confirmation/details (printable)."""
+
+    model = Booking
+    template_name = 'main/booking_confirmation_print.html'
+    context_object_name = 'booking'
+    extra_context = {'title': 'Bookingbekræftelse'}
+
+    def get_queryset(self):
+        # Only show user's own bookings or all bookings for staff
+        if self.request.user.is_staff:
+            return Booking.objects.select_related('user', 'user__profile', 'user__profile__heritage_line')
+        return Booking.objects.filter(user=self.request.user).select_related(
+            'user', 'user__profile', 'user__profile__heritage_line'
+        )
 
 
 @method_decorator(ratelimit(key='user', rate='60/h', method='GET', block=True), name='get')

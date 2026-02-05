@@ -20,6 +20,7 @@ urlpatterns = [
 
     # Booking system
     path('booking/ny/', views.BookingCreateView.as_view(), name='booking_create'),
+    path('booking/<int:pk>/', views.BookingDetailView.as_view(), name='booking_detail'),
     path('booking/<int:pk>/rediger/', views.BookingUpdateView.as_view(), name='booking_update'),
     path('booking/<int:pk>/annuller/', views.BookingDeleteView.as_view(), name='booking_delete'),
     path('api/bookings/', views.BookingAPIView.as_view(), name='booking_api'),
