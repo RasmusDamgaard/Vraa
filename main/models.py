@@ -4,6 +4,8 @@ Models for the ``main`` application.
 from __future__ import annotations
 
 from django.conf import settings
+from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.search import SearchVectorField
 from django.core.validators import FileExtensionValidator
 from django.db import models
 
@@ -348,6 +350,12 @@ class Message(models.Model):
         related_name='pinned_messages',
         verbose_name='Fastgjort af',
     )
+    search_vector = SearchVectorField(
+        null=True,
+        blank=True,
+        verbose_name='Søgevektor',
+        help_text='Automatisk genereret søgevektor til fuldtekstsøgning',
+    )
 
     class Meta:
         ordering = ['-is_pinned', '-pinned_at', '-created_at']
@@ -357,6 +365,7 @@ class Message(models.Model):
             models.Index(fields=['-created_at']),
             models.Index(fields=['author']),
             models.Index(fields=['-is_pinned', '-pinned_at', '-created_at']),
+            GinIndex(fields=['search_vector']),
         ]
 
     def __str__(self) -> str:
