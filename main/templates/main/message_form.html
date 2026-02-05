@@ -4,16 +4,21 @@
 <div class="message-form-container">
     <h1>{% if object %}Rediger besked{% else %}Ny besked{% endif %}</h1>
 
-    <form method="post">
+    <form method="post" novalidate>
         {% csrf_token %}
         <div class="mb-3">
-            <label for="id_content" class="form-label">Din besked</label>
-            <textarea name="content" id="id_content" class="form-control"
-                      rows="5" maxlength="2000" required>{% if form.content.value %}{{ form.content.value }}{% endif %}</textarea>
+            <label for="id_content" class="form-label">
+                Din besked <span class="required-indicator" aria-hidden="true">*</span>
+            </label>
+            <textarea name="content" id="id_content" class="form-control{% if form.content.errors %} is-invalid{% endif %}"
+                      rows="5" maxlength="2000" required aria-required="true"
+                      aria-describedby="content_help{% if form.content.errors %} content_error{% endif %}">{% if form.content.value %}{{ form.content.value }}{% endif %}</textarea>
             {% if form.content.errors %}
-            <div class="text-danger">{{ form.content.errors }}</div>
+            <div id="content_error" class="invalid-feedback d-block" role="alert">
+                {{ form.content.errors|join:", " }}
+            </div>
             {% endif %}
-            <div class="form-text">Maks 2000 tegn</div>
+            <div id="content_help" class="form-text">Maks 2000 tegn</div>
         </div>
         <div class="d-flex gap-2">
             <button type="submit" class="btn btn-primary">

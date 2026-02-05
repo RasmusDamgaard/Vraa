@@ -6,34 +6,46 @@
 
     {% if messages %}
     {% for message in messages %}
-    <div class="alert alert-{{ message.tags }}">
+    <div class="alert alert-{{ message.tags }}" role="alert">
         {{ message }}
     </div>
     {% endfor %}
     {% endif %}
 
-    <form method="post">
+    <p id="form-instructions" class="text-muted mb-3">
+        Felter markeret med <span class="required-indicator" aria-hidden="true">*</span> er påkrævede.
+    </p>
+
+    <form method="post" novalidate aria-describedby="form-instructions">
         {% csrf_token %}
 
         <div class="mb-3">
-            <label for="id_username" class="form-label">Brugernavn</label>
+            <label for="id_username" class="form-label">
+                Brugernavn <span class="required-indicator" aria-hidden="true">*</span>
+            </label>
             {{ form.username }}
             {% if form.username.help_text %}
-            <div class="form-text">{{ form.username.help_text }}</div>
+            <div id="username_help" class="form-text">{{ form.username.help_text }}</div>
             {% endif %}
             {% if form.username.errors %}
-            <div class="text-danger">{{ form.username.errors }}</div>
+            <div id="username_error" class="invalid-feedback d-block" role="alert">
+                {{ form.username.errors|join:", " }}
+            </div>
             {% endif %}
         </div>
 
         <div class="mb-3">
-            <label for="id_email" class="form-label">E-mail</label>
+            <label for="id_email" class="form-label">
+                E-mail <span class="required-indicator" aria-hidden="true">*</span>
+            </label>
             {{ form.email }}
             {% if form.email.help_text %}
-            <div class="form-text">{{ form.email.help_text }}</div>
+            <div id="email_help" class="form-text">{{ form.email.help_text }}</div>
             {% endif %}
             {% if form.email.errors %}
-            <div class="text-danger">{{ form.email.errors }}</div>
+            <div id="email_error" class="invalid-feedback d-block" role="alert">
+                {{ form.email.errors|join:", " }}
+            </div>
             {% endif %}
         </div>
 
@@ -41,32 +53,42 @@
             <label for="id_display_name" class="form-label">Visningsnavn</label>
             {{ form.display_name }}
             {% if form.display_name.help_text %}
-            <div class="form-text">{{ form.display_name.help_text }}</div>
+            <div id="display_name_help" class="form-text">{{ form.display_name.help_text }}</div>
             {% endif %}
             {% if form.display_name.errors %}
-            <div class="text-danger">{{ form.display_name.errors }}</div>
+            <div id="display_name_error" class="invalid-feedback d-block" role="alert">
+                {{ form.display_name.errors|join:", " }}
+            </div>
             {% endif %}
         </div>
 
         <div class="mb-3">
-            <label for="id_password1" class="form-label">Adgangskode</label>
+            <label for="id_password1" class="form-label">
+                Adgangskode <span class="required-indicator" aria-hidden="true">*</span>
+            </label>
             {{ form.password1 }}
             {% if form.password1.help_text %}
-            <div class="form-text">{{ form.password1.help_text }}</div>
+            <div id="password1_help" class="form-text">{{ form.password1.help_text }}</div>
             {% endif %}
             {% if form.password1.errors %}
-            <div class="text-danger">{{ form.password1.errors }}</div>
+            <div id="password1_error" class="invalid-feedback d-block" role="alert">
+                {{ form.password1.errors|join:", " }}
+            </div>
             {% endif %}
         </div>
 
         <div class="mb-3">
-            <label for="id_password2" class="form-label">Bekræft adgangskode</label>
+            <label for="id_password2" class="form-label">
+                Bekræft adgangskode <span class="required-indicator" aria-hidden="true">*</span>
+            </label>
             {{ form.password2 }}
             {% if form.password2.help_text %}
-            <div class="form-text">{{ form.password2.help_text }}</div>
+            <div id="password2_help" class="form-text">{{ form.password2.help_text }}</div>
             {% endif %}
             {% if form.password2.errors %}
-            <div class="text-danger">{{ form.password2.errors }}</div>
+            <div id="password2_error" class="invalid-feedback d-block" role="alert">
+                {{ form.password2.errors|join:", " }}
+            </div>
             {% endif %}
         </div>
 
@@ -77,7 +99,7 @@
         Har du allerede en konto? <a href="{% url 'main:login' %}">Log ind her</a>
     </p>
 
-    <div class="alert alert-info mt-4">
+    <div class="alert alert-info mt-4" role="note">
         <strong>Bemærk:</strong> Nye konti skal godkendes af en administrator før du kan logge ind.
     </div>
 </div>
