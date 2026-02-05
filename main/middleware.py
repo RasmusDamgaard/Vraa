@@ -65,6 +65,7 @@ class LoginRequiredMiddleware:
         '/brugervejledning/',  # Keep user guide public
         '/admin/',  # Django admin has its own auth
         '/password-reset/',  # Password reset flow must be accessible
+        '/health/',  # Health check endpoint for monitoring
     ]
 
     def __init__(self, get_response):
