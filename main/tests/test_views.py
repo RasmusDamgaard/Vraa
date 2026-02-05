@@ -1181,6 +1181,100 @@ class RegistrationViewTests(TestCase):
 
 
 # =============================================================================
+# Booking Detail (Print Confirmation) Tests
+# =============================================================================
+
+
+class BookingDetailViewTests(BaseTestCase):
+    """Tests for BookingDetailView (printable booking confirmation)."""
+
+    def test_booking_detail_requires_login(self):
+        """Booking detail page requires authentication."""
+        booking = Booking.objects.create(
+            user=self.user,
+            start_date=self.future_date(5),
+            end_date=self.future_date(10),
+            status='confirmed',
+        )
+        response = self.client.get(reverse('main:booking_detail', args=[booking.pk]))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/login/', response.url)
+
+    def test_owner_can_view_own_booking(self):
+        """User can view their own booking confirmation."""
+        booking = Booking.objects.create(
+            user=self.user,
+            start_date=self.future_date(5),
+            end_date=self.future_date(10),
+            status='confirmed',
+        )
+        self.login_as_user()
+        response = self.client.get(reverse('main:booking_detail', args=[booking.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Bookingbekræftelse')
+
+    def test_owner_cannot_view_other_booking(self):
+        """User cannot view another user's booking."""
+        booking = Booking.objects.create(
+            user=self.other_user,
+            start_date=self.future_date(5),
+            end_date=self.future_date(10),
+            status='confirmed',
+        )
+        self.login_as_user()
+        response = self.client.get(reverse('main:booking_detail', args=[booking.pk]))
+        self.assertEqual(response.status_code, 404)
+
+    def test_staff_can_view_any_booking(self):
+        """Staff can view any user's booking."""
+        booking = Booking.objects.create(
+            user=self.user,
+            start_date=self.future_date(5),
+            end_date=self.future_date(10),
+            status='confirmed',
+        )
+        self.login_as_admin()
+        response = self.client.get(reverse('main:booking_detail', args=[booking.pk]))
+        self.assertEqual(response.status_code, 200)
+
+    def test_booking_detail_uses_correct_template(self):
+        """Booking detail page uses booking_confirmation_print.html template."""
+        booking = Booking.objects.create(
+            user=self.user,
+            start_date=self.future_date(5),
+            end_date=self.future_date(10),
+            status='confirmed',
+        )
+        self.login_as_user()
+        response = self.client.get(reverse('main:booking_detail', args=[booking.pk]))
+        self.assertTemplateUsed(response, 'main/booking_confirmation_print.html')
+
+    def test_booking_detail_shows_status(self):
+        """Booking detail shows booking status."""
+        booking = Booking.objects.create(
+            user=self.user,
+            start_date=self.future_date(5),
+            end_date=self.future_date(10),
+            status='confirmed',
+        )
+        self.login_as_user()
+        response = self.client.get(reverse('main:booking_detail', args=[booking.pk]))
+        self.assertContains(response, 'Bekræftet')
+
+    def test_booking_detail_has_print_button(self):
+        """Booking detail page includes print button."""
+        booking = Booking.objects.create(
+            user=self.user,
+            start_date=self.future_date(5),
+            end_date=self.future_date(10),
+            status='confirmed',
+        )
+        self.login_as_user()
+        response = self.client.get(reverse('main:booking_detail', args=[booking.pk]))
+        self.assertContains(response, 'Udskriv')
+
+
+# =============================================================================
 # Form Tests
 # =============================================================================
 
