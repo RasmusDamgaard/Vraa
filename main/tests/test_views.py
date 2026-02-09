@@ -614,10 +614,10 @@ class AuthenticatedPageTests(BaseTestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_bootstrap_included_in_base_template(self):
-        """Base template includes Bootstrap 5.3.3."""
+        """Base template includes self-hosted Bootstrap CSS."""
         self.login_as_user()
         response = self.client.get(reverse('main:frontpage'))
-        self.assertContains(response, 'bootstrap@5.3.3')
+        self.assertContains(response, 'bootstrap.min.css')
 
 
 # =============================================================================
