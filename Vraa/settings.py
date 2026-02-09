@@ -235,23 +235,17 @@ CSP_DEFAULT_SRC = ("'self'",)
 CSP_STYLE_SRC = (
     "'self'",
     "'unsafe-inline'",  # Required for Bootstrap and inline styles
-    "https://cdn.jsdelivr.net",
-    "https://fonts.googleapis.com",
 )
 
 # Allowed sources for scripts
 CSP_SCRIPT_SRC = (
     "'self'",
     "'unsafe-inline'",  # Required for Bootstrap and inline scripts
-    "https://cdn.jsdelivr.net",
-    "https://unpkg.com",
 )
 
 # Allowed sources for fonts
 CSP_FONT_SRC = (
     "'self'",
-    "https://fonts.gstatic.com",
-    "https://cdn.jsdelivr.net",
 )
 
 # Allowed sources for images
