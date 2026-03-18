@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vraa Sommerhus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sand: #F5F1EB;
+    --sand-dark: #EDE8DF;
+    --cream: #FDFCF9;
+    --sage: #7A8B6F;
+    --sage-light: #E8EDE4;
+    --sage-dark: #5C6B53;
+    --driftwood: #8B7D6B;
+    --driftwood-light: #C4B9AA;
+    --charcoal: #2C2A26;
+    --charcoal-soft: #4A4740;
+    --warm-white: #FAF8F5;
+    --ocean: #6B8A9E;
+    --ocean-light: #E3ECF1;
+    --coral-accent: #C4826E;
+    --coral-light: #F3E4DE;
+    --border: rgba(139,125,107,0.15);
+    --font-display: 'DM Serif Display', Georgia, serif;
+    --font-body: 'DM Sans', -apple-system, sans-serif;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow-soft: 0 1px 3px rgba(44,42,38,0.04), 0 4px 12px rgba(44,42,38,0.03);
+    --shadow-hover: 0 2px 8px rgba(44,42,38,0.06), 0 8px 24px rgba(44,42,38,0.05);
+    --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Booking colors — one per family member */
+    --book-1: #7A8B6F; --book-1-bg: #E8EDE4;
+    --book-2: #6B8A9E; --book-2-bg: #E3ECF1;
+    --book-3: #C4826E; --book-3-bg: #F3E4DE;
+    --book-4: #9B8BB4; --book-4-bg: #EDEAF2;
+    --book-5: #8B7D6B; --book-5-bg: #EDE8DF;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--sand);
+    color: var(--charcoal);
+    line-height: 1.65;
+    font-size: 16px;
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    position: relative;
+    height: 75vh;
+    min-height: 460px;
+    max-height: 700px;
+    overflow: hidden;
+    background: var(--charcoal);
+  }
+
+  .hero-image {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(44,42,38,0.05) 0%, rgba(44,42,38,0.3) 60%, rgba(44,42,38,0.72) 100%),
+      linear-gradient(135deg, #7A8B6F 0%, #6B8A9E 30%, #8B7D6B 60%, #5C6B53 100%);
+    background-size: cover;
+    background-position: center;
+  }
+
+  .hero-image::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 120% 80% at 50% 55%, rgba(122,139,111,0.3) 0%, transparent 60%),
+      radial-gradient(ellipse 80% 60% at 30% 70%, rgba(107,138,158,0.2) 0%, transparent 50%);
+  }
+
+  .hero-pattern {
+    position: absolute;
+    inset: 0;
+    opacity: 0.06;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 40px, var(--cream) 40px, var(--cream) 41px),
+      repeating-linear-gradient(90deg, transparent, transparent 40px, var(--cream) 40px, var(--cream) 41px);
+  }
+
+  .image-placeholder {
+    position: absolute;
+    bottom: 30%;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    color: rgba(255,255,255,0.2);
+    font-size: 0.72rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    pointer-events: none;
+  }
+
+  .image-placeholder .house-icon {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 0.4rem;
+    opacity: 0.4;
+  }
+
+  .hero-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 2.5rem 2rem 3rem;
+    max-width: 900px;
+    margin: 0 auto;
+    animation: fadeUp 0.8s ease-out 0.2s both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-label {
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 0.85rem;
+  }
+
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 5.5vw, 3.5rem);
+    font-weight: 400;
+    color: #fff;
+    line-height: 1.15;
+    margin-bottom: 0.6rem;
+  }
+
+  .hero p {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.7);
+    max-width: 480px;
+    font-weight: 300;
+  }
+
+  /* ─── QUICK ACTIONS ─── */
+  .quick-actions {
+    max-width: 900px;
+    margin: -2.25rem auto 0;
+    padding: 0 1.5rem;
+    position: relative;
+    z-index: 10;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    animation: fadeUp 0.8s ease-out 0.5s both;
+  }
+
+  .quick-action {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.15rem 1rem;
+    text-decoration: none;
+    color: var(--charcoal);
+    transition: all var(--transition);
+    box-shadow: var(--shadow-soft);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
+  }
+
+  .quick-action:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-2px);
+    border-color: var(--sage);
+  }
+
+  .quick-action .icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+  }
+
+  .qa-arrive .icon   { background: var(--sage-light); color: var(--sage-dark); }
+  .qa-depart .icon   { background: var(--coral-light); color: var(--coral-accent); }
+  .qa-booking .icon  { background: var(--ocean-light); color: var(--ocean); }
+  .qa-board .icon    { background: var(--book-4-bg); color: var(--book-4); }
+
+  .quick-action .label {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    line-height: 1.25;
+  }
+
+  .quick-action .sublabel {
+    font-size: 0.72rem;
+    color: var(--charcoal-soft);
+    font-weight: 300;
+  }
+
+  /* ─── STICKY NAV ─── */
+  .site-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(245,241,235,0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    margin-top: 2rem;
+  }
+
+  .nav-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .nav-inner::-webkit-scrollbar { display: none; }
+
+  .nav-link {
+    font-size: 0.78rem;
+    font-weight: 400;
+    letter-spacing: 0.3px;
+    color: var(--charcoal-soft);
+    text-decoration: none;
+    padding: 0.9rem 0.7rem;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: all var(--transition);
+  }
+
+  .nav-link:hover, .nav-link.active {
+    color: var(--charcoal);
+    border-bottom-color: var(--sage);
+  }
+
+  .nav-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 17px;
+    height: 17px;
+    border-radius: 9px;
+    background: var(--coral-accent);
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 500;
+    padding: 0 4px;
+    margin-left: 4px;
+    vertical-align: 1px;
+  }
+
+  /* ─── SECTIONS ─── */
+  .content { max-width: 900px; margin: 0 auto; padding: 0 1.5rem; }
+  .section { padding: 2.75rem 0 2rem; }
+  .section-header { margin-bottom: 1.5rem; }
+  .section-header h2 {
+    font-family: var(--font-display);
+    font-size: 1.65rem;
+    font-weight: 400;
+    color: var(--charcoal);
+    margin-bottom: 0.3rem;
+  }
+  .section-header p {
+    font-size: 0.88rem;
+    color: var(--charcoal-soft);
+    font-weight: 300;
+  }
+  .divider { height: 1px; background: var(--border); margin: 0; }
+
+  /* ─── INFO CARDS ─── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+
+  .info-card {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: all var(--transition);
+    box-shadow: var(--shadow-soft);
+  }
+  .info-card:hover { box-shadow: var(--shadow-hover); }
+
+  .info-card-header {
+    padding: 1.15rem 1.15rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+  }
+
+  .info-card-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+  }
+  .info-card-icon.sage  { background: var(--sage-light); }
+  .info-card-icon.ocean { background: var(--ocean-light); }
+  .info-card-icon.coral { background: var(--coral-light); }
+  .info-card-icon.sand  { background: var(--sand-dark); }
+
+  .info-card h3 { font-family: var(--font-display); font-size: 1rem; font-weight: 400; }
+
+  .info-card-body {
+    padding: 0.85rem 1.15rem 1.15rem;
+    font-size: 0.85rem;
+    color: var(--charcoal-soft);
+    line-height: 1.7;
+  }
+  .info-card-body strong { font-weight: 500; color: var(--charcoal); }
+
+  /* ─── EXPANDABLE DETAILS ─── */
+  details {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 0.65rem;
+    box-shadow: var(--shadow-soft);
+    overflow: hidden;
+  }
+  details[open] { box-shadow: var(--shadow-hover); }
+
+  summary {
+    padding: 0.9rem 1.15rem;
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    list-style: none;
+    transition: background var(--transition);
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary:hover { background: var(--sand); }
+
+  summary .chevron {
+    margin-left: auto;
+    font-size: 0.7rem;
+    color: var(--driftwood-light);
+    transition: transform var(--transition);
+  }
+  details[open] summary .chevron { transform: rotate(90deg); }
+
+  .details-body {
+    padding: 0 1.15rem 1.15rem;
+    font-size: 0.85rem;
+    color: var(--charcoal-soft);
+    line-height: 1.75;
+    border-top: 1px solid var(--border);
+    padding-top: 0.85rem;
+  }
+
+  /* ─── CHECKLIST ─── */
+  .checklist { list-style: none; }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid rgba(139,125,107,0.08);
+    font-size: 0.85rem;
+    color: var(--charcoal-soft);
+    transition: opacity var(--transition);
+  }
+  .checklist li:last-child { border-bottom: none; }
+
+  .checklist input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 19px;
+    height: 19px;
+    border: 1.5px solid var(--driftwood-light);
+    border-radius: 5px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    cursor: pointer;
+    position: relative;
+    transition: all var(--transition);
+    background: var(--cream);
+  }
+  .checklist input[type="checkbox"]:checked { background: var(--sage); border-color: var(--sage); }
+  .checklist input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    left: 5.5px;
+    top: 1.5px;
+    width: 5px;
+    height: 9px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  .checklist li.checked-item { opacity: 0.35; text-decoration: line-through; }
+
+  /* ─── CALLOUT ─── */
+  .callout {
+    background: var(--sage-light);
+    border-radius: var(--radius);
+    padding: 1.1rem;
+    font-size: 0.85rem;
+    color: var(--sage-dark);
+    margin: 1rem 0;
+    display: flex;
+    gap: 0.65rem;
+    align-items: flex-start;
+    line-height: 1.6;
+  }
+  .callout.warning { background: #FBF3E4; color: #8B6914; }
+  .callout .callout-icon { flex-shrink: 0; font-size: 1rem; }
+
+  /* ─── CONTACT CARD ─── */
+  .contact-card {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    box-shadow: var(--shadow-soft);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .contact-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--sage-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    color: var(--sage-dark);
+    flex-shrink: 0;
+  }
+  .contact-info h4 { font-family: var(--font-display); font-size: 0.95rem; font-weight: 400; margin-bottom: 0.1rem; }
+  .contact-info p { font-size: 0.8rem; color: var(--charcoal-soft); }
+  .contact-info a { color: var(--ocean); text-decoration: none; font-weight: 400; }
+  .contact-info a:hover { text-decoration: underline; }
+
+  /* ══════════════════════════════════════════
+     BOOKING CALENDAR
+     ══════════════════════════════════════════ */
+  .cal-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+  }
+
+  .cal-month {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+  }
+
+  .cal-nav {
+    display: flex;
+    gap: 0.4rem;
+  }
+
+  .cal-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--cream);
+    color: var(--charcoal-soft);
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition);
+  }
+  .cal-btn:hover { background: var(--sand-dark); border-color: var(--driftwood-light); }
+
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--cream);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .cal-header-cell {
+    padding: 0.6rem 0.25rem;
+    text-align: center;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--driftwood);
+    background: var(--sand);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .cal-cell {
+    position: relative;
+    min-height: 52px;
+    padding: 0.35rem;
+    border-bottom: 1px solid rgba(139,125,107,0.07);
+    border-right: 1px solid rgba(139,125,107,0.07);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: background var(--transition);
+  }
+  .cal-cell:nth-child(7n) { border-right: none; }
+  .cal-cell:hover { background: var(--sand); }
+  .cal-cell.empty { cursor: default; background: rgba(139,125,107,0.02); }
+  .cal-cell.empty:hover { background: rgba(139,125,107,0.02); }
+  .cal-cell.today .cal-day {
+    background: var(--charcoal);
+    color: #fff;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cal-day {
+    font-weight: 500;
+    color: var(--charcoal);
+    margin-bottom: 2px;
+    font-size: 0.72rem;
+  }
+
+  .cal-booking-dot {
+    display: block;
+    height: 5px;
+    border-radius: 3px;
+    margin-bottom: 1px;
+  }
+
+  .cal-cell.past .cal-day { color: var(--driftwood-light); }
+
+  /* Booking list */
+  .booking-list { margin-top: 1.25rem; }
+
+  .booking-item {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.15rem;
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    box-shadow: var(--shadow-soft);
+    transition: all var(--transition);
+  }
+  .booking-item:hover { box-shadow: var(--shadow-hover); }
+
+  .booking-color {
+    width: 10px;
+    height: 40px;
+    border-radius: 5px;
+    flex-shrink: 0;
+  }
+
+  .booking-details { flex: 1; }
+  .booking-details .who {
+    font-family: var(--font-display);
+    font-size: 0.92rem;
+    margin-bottom: 0.1rem;
+  }
+  .booking-details .when {
+    font-size: 0.78rem;
+    color: var(--charcoal-soft);
+  }
+
+  .booking-delete {
+    background: none;
+    border: none;
+    color: var(--driftwood-light);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: all var(--transition);
+  }
+  .booking-delete:hover { color: var(--coral-accent); background: var(--coral-light); }
+
+  /* Booking form */
+  .booking-form {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    box-shadow: var(--shadow-soft);
+    margin-top: 1.25rem;
+  }
+
+  .booking-form h3 {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 400;
+    margin-bottom: 1rem;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .form-group { display: flex; flex-direction: column; gap: 0.3rem; }
+  .form-group.full { grid-column: 1 / -1; }
+
+  .form-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--charcoal-soft);
+    letter-spacing: 0.3px;
+  }
+
+  .form-input {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--warm-white);
+    color: var(--charcoal);
+    outline: none;
+    transition: border-color var(--transition);
+    font-weight: 300;
+  }
+  .form-input:focus { border-color: var(--sage); }
+
+  .btn-primary {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 400;
+    padding: 0.65rem 1.5rem;
+    background: var(--sage);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+  .btn-primary:hover { background: var(--sage-dark); }
+
+  .btn-outline {
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    font-weight: 400;
+    padding: 0.55rem 1.15rem;
+    background: none;
+    color: var(--charcoal-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+  .btn-outline:hover { background: var(--sand); border-color: var(--driftwood-light); }
+
+  /* Legend dots */
+  .cal-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+    margin-top: 0.85rem;
+    font-size: 0.72rem;
+    color: var(--charcoal-soft);
+  }
+  .cal-legend span {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .cal-legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ══════════════════════════════════════════
+     MESSAGE BOARD
+     ══════════════════════════════════════════ */
+  .post-compose {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.15rem;
+    box-shadow: var(--shadow-soft);
+    margin-bottom: 1.25rem;
+  }
+
+  .post-compose-top {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+
+  .post-compose textarea {
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    font-weight: 300;
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: var(--charcoal);
+    resize: none;
+    outline: none;
+    line-height: 1.6;
+    min-height: 52px;
+  }
+  .post-compose textarea::placeholder { color: var(--driftwood-light); }
+
+  .post-compose-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .post-name-input {
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    font-weight: 400;
+    padding: 0.45rem 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--warm-white);
+    color: var(--charcoal);
+    width: 140px;
+    outline: none;
+    transition: border-color var(--transition);
+  }
+  .post-name-input:focus { border-color: var(--sage); }
+
+  /* Posts */
+  .post-list { display: flex; flex-direction: column; gap: 0.6rem; }
+
+  .post-card {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.15rem;
+    box-shadow: var(--shadow-soft);
+    transition: all var(--transition);
+  }
+  .post-card:hover { box-shadow: var(--shadow-hover); }
+  .post-card.pinned { border-left: 3px solid var(--sage); }
+
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .post-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  .post-author {
+    font-weight: 500;
+    font-size: 0.85rem;
+    color: var(--charcoal);
+  }
+
+  .post-date {
+    font-size: 0.72rem;
+    color: var(--driftwood-light);
+    margin-left: auto;
+  }
+
+  .post-body {
+    font-size: 0.88rem;
+    color: var(--charcoal-soft);
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .post-actions {
+    margin-top: 0.65rem;
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .post-action-btn {
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    color: var(--driftwood);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    transition: all var(--transition);
+  }
+  .post-action-btn:hover { color: var(--charcoal); background: var(--sand); }
+
+  .empty-state {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: var(--driftwood-light);
+    font-size: 0.88rem;
+  }
+  .empty-state .empty-icon { font-size: 2rem; margin-bottom: 0.65rem; display: block; opacity: 0.4; }
+
+  /* ─── FOOTER ─── */
+  footer {
+    margin-top: 2.5rem;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--driftwood);
+    border-top: 1px solid var(--border);
+  }
+  footer .footer-logo {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    color: var(--charcoal);
+    margin-bottom: 0.35rem;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 700px) {
+    .hero { height: 60vh; min-height: 360px; }
+    .hero-content { padding: 1.75rem 1.25rem 2.25rem; }
+    .quick-actions { grid-template-columns: 1fr 1fr; margin-top: -1.75rem; padding: 0 1rem; gap: 0.6rem; }
+    .content { padding: 0 1rem; }
+    .card-grid { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    .section { padding: 2rem 0 1.5rem; }
+    .cal-cell { min-height: 42px; }
+  }
+
+  @media (max-width: 440px) {
+    .quick-actions { grid-template-columns: 1fr 1fr; }
+    .quick-action .sublabel { display: none; }
+  }
+
+  /* Subtle print styles */
+  @media print {
+    .site-nav, .quick-actions, .post-compose, .booking-form, .cal-nav, .post-actions, .booking-delete, .btn-primary, .btn-outline { display: none !important; }
+    .hero { height: auto; min-height: 0; max-height: none; }
+    .hero-content { position: static; color: var(--charcoal); }
+    .hero h1, .hero p, .hero-label { color: var(--charcoal); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section class="hero">
+  <div class="hero-image">
+    <div class="hero-pattern"></div>
+    <div class="image-placeholder">
+      <span class="house-icon">&#9750;</span>
+      Erstat med foto af huset
+    </div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-label">Sommerhus &middot; Vraa</div>
+    <h1>Velkommen til Vraa</h1>
+    <p>Alt om huset, booking og beskeder &mdash; samlet ét sted.</p>
+  </div>
+</section>
+
+<!-- ═══════════════ QUICK ACTIONS ═══════════════ -->
+<div class="quick-actions">
+  <a href="#ankomst" class="quick-action qa-arrive">
+    <div class="icon">&#8599;</div>
+    <div>
+      <div class="label">Ankomst</div>
+      <div class="sublabel">Nøgler &amp; velkomst</div>
+    </div>
+  </a>
+  <a href="#booking" class="quick-action qa-booking">
+    <div class="icon">&#128197;</div>
+    <div>
+      <div class="label">Booking</div>
+      <div class="sublabel">Kalender &amp; reserver</div>
+    </div>
+  </a>
+  <a href="#opslagstavle" class="quick-action qa-board">
+    <div class="icon">&#128172;</div>
+    <div>
+      <div class="label">Beskeder</div>
+      <div class="sublabel">Opslagstavle</div>
+    </div>
+  </a>
+  <a href="#afrejse" class="quick-action qa-depart">
+    <div class="icon">&#8601;</div>
+    <div>
+      <div class="label">Afrejse</div>
+      <div class="sublabel">Tjekliste</div>
+    </div>
+  </a>
+</div>
+
+<!-- ═══════════════ NAVIGATION ═══════════════ -->
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a class="nav-link active" href="#praktisk">Praktisk</a>
+    <a class="nav-link" href="#ankomst">Ankomst</a>
+    <a class="nav-link" href="#booking">Booking</a>
+    <a class="nav-link" href="#opslagstavle">Opslagstavle<span class="nav-badge" id="msg-count" style="display:none"></span></a>
+    <a class="nav-link" href="#afrejse">Afrejse</a>
+    <a class="nav-link" href="#rejse">Rejse</a>
+    <a class="nav-link" href="#regnskab">Regnskab</a>
+    <a class="nav-link" href="#kontakt">Kontakt</a>
+  </div>
+</nav>
+
+<!-- ═══════════════ MAIN CONTENT ═══════════════ -->
+<main class="content">
+
+  <!-- ─── PRAKTISK INFO ─── -->
+  <section class="section" id="praktisk">
+    <div class="section-header">
+      <h2>Praktisk info</h2>
+      <p>Det vigtigste om huset &mdash; læs inden ankomst.</p>
+    </div>
+    <div class="card-grid">
+      <div class="info-card">
+        <div class="info-card-header">
+          <div class="info-card-icon sage">&#9906;</div>
+          <h3>Nøgler</h3>
+        </div>
+        <div class="info-card-body">
+          Kontakt <strong>Troels</strong> for nøgle. Nøgler til skur og Bakkens Hvile i <strong>øverste venstre skuffe</strong> i chatollet.
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-header">
+          <div class="info-card-icon ocean">&#9851;</div>
+          <h3>Affald</h3>
+        </div>
+        <div class="info-card-body">
+          <strong>Sort spand</strong> &mdash; blandet affald.<br>
+          <strong>Grøn spand</strong> &mdash; kompost.<br>
+          Brændbart pap og papir i brændeovnen.
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-header">
+          <div class="info-card-icon coral">&#9733;</div>
+          <h3>Den blå ringordner</h3>
+        </div>
+        <div class="info-card-body">
+          Ligger på chatollet. Indeholder <strong>nyttige oplysninger</strong>, telefonnumre og åbningstider.
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-header">
+          <div class="info-card-icon sand">&#9730;</div>
+          <h3>Sæsonstart</h3>
+        </div>
+        <div class="info-card-body">
+          Første brugere i sæsonen: <strong>rabat i lejen</strong> mod hovedrengøring og &ldquo;af-musning&rdquo;. Fjern tallerkener med musegift.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ─── ANKOMST ─── -->
+  <section class="section" id="ankomst">
+    <div class="section-header">
+      <h2>Ankomst til Vraa</h2>
+      <p>Hvad du skal gøre, når du ankommer.</p>
+    </div>
+    <details open>
+      <summary><span>&#128274;&ensp;Adgang til huset</span><span class="chevron">&#9658;</span></summary>
+      <div class="details-body">Kontakt Troels for nøglen. Nøgler til skur og Bakkens Hvile i øverste venstre skuffe i chatollet. Se den blå ringordner for tlf.numre og åbningstider.</div>
+    </details>
+    <details>
+      <summary><span>&#127793;&ensp;Gæster og besøgende</span><span class="chevron">&#9658;</span></summary>
+      <div class="details-body">Gæster er velkomne. Informer Troels om hvornår du forventer gæster. Alle gæster skal kende husreglerne, herunder affaldshåndtering og afrejsetjeklisten.</div>
+    </details>
+    <div class="callout">
+      <span class="callout-icon">&#128218;</span>
+      <div>Husk <strong>den blå ringordner</strong> på chatollet &mdash; alt hvad du skal vide om huset, lokale numre og tips.</div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ═══════════════════════════════════
+       BOOKING CALENDAR
+       ═══════════════════════════════════ -->
+  <section class="section" id="booking">
+    <div class="section-header">
+      <h2>Booking &amp; kalender</h2>
+      <p>Se hvornår huset er ledigt og reserver dit ophold.</p>
+    </div>
+
+    <div class="cal-controls">
+      <div class="cal-nav">
+        <button class="cal-btn" onclick="changeMonth(-1)">&#8592;</button>
+        <button class="cal-btn" onclick="changeMonth(1)">&#8594;</button>
+      </div>
+      <div class="cal-month" id="cal-month-label"></div>
+      <button class="btn-outline" onclick="goToday()">I dag</button>
+    </div>
+
+    <div class="cal-grid" id="cal-grid"></div>
+
+    <div class="cal-legend" id="cal-legend"></div>
+
+    <!-- Upcoming bookings -->
+    <div style="margin-top: 1.75rem;">
+      <h3 style="font-family: var(--font-display); font-size: 1.05rem; font-weight: 400; margin-bottom: 0.85rem;">Kommende bookinger</h3>
+      <div class="booking-list" id="booking-list"></div>
+    </div>
+
+    <!-- Booking form -->
+    <div class="booking-form" id="booking-form-container">
+      <h3>Reserver et ophold</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Navn</label>
+          <input class="form-input" type="text" id="book-name" placeholder="Dit navn">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Antal gæster</label>
+          <input class="form-input" type="number" id="book-guests" min="1" max="12" value="2">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Ankomst</label>
+          <input class="form-input" type="date" id="book-start">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Afrejse</label>
+          <input class="form-input" type="date" id="book-end">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group full">
+          <label class="form-label">Bemærkning (valgfrit)</label>
+          <input class="form-input" type="text" id="book-note" placeholder="F.eks. medbringer hund, ankommer sent...">
+        </div>
+      </div>
+      <div style="margin-top: 0.5rem;">
+        <button class="btn-primary" onclick="addBooking()">Reserver</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ═══════════════════════════════════
+       MESSAGE BOARD / OPSLAGSTAVLE
+       ═══════════════════════════════════ -->
+  <section class="section" id="opslagstavle">
+    <div class="section-header">
+      <h2>Opslagstavle</h2>
+      <p>Beskeder, tips og koordinering mellem brugere af huset.</p>
+    </div>
+
+    <!-- Compose -->
+    <div class="post-compose">
+      <div class="post-compose-top">
+        <textarea id="post-body" rows="2" placeholder="Skriv en besked til de andre..."></textarea>
+      </div>
+      <div class="post-compose-bottom">
+        <input class="post-name-input" type="text" id="post-author" placeholder="Dit navn">
+        <button class="btn-primary" onclick="addPost()">Slå op</button>
+      </div>
+    </div>
+
+    <!-- Posts -->
+    <div class="post-list" id="post-list"></div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ─── AFREJSE ─── -->
+  <section class="section" id="afrejse">
+    <div class="section-header">
+      <h2>Afrejse fra Vraa</h2>
+      <p>Gå listen igennem inden du tager afsted.</p>
+    </div>
+    <div class="callout warning">
+      <span class="callout-icon">&#9888;</span>
+      <div>Husk at udfylde <strong>afregningsskemaet</strong> under <a href="#regnskab" style="color:inherit;font-weight:500">Regnskab</a>.</div>
+    </div>
+    <div style="background:var(--cream);border:1px solid var(--border);border-radius:var(--radius);padding:1.15rem;box-shadow:var(--shadow-soft);margin-top:0.85rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.85rem;">
+        <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:400;">Afrejsetjekliste</h3>
+        <button onclick="resetChecklist()" class="btn-outline" style="font-size:0.72rem;padding:0.3rem 0.65rem;">Nulstil</button>
+      </div>
+      <ul class="checklist" id="checklist">
+        <li><input type="checkbox" onchange="toggleCheck(this)"><span>Fej og støvsug overalt</span></li>
+        <li><input type="checkbox" onchange="toggleCheck(this)"><span>Vask gulve</span></li>
+        <li><input type="checkbox" onchange="toggleCheck(this)"><span>Tøm køleskab og fryser</span></li>
+        <li><input type="checkbox" onchange="toggleCheck(this)"><span>Opvask — sæt på plads</span></li>
+        <li><input type="checkbox" onchange="toggleCheck(this)"><span>Tøm alle skraldespande</span></li>
+        <li><input type="checkbox" onchange="toggleCheck(this)"><span>Rengør badeværelse og toilet</span></li>
+        <li><input type="checkbox" onchange="toggleCheck(this)"><span>Alle vinduer lukket og låst</span></li>
+        <li><input type="checkbox" onchange="toggleCheck(this)"><span>Sluk lys og apparater</span></li>
+        <li><input type="checkbox" onchange="toggleCheck(this)"><span>Lås hoveddør og skur</span></li>
+        <li><input type="checkbox" onchange="toggleCheck(this)"><span>Udfyld afregningsskema</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ─── REJSE ─── -->
+  <section class="section" id="rejse">
+    <div class="section-header">
+      <h2>Rejse til og fra øen</h2>
+      <p>Transport, færger og ruter.</p>
+    </div>
+    <details open>
+      <summary><span>&#9875;&ensp;Færge og transport</span><span class="chevron">&#9658;</span></summary>
+      <div class="details-body">Tjek aktuelle afgangstider — de varierer med sæsonen. Planlæg rejsen i god tid, særligt i højsæsonen.</div>
+    </details>
+    <details>
+      <summary><span>&#128663;&ensp;Kørsel og parkering</span><span class="chevron">&#9658;</span></summary>
+      <div class="details-body">Information om parkering ved færgelejet og transport på øen. Kontakt Troels for aktuelle detaljer.</div>
+    </details>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ─── REGNSKAB ─── -->
+  <section class="section" id="regnskab">
+    <div class="section-header">
+      <h2>Regnskab</h2>
+      <p>Afregning og økonomi.</p>
+    </div>
+    <div class="callout warning">
+      <span class="callout-icon">&#128203;</span>
+      <div>Husk at udfylde <strong>afregningsskemaet</strong> efter hvert ophold.</div>
+    </div>
+    <div style="margin-top:0.85rem;">
+      <a href="#" style="display:inline-flex;align-items:center;gap:0.5rem;background:var(--sage);color:#fff;text-decoration:none;padding:0.65rem 1.25rem;border-radius:var(--radius-sm);font-size:0.85rem;transition:all var(--transition);">&#128196;&ensp;Åbn afregningsskema</a>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ─── KONTAKT ─── -->
+  <section class="section" id="kontakt">
+    <div class="section-header">
+      <h2>Kontakt</h2>
+      <p>Spørgsmål? Skriv eller ring.</p>
+    </div>
+    <div class="contact-card">
+      <div class="contact-avatar">T</div>
+      <div class="contact-info">
+        <h4>Troels</h4>
+        <p>Nøgler, adgang og praktiske spørgsmål</p>
+        <p style="margin-top:0.25rem;"><a href="tel:">Ring op</a></p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="footer-logo">Vraa Sommerhus</div>
+  <p>&copy; Familien Vraa &middot; 2026</p>
+</footer>
+
+<!-- ═══════════════ SCRIPTS ═══════════════ -->
+<script>
+/* ────────────────────────────────
+   DATA LAYER (localStorage demo)
+   In production: replace with a small backend (e.g. Firebase, Supabase, or a simple JSON API)
+   ──────────────────────────────── */
+
+const STORAGE = {
+  get(key, fallback) {
+    try { return JSON.parse(localStorage.getItem('vraa-' + key)) || fallback; } catch { return fallback; }
+  },
+  set(key, val) {
+    try { localStorage.setItem('vraa-' + key, JSON.stringify(val)); } catch {}
+  }
+};
+
+/* ────────────────────────────────
+   BOOKING CALENDAR
+   ──────────────────────────────── */
+
+const MONTHS_DA = ['Januar','Februar','Marts','April','Maj','Juni','Juli','August','September','Oktober','November','December'];
+const DAYS_DA = ['Man','Tir','Ons','Tor','Fre','Lør','Søn'];
+const BOOKING_COLORS = [
+  { bg: 'var(--book-1-bg)', fg: 'var(--book-1)' },
+  { bg: 'var(--book-2-bg)', fg: 'var(--book-2)' },
+  { bg: 'var(--book-3-bg)', fg: 'var(--book-3)' },
+  { bg: 'var(--book-4-bg)', fg: 'var(--book-4)' },
+  { bg: 'var(--book-5-bg)', fg: 'var(--book-5)' },
+];
+
+let calYear, calMonth;
+let bookings = [];
+
+function initCalendar() {
+  const now = new Date();
+  calYear = now.getFullYear();
+  calMonth = now.getMonth();
+  bookings = STORAGE.get('bookings', getDefaultBookings());
+  renderCalendar();
+  renderBookingList();
+  renderLegend();
+
+  // Pre-fill dates
+  const startEl = document.getElementById('book-start');
+  const endEl = document.getElementById('book-end');
+  startEl.valueAsDate = now;
+  const end = new Date(now);
+  end.setDate(end.getDate() + 7);
+  endEl.valueAsDate = end;
+
+  // Restore saved name
+  const savedName = STORAGE.get('username', '');
+  if (savedName) {
+    document.getElementById('book-name').value = savedName;
+    document.getElementById('post-author').value = savedName;
+  }
+}
+
+function getDefaultBookings() {
+  const y = new Date().getFullYear();
+  return [
+    { id: 1, name: 'Troels & familie', start: `${y}-07-05`, end: `${y}-07-12`, guests: 4, note: '' },
+    { id: 2, name: 'Rasmus & familie', start: `${y}-07-19`, end: `${y}-07-26`, guests: 5, note: 'Medbringer cykler' },
+    { id: 3, name: 'Mette', start: `${y}-08-02`, end: `${y}-08-09`, guests: 2, note: '' },
+  ];
+}
+
+function getColorForName(name) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return BOOKING_COLORS[Math.abs(hash) % BOOKING_COLORS.length];
+}
+
+function changeMonth(delta) {
+  calMonth += delta;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCalendar();
+}
+
+function goToday() {
+  const now = new Date();
+  calYear = now.getFullYear();
+  calMonth = now.getMonth();
+  renderCalendar();
+}
+
+function renderCalendar() {
+  document.getElementById('cal-month-label').textContent = `${MONTHS_DA[calMonth]} ${calYear}`;
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+
+  // Header
+  DAYS_DA.forEach(d => {
+    const cell = document.createElement('div');
+    cell.className = 'cal-header-cell';
+    cell.textContent = d;
+    grid.appendChild(cell);
+  });
+
+  const firstDay = new Date(calYear, calMonth, 1);
+  let startDow = firstDay.getDay();
+  startDow = startDow === 0 ? 6 : startDow - 1; // Mon=0
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  // Empty cells
+  for (let i = 0; i < startDow; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell empty';
+    grid.appendChild(cell);
+  }
+
+  // Day cells
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date = new Date(calYear, calMonth, d);
+    const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell';
+
+    if (date.getTime() === today.getTime()) cell.classList.add('today');
+    if (date < today) cell.classList.add('past');
+
+    const dayEl = document.createElement('div');
+    dayEl.className = 'cal-day';
+    dayEl.textContent = d;
+    cell.appendChild(dayEl);
+
+    // Find bookings for this date
+    const dayBookings = bookings.filter(b => dateStr >= b.start && dateStr < b.end);
+    dayBookings.forEach(b => {
+      const dot = document.createElement('span');
+      dot.className = 'cal-booking-dot';
+      const c = getColorForName(b.name);
+      dot.style.background = c.fg;
+      cell.appendChild(dot);
+    });
+
+    // Click to pre-fill booking form
+    cell.addEventListener('click', () => {
+      document.getElementById('book-start').value = dateStr;
+      const endDate = new Date(date);
+      endDate.setDate(endDate.getDate() + 7);
+      document.getElementById('book-end').value = endDate.toISOString().slice(0,10);
+      document.getElementById('booking-form-container').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+
+    grid.appendChild(cell);
+  }
+}
+
+function renderBookingList() {
+  const list = document.getElementById('booking-list');
+  const today = new Date().toISOString().slice(0,10);
+  const upcoming = bookings.filter(b => b.end >= today).sort((a,b) => a.start.localeCompare(b.start));
+
+  if (upcoming.length === 0) {
+    list.innerHTML = '<div class="empty-state"><span class="empty-icon">&#128197;</span>Ingen kommende bookinger</div>';
+    return;
+  }
+
+  list.innerHTML = upcoming.map(b => {
+    const c = getColorForName(b.name);
+    const start = formatDate(b.start);
+    const end = formatDate(b.end);
+    const note = b.note ? ` &middot; ${b.note}` : '';
+    return `<div class="booking-item">
+      <div class="booking-color" style="background:${c.fg}"></div>
+      <div class="booking-details">
+        <div class="who">${esc(b.name)}</div>
+        <div class="when">${start} &mdash; ${end} &middot; ${b.guests} gæster${note}</div>
+      </div>
+      <button class="booking-delete" onclick="deleteBooking(${b.id})" title="Slet">&times;</button>
+    </div>`;
+  }).join('');
+}
+
+function renderLegend() {
+  const legend = document.getElementById('cal-legend');
+  const names = [...new Set(bookings.map(b => b.name))];
+  legend.innerHTML = names.map(n => {
+    const c = getColorForName(n);
+    return `<span><span class="cal-legend-dot" style="background:${c.fg}"></span>${esc(n)}</span>`;
+  }).join('');
+}
+
+function addBooking() {
+  const name = document.getElementById('book-name').value.trim();
+  const start = document.getElementById('book-start').value;
+  const end = document.getElementById('book-end').value;
+  const guests = parseInt(document.getElementById('book-guests').value) || 2;
+  const note = document.getElementById('book-note').value.trim();
+
+  if (!name || !start || !end) { alert('Udfyld venligst navn, ankomst og afrejse.'); return; }
+  if (end <= start) { alert('Afrejsedato skal være efter ankomstdato.'); return; }
+
+  // Check overlap
+  const overlap = bookings.find(b => start < b.end && end > b.start);
+  if (overlap) {
+    if (!confirm(`OBS: Overlapning med ${overlap.name} (${formatDate(overlap.start)} – ${formatDate(overlap.end)}). Vil du fortsætte?`)) return;
+  }
+
+  const id = Date.now();
+  bookings.push({ id, name, start, end, guests, note });
+  STORAGE.set('bookings', bookings);
+  STORAGE.set('username', name);
+
+  document.getElementById('book-note').value = '';
+  renderCalendar();
+  renderBookingList();
+  renderLegend();
+}
+
+function deleteBooking(id) {
+  if (!confirm('Slet denne booking?')) return;
+  bookings = bookings.filter(b => b.id !== id);
+  STORAGE.set('bookings', bookings);
+  renderCalendar();
+  renderBookingList();
+  renderLegend();
+}
+
+function formatDate(str) {
+  const [y, m, d] = str.split('-');
+  return `${parseInt(d)}. ${MONTHS_DA[parseInt(m)-1].toLowerCase().slice(0,3)}`;
+}
+
+/* ────────────────────────────────
+   MESSAGE BOARD
+   ──────────────────────────────── */
+
+let posts = [];
+
+function initPosts() {
+  posts = STORAGE.get('posts', getDefaultPosts());
+  renderPosts();
+  updateMsgBadge();
+}
+
+function getDefaultPosts() {
+  const now = Date.now();
+  return [
+    {
+      id: now - 86400000 * 3,
+      author: 'Troels',
+      body: 'Hej alle! Havebordet er nymalet — lad det venligst stå i fred i en uge eller to. Brug det lille bord inde i stuen i mellemtiden.',
+      date: new Date(now - 86400000 * 3).toISOString(),
+      pinned: true
+    },
+    {
+      id: now - 86400000,
+      author: 'Mette',
+      body: 'Vi efterlod en pose med strandsager i skuret (bolde, badmintonketsjere, vandpistoler). Frit til brug — bare læg det tilbage når I rejser.',
+      date: new Date(now - 86400000).toISOString(),
+      pinned: false
+    }
+  ];
+}
+
+function renderPosts() {
+  const list = document.getElementById('post-list');
+  if (posts.length === 0) {
+    list.innerHTML = '<div class="empty-state"><span class="empty-icon">&#128172;</span>Ingen beskeder endnu. Vær den første!</div>';
+    return;
+  }
+
+  const sorted = [...posts].sort((a, b) => {
+    if (a.pinned && !b.pinned) return -1;
+    if (!a.pinned && b.pinned) return 1;
+    return new Date(b.date) - new Date(a.date);
+  });
+
+  list.innerHTML = sorted.map(p => {
+    const c = getColorForName(p.author);
+    const initials = p.author.slice(0, 2).toUpperCase();
+    const ago = timeAgo(p.date);
+    const pinnedClass = p.pinned ? ' pinned' : '';
+    const pinLabel = p.pinned ? 'Frigør' : 'Fastgør';
+
+    return `<div class="post-card${pinnedClass}">
+      <div class="post-meta">
+        <div class="post-avatar" style="background:${c.bg};color:${c.fg}">${initials}</div>
+        <span class="post-author">${esc(p.author)}</span>
+        ${p.pinned ? '<span style="font-size:0.65rem;color:var(--sage);font-weight:500;">&#128204; Fastgjort</span>' : ''}
+        <span class="post-date">${ago}</span>
+      </div>
+      <div class="post-body">${esc(p.body)}</div>
+      <div class="post-actions">
+        <button class="post-action-btn" onclick="togglePin(${p.id})">${pinLabel}</button>
+        <button class="post-action-btn" onclick="deletePost(${p.id})">Slet</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function addPost() {
+  const body = document.getElementById('post-body').value.trim();
+  const author = document.getElementById('post-author').value.trim();
+  if (!body) return;
+  if (!author) { alert('Skriv venligst dit navn.'); return; }
+
+  posts.push({
+    id: Date.now(),
+    author,
+    body,
+    date: new Date().toISOString(),
+    pinned: false
+  });
+
+  STORAGE.set('posts', posts);
+  STORAGE.set('username', author);
+  document.getElementById('post-body').value = '';
+  renderPosts();
+  updateMsgBadge();
+}
+
+function deletePost(id) {
+  if (!confirm('Slet denne besked?')) return;
+  posts = posts.filter(p => p.id !== id);
+  STORAGE.set('posts', posts);
+  renderPosts();
+  updateMsgBadge();
+}
+
+function togglePin(id) {
+  const post = posts.find(p => p.id === id);
+  if (post) post.pinned = !post.pinned;
+  STORAGE.set('posts', posts);
+  renderPosts();
+}
+
+function updateMsgBadge() {
+  const badge = document.getElementById('msg-count');
+  if (posts.length > 0) {
+    badge.textContent = posts.length;
+    badge.style.display = 'inline-flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function timeAgo(dateStr) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'Lige nu';
+  if (mins < 60) return `${mins} min siden`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}t siden`;
+  const days = Math.floor(hours / 24);
+  if (days === 1) return 'I går';
+  if (days < 7) return `${days} dage siden`;
+  const weeks = Math.floor(days / 7);
+  if (weeks < 5) return `${weeks} uge${weeks > 1 ? 'r' : ''} siden`;
+  return new Date(dateStr).toLocaleDateString('da-DK', { day: 'numeric', month: 'short' });
+}
+
+/* ────────────────────────────────
+   CHECKLIST
+   ──────────────────────────────── */
+
+function toggleCheck(cb) {
+  cb.parentElement.classList.toggle('checked-item', cb.checked);
+  saveChecklist();
+}
+
+function saveChecklist() {
+  const checks = [...document.querySelectorAll('#checklist input')].map(cb => cb.checked);
+  STORAGE.set('checklist', checks);
+}
+
+function loadChecklist() {
+  const saved = STORAGE.get('checklist', null);
+  if (saved) {
+    document.querySelectorAll('#checklist input').forEach((cb, i) => {
+      cb.checked = saved[i] || false;
+      if (cb.checked) cb.parentElement.classList.add('checked-item');
+    });
+  }
+}
+
+function resetChecklist() {
+  document.querySelectorAll('#checklist input').forEach(cb => {
+    cb.checked = false;
+    cb.parentElement.classList.remove('checked-item');
+  });
+  STORAGE.set('checklist', null);
+}
+
+/* ────────────────────────────────
+   NAVIGATION / SCROLL SPY
+   ──────────────────────────────── */
+
+const sections = document.querySelectorAll('.section[id]');
+const navLinks = document.querySelectorAll('.nav-link');
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(link => link.classList.remove('active'));
+      const activeLink = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
+      if (activeLink) activeLink.classList.add('active');
+    }
+  });
+}, { threshold: 0.2, rootMargin: '-80px 0px -50% 0px' });
+
+sections.forEach(section => observer.observe(section));
+
+/* ────────────────────────────────
+   HELPERS
+   ──────────────────────────────── */
+
+function esc(str) {
+  const el = document.createElement('span');
+  el.textContent = str;
+  return el.innerHTML;
+}
+
+/* ── INIT ── */
+initCalendar();
+initPosts();
+loadChecklist();
+</script>
+
+</body>
+</html>

@@ -4,7 +4,7 @@
 <div class="message-form-container">
     <h1>Tilføj kommentar</h1>
 
-    <div class="alert alert-light mb-3">
+    <div class="callout mb-3">
         <small class="text-muted">Kommenterer på:</small>
         <p class="mb-0"><strong>{{ message.author.username }}</strong>: {{ message.content|truncatewords:20 }}</p>
     </div>
@@ -22,7 +22,7 @@
         </div>
         <div class="d-flex gap-2">
             <button type="submit" class="btn btn-primary">Send kommentar</button>
-            <a href="{% url 'main:frontpage' %}" class="btn btn-outline-secondary">Annuller</a>
+            <a href="{% url 'main:frontpage' %}" class="btn btn-outline">Annuller</a>
         </div>
     </form>
 </div>

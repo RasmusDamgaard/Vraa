@@ -1,25 +1,26 @@
 {% extends 'main/base.html' %}
 
 {% block content %}
-  <h1 class="mb-4">Admin Vejledning</h1>
+  <h1>Admin Vejledning</h1>
 
   <p class="lead mb-4">
     Denne side forklarer, hvordan du administrerer Vraa-hjemmesiden som administrator.
   </p>
 
-  <div class="alert alert-info">
-    <strong>Bemærk:</strong> Denne side er kun synlig for brugere med administratorrettigheder.
+  <div class="callout">
+    <span class="callout-icon">&#9432;</span>
+    <div><strong>Bem&aelig;rk:</strong> Denne side er kun synlig for brugere med administratorrettigheder.</div>
   </div>
 
   <!-- Table of Contents -->
-  <div class="card mb-5">
-    <div class="card-body">
-      <h5 class="card-title">Indholdsfortegnelse</h5>
+  <div class="info-card mb-4 mt-3">
+    <div class="info-card-body">
+      <h3>Indholdsfortegnelse</h3>
       <ol class="mb-0">
         <li><a href="#oversigt">Oversigt</a></li>
         <li><a href="#adgang">Adgang til Admin</a></li>
-        <li><a href="#brugere">Brugerhåndtering</a></li>
-        <li><a href="#bookinger">Bookinghåndtering</a></li>
+        <li><a href="#brugere">Brugerh&aring;ndtering</a></li>
+        <li><a href="#bookinger">Bookingh&aring;ndtering</a></li>
         <li><a href="#indhold">Indholdsmoderation</a></li>
         <li><a href="#fejlfinding">Fejlfinding</a></li>
       </ol>
@@ -27,32 +28,28 @@
   </div>
 
   <!-- Section 1: Oversigt -->
-  <h2 id="oversigt" class="mt-5 mb-3">1. Oversigt</h2>
-  <p>
-    Som administrator har du ansvar for at:
-  </p>
+  <h2 id="oversigt" class="mt-4 mb-3">1. Oversigt</h2>
+  <p>Som administrator har du ansvar for at:</p>
   <ul>
     <li>Godkende nye brugere</li>
     <li>Godkende eller afvise bookinger</li>
     <li>Moderere beskeder og kommentarer ved behov</li>
-    <li>Hjælpe brugere med problemer (f.eks. nulstille adgangskoder)</li>
+    <li>Hj&aelig;lpe brugere med problemer (f.eks. nulstille adgangskoder)</li>
   </ul>
 
   <!-- Section 2: Adgang til Admin -->
-  <h2 id="adgang" class="mt-5 mb-3">2. Adgang til Admin</h2>
-  <p>
-    Django Admin er administrationspanelet, hvor du kan håndtere alle data på hjemmesiden.
-  </p>
+  <h2 id="adgang" class="mt-4 mb-3">2. Adgang til Admin</h2>
+  <p>Django Admin er administrationspanelet, hvor du kan h&aring;ndtere alle data p&aring; hjemmesiden.</p>
 
-  <h3 class="mt-4">Åbn Admin-panelet</h3>
+  <h3 class="mt-3">&Aring;bn Admin-panelet</h3>
   <ol>
-    <li>Gå til <a href="/admin/" target="_blank">/admin/</a></li>
+    <li>G&aring; til <a href="/admin/" target="_blank">/admin/</a></li>
     <li>Log ind med dit brugernavn og adgangskode</li>
     <li>Du ser nu en liste over alle datatyper, du kan administrere</li>
   </ol>
 
-  <h3 class="mt-4">Navigation i Admin</h3>
-  <table class="table table-bordered">
+  <h3 class="mt-3">Navigation i Admin</h3>
+  <table class="table">
     <thead>
       <tr>
         <th>Sektion</th>
@@ -70,7 +67,7 @@
       </tr>
       <tr>
         <td><strong>Messages</strong></td>
-        <td>Beskeder på beskedtavlen</td>
+        <td>Beskeder p&aring; beskedtavlen</td>
       </tr>
       <tr>
         <td><strong>Comments</strong></td>
@@ -79,105 +76,101 @@
     </tbody>
   </table>
 
-  <!-- Section 3: Brugerhåndtering -->
-  <h2 id="brugere" class="mt-5 mb-3">3. Brugerhåndtering</h2>
+  <!-- Section 3: Brugerh&aring;ndtering -->
+  <h2 id="brugere" class="mt-4 mb-3">3. Brugerh&aring;ndtering</h2>
 
-  <h3 class="mt-4">Godkend en ny bruger</h3>
-  <p>
-    Når en ny bruger registrerer sig, er deres konto inaktiv indtil godkendelse.
-  </p>
+  <h3 class="mt-3">Godkend en ny bruger</h3>
+  <p>N&aring;r en ny bruger registrerer sig, er deres konto inaktiv indtil godkendelse.</p>
   <ol>
-    <li>Gå til <strong>Admin</strong> → <strong>Users</strong></li>
-    <li>Find brugeren (inaktive brugere har ikke flueben ved "Active")</li>
-    <li>Klik på brugernavnet for at åbne detaljer</li>
-    <li>Sæt flueben ved <strong>Active</strong></li>
+    <li>G&aring; til <strong>Admin</strong> &rarr; <strong>Users</strong></li>
+    <li>Find brugeren (inaktive brugere har ikke flueben ved &ldquo;Active&rdquo;)</li>
+    <li>Klik p&aring; brugernavnet for at &aring;bne detaljer</li>
+    <li>S&aelig;t flueben ved <strong>Active</strong></li>
     <li>Klik <strong>Save</strong></li>
   </ol>
 
-  <div class="alert alert-success">
-    <strong>Tip:</strong> Du kan godkende flere brugere på én gang:
-    <ol class="mb-0 mt-2">
-      <li>Sæt flueben ved de brugere, du vil godkende</li>
-      <li>Vælg "Activate selected users" fra dropdown-menuen (hvis tilgængelig)</li>
-      <li>Klik <strong>Go</strong></li>
-    </ol>
+  <div class="callout">
+    <span class="callout-icon">&#128161;</span>
+    <div><strong>Tip:</strong> Du kan godkende flere brugere p&aring; &eacute;n gang:
+      <ol class="mb-0 mt-1">
+        <li>S&aelig;t flueben ved de brugere, du vil godkende</li>
+        <li>V&aelig;lg &ldquo;Activate selected users&rdquo; fra dropdown-menuen</li>
+        <li>Klik <strong>Go</strong></li>
+      </ol>
+    </div>
   </div>
 
-  <h3 class="mt-4">Deaktiver en bruger</h3>
+  <h3 class="mt-3">Deaktiver en bruger</h3>
   <ol>
-    <li>Gå til <strong>Admin</strong> → <strong>Users</strong></li>
-    <li>Klik på brugernavnet</li>
+    <li>G&aring; til <strong>Admin</strong> &rarr; <strong>Users</strong></li>
+    <li>Klik p&aring; brugernavnet</li>
     <li>Fjern fluebenet ved <strong>Active</strong></li>
     <li>Klik <strong>Save</strong></li>
   </ol>
-  <p class="text-muted">
-    Deaktiverede brugere kan ikke logge ind, men deres data bevares.
-  </p>
+  <p class="text-muted">Deaktiverede brugere kan ikke logge ind, men deres data bevares.</p>
 
-  <h3 class="mt-4">Nulstil en brugers adgangskode</h3>
+  <h3 class="mt-3">Nulstil en brugers adgangskode</h3>
   <ol>
-    <li>Gå til <strong>Admin</strong> → <strong>Users</strong></li>
-    <li>Klik på brugernavnet</li>
-    <li>Klik på linket ved "Password" (typisk "this form")</li>
+    <li>G&aring; til <strong>Admin</strong> &rarr; <strong>Users</strong></li>
+    <li>Klik p&aring; brugernavnet</li>
+    <li>Klik p&aring; linket ved &ldquo;Password&rdquo; (typisk &ldquo;this form&rdquo;)</li>
     <li>Indtast den nye adgangskode to gange</li>
     <li>Klik <strong>Change password</strong></li>
   </ol>
 
-  <h3 class="mt-4">Gør en bruger til administrator</h3>
+  <h3 class="mt-3">G&oslash;r en bruger til administrator</h3>
   <ol>
-    <li>Gå til <strong>Admin</strong> → <strong>Users</strong></li>
-    <li>Klik på brugernavnet</li>
-    <li>Under "Permissions", sæt flueben ved:
+    <li>G&aring; til <strong>Admin</strong> &rarr; <strong>Users</strong></li>
+    <li>Klik p&aring; brugernavnet</li>
+    <li>Under &ldquo;Permissions&rdquo;, s&aelig;t flueben ved:
       <ul>
-        <li><strong>Staff status</strong> - giver adgang til admin-panelet</li>
-        <li><strong>Superuser status</strong> - giver fuld adgang (valgfrit)</li>
+        <li><strong>Staff status</strong> &mdash; giver adgang til admin-panelet</li>
+        <li><strong>Superuser status</strong> &mdash; giver fuld adgang (valgfrit)</li>
       </ul>
     </li>
     <li>Klik <strong>Save</strong></li>
   </ol>
 
-  <!-- Section 4: Bookinghåndtering -->
-  <h2 id="bookinger" class="mt-5 mb-3">4. Bookinghåndtering</h2>
+  <!-- Section 4: Bookingh&aring;ndtering -->
+  <h2 id="bookinger" class="mt-4 mb-3">4. Bookingh&aring;ndtering</h2>
 
-  <h3 class="mt-4">Se alle bookinger</h3>
+  <h3 class="mt-3">Se alle bookinger</h3>
   <ol>
-    <li>Gå til <strong>Admin</strong> → <strong>Bookings</strong></li>
+    <li>G&aring; til <strong>Admin</strong> &rarr; <strong>Bookings</strong></li>
     <li>Du ser en liste over alle bookinger med status, bruger og datoer</li>
   </ol>
 
-  <h3 class="mt-4">Filtrer bookinger</h3>
-  <p>
-    Brug filterpanelet i højre side til at filtrere efter:
-  </p>
+  <h3 class="mt-3">Filtrer bookinger</h3>
+  <p>Brug filterpanelet i h&oslash;jre side til at filtrere efter:</p>
   <ul>
-    <li><strong>Status</strong> - pending, confirmed, rejected, cancelled</li>
-    <li><strong>Bruger</strong> - se bookinger fra en specifik bruger</li>
-    <li><strong>Dato</strong> - filtrer efter oprettelsesdato</li>
+    <li><strong>Status</strong> &mdash; pending, confirmed, rejected, cancelled</li>
+    <li><strong>Bruger</strong> &mdash; se bookinger fra en specifik bruger</li>
+    <li><strong>Dato</strong> &mdash; filtrer efter oprettelsesdato</li>
   </ul>
 
-  <h3 class="mt-4">Godkend en booking</h3>
+  <h3 class="mt-3">Godkend en booking</h3>
   <ol>
-    <li>Gå til <strong>Admin</strong> → <strong>Bookings</strong></li>
-    <li>Klik på den booking, du vil godkende</li>
+    <li>G&aring; til <strong>Admin</strong> &rarr; <strong>Bookings</strong></li>
+    <li>Klik p&aring; den booking, du vil godkende</li>
     <li>Skift <strong>Status</strong> til <strong>Confirmed</strong></li>
     <li>Klik <strong>Save</strong></li>
   </ol>
 
-  <h3 class="mt-4">Afvis en booking</h3>
+  <h3 class="mt-3">Afvis en booking</h3>
   <ol>
-    <li>Gå til <strong>Admin</strong> → <strong>Bookings</strong></li>
-    <li>Klik på bookingen</li>
+    <li>G&aring; til <strong>Admin</strong> &rarr; <strong>Bookings</strong></li>
+    <li>Klik p&aring; bookingen</li>
     <li>Skift <strong>Status</strong> til <strong>Rejected</strong></li>
     <li>Klik <strong>Save</strong></li>
   </ol>
 
-  <div class="alert alert-warning">
-    <strong>Vigtigt:</strong> Systemet forhindrer automatisk dobbeltbookinger.
-    Du kan ikke godkende en booking, der overlapper med en allerede godkendt booking.
+  <div class="callout warning">
+    <span class="callout-icon">&#9888;</span>
+    <div><strong>Vigtigt:</strong> Systemet forhindrer automatisk dobbeltbookinger. Du kan ikke godkende en booking, der overlapper med en allerede godkendt booking.</div>
   </div>
 
-  <h3 class="mt-4">Booking-statusser</h3>
-  <table class="table table-bordered">
+  <h3 class="mt-3">Booking-statusser</h3>
+  <table class="table">
     <thead>
       <tr>
         <th>Status</th>
@@ -189,12 +182,12 @@
       <tr>
         <td><strong>Pending</strong></td>
         <td>Afventer godkendelse</td>
-        <td>Ja (gul)</td>
+        <td>Ja</td>
       </tr>
       <tr>
         <td><strong>Confirmed</strong></td>
         <td>Godkendt booking</td>
-        <td>Ja (grøn)</td>
+        <td>Ja</td>
       </tr>
       <tr>
         <td><strong>Rejected</strong></td>
@@ -210,123 +203,89 @@
   </table>
 
   <!-- Section 5: Indholdsmoderation -->
-  <h2 id="indhold" class="mt-5 mb-3">5. Indholdsmoderation</h2>
+  <h2 id="indhold" class="mt-4 mb-3">5. Indholdsmoderation</h2>
 
-  <h3 class="mt-4">Rediger en besked</h3>
+  <h3 class="mt-3">Rediger en besked</h3>
   <ol>
-    <li>Gå til <strong>Admin</strong> → <strong>Messages</strong></li>
-    <li>Klik på beskeden</li>
+    <li>G&aring; til <strong>Admin</strong> &rarr; <strong>Messages</strong></li>
+    <li>Klik p&aring; beskeden</li>
     <li>Rediger indholdet efter behov</li>
     <li>Klik <strong>Save</strong></li>
   </ol>
 
-  <h3 class="mt-4">Slet en besked</h3>
+  <h3 class="mt-3">Slet en besked</h3>
   <ol>
-    <li>Gå til <strong>Admin</strong> → <strong>Messages</strong></li>
-    <li>Klik på beskeden</li>
-    <li>Klik <strong>Delete</strong> nederst på siden</li>
-    <li>Bekræft sletningen</li>
+    <li>G&aring; til <strong>Admin</strong> &rarr; <strong>Messages</strong></li>
+    <li>Klik p&aring; beskeden</li>
+    <li>Klik <strong>Delete</strong> nederst p&aring; siden</li>
+    <li>Bekr&aelig;ft sletningen</li>
   </ol>
-  <p class="text-muted">
-    Når du sletter en besked, slettes alle tilhørende kommentarer også.
-  </p>
+  <p class="text-muted">N&aring;r du sletter en besked, slettes alle tilh&oslash;rende kommentarer ogs&aring;.</p>
 
-  <h3 class="mt-4">Slet en kommentar</h3>
+  <h3 class="mt-3">Slet en kommentar</h3>
   <ol>
-    <li>Gå til <strong>Admin</strong> → <strong>Comments</strong></li>
-    <li>Find og klik på kommentaren</li>
+    <li>G&aring; til <strong>Admin</strong> &rarr; <strong>Comments</strong></li>
+    <li>Find og klik p&aring; kommentaren</li>
     <li>Klik <strong>Delete</strong></li>
-    <li>Bekræft sletningen</li>
+    <li>Bekr&aelig;ft sletningen</li>
   </ol>
 
   <!-- Section 6: Fejlfinding -->
-  <h2 id="fejlfinding" class="mt-5 mb-3">6. Fejlfinding</h2>
+  <h2 id="fejlfinding" class="mt-4 mb-3">6. Fejlfinding</h2>
 
-  <div class="accordion" id="troubleshootingAccordion">
-    <div class="accordion-item">
-      <h2 class="accordion-header">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ts1">
-          En bruger kan ikke logge ind
-        </button>
-      </h2>
-      <div id="ts1" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
-        <div class="accordion-body">
-          <p>Tjek følgende:</p>
-          <ol>
-            <li>Er brugeren oprettet? Kig i <strong>Admin</strong> → <strong>Users</strong></li>
-            <li>Er kontoen aktiv? Tjek at "Active" er markeret</li>
-            <li>Nulstil adgangskoden, hvis brugeren har glemt den</li>
-          </ol>
-        </div>
-      </div>
+  <details>
+    <summary><span>En bruger kan ikke logge ind</span><span class="chevron">&#9658;</span></summary>
+    <div class="details-body">
+      <p>Tjek f&oslash;lgende:</p>
+      <ol>
+        <li>Er brugeren oprettet? Kig i <strong>Admin</strong> &rarr; <strong>Users</strong></li>
+        <li>Er kontoen aktiv? Tjek at &ldquo;Active&rdquo; er markeret</li>
+        <li>Nulstil adgangskoden, hvis brugeren har glemt den</li>
+      </ol>
     </div>
+  </details>
 
-    <div class="accordion-item">
-      <h2 class="accordion-header">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ts2">
-          Kalenderen viser ikke bookinger
-        </button>
-      </h2>
-      <div id="ts2" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
-        <div class="accordion-body">
-          <p>Kalenderen viser kun bookinger med status "pending" eller "confirmed".</p>
-          <p>Tjek i <strong>Admin</strong> → <strong>Bookings</strong>, om der findes bookinger, og hvad deres status er.</p>
-        </div>
-      </div>
+  <details>
+    <summary><span>Kalenderen viser ikke bookinger</span><span class="chevron">&#9658;</span></summary>
+    <div class="details-body">
+      <p>Kalenderen viser kun bookinger med status &ldquo;pending&rdquo; eller &ldquo;confirmed&rdquo;.</p>
+      <p>Tjek i <strong>Admin</strong> &rarr; <strong>Bookings</strong>, om der findes bookinger, og hvad deres status er.</p>
     </div>
+  </details>
 
-    <div class="accordion-item">
-      <h2 class="accordion-header">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ts3">
-          Jeg kan ikke godkende en booking (dobbeltbooking)
-        </button>
-      </h2>
-      <div id="ts3" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
-        <div class="accordion-body">
-          <p>Systemet forhindrer dobbeltbookinger. Hvis du ikke kan godkende en booking:</p>
-          <ol>
-            <li>Tjek om der allerede er en godkendt booking i samme periode</li>
-            <li>Afvis eller annuller den overlappende booking først</li>
-            <li>Prøv igen at godkende den ønskede booking</li>
-          </ol>
-        </div>
-      </div>
+  <details>
+    <summary><span>Jeg kan ikke godkende en booking (dobbeltbooking)</span><span class="chevron">&#9658;</span></summary>
+    <div class="details-body">
+      <p>Systemet forhindrer dobbeltbookinger. Hvis du ikke kan godkende en booking:</p>
+      <ol>
+        <li>Tjek om der allerede er en godkendt booking i samme periode</li>
+        <li>Afvis eller annuller den overlappende booking f&oslash;rst</li>
+        <li>Pr&oslash;v igen at godkende den &oslash;nskede booking</li>
+      </ol>
     </div>
+  </details>
 
-    <div class="accordion-item">
-      <h2 class="accordion-header">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ts4">
-          Siden er langsom eller viser gammelt indhold
-        </button>
-      </h2>
-      <div id="ts4" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
-        <div class="accordion-body">
-          <p>Hjemmesiden bruger caching for at forbedre hastigheden. Noget indhold kan være op til 1 time gammelt.</p>
-          <p>Prøv at genindlæse siden (Ctrl+F5 eller Cmd+Shift+R) for at hente det nyeste indhold.</p>
-        </div>
-      </div>
+  <details>
+    <summary><span>Siden er langsom eller viser gammelt indhold</span><span class="chevron">&#9658;</span></summary>
+    <div class="details-body">
+      <p>Hjemmesiden bruger caching for at forbedre hastigheden. Noget indhold kan v&aelig;re op til 1 time gammelt.</p>
+      <p>Pr&oslash;v at genindl&aelig;se siden (Ctrl+F5 eller Cmd+Shift+R) for at hente det nyeste indhold.</p>
     </div>
+  </details>
 
-    <div class="accordion-item">
-      <h2 class="accordion-header">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ts5">
-          Jeg har brug for teknisk hjælp
-        </button>
-      </h2>
-      <div id="ts5" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
-        <div class="accordion-body">
-          <p>Ved tekniske problemer, der ikke kan løses via admin-panelet:</p>
-          <ul>
-            <li>Kontakt den person, der vedligeholder hjemmesiden</li>
-            <li>Beskriv problemet så detaljeret som muligt</li>
-            <li>Inkluder eventuelle fejlmeddelelser</li>
-          </ul>
-        </div>
-      </div>
+  <details>
+    <summary><span>Jeg har brug for teknisk hj&aelig;lp</span><span class="chevron">&#9658;</span></summary>
+    <div class="details-body">
+      <p>Ved tekniske problemer, der ikke kan l&oslash;ses via admin-panelet:</p>
+      <ul>
+        <li>Kontakt den person, der vedligeholder hjemmesiden</li>
+        <li>Beskriv problemet s&aring; detaljeret som muligt</li>
+        <li>Inkluder eventuelle fejlmeddelelser</li>
+      </ul>
     </div>
-  </div>
+  </details>
 
-  <p class="text-muted mt-5">
-    Har du brug for yderligere hjælp? Kontakt den tekniske ansvarlige for hjemmesiden.
+  <p class="text-muted mt-4">
+    Har du brug for yderligere hj&aelig;lp? Kontakt den tekniske ansvarlige for hjemmesiden.
   </p>
 {% endblock %}

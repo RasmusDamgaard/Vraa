@@ -4,12 +4,12 @@
 <div class="profile-container">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Min profil</h1>
-        <a href="{% url 'main:profile_edit' %}" class="btn btn-outline-primary">Rediger profil</a>
+        <a href="{% url 'main:profile_edit' %}" class="btn btn-outline">Rediger profil</a>
     </div>
 
-    <div class="card mb-4">
-        <div class="card-body">
-            <h5 class="card-title">Profilinformation</h5>
+    <div class="info-card mb-4">
+        <div class="info-card-body">
+            <h3>Profilinformation</h3>
             {% if user.profile.display_name %}
             <p><strong>Visningsnavn:</strong> {{ user.profile.display_name }}</p>
             {% endif %}
@@ -17,61 +17,55 @@
             <p><strong>E-mail:</strong> {{ user.email|default:"Ikke angivet" }}</p>
             <p><strong>Medlem siden:</strong> {{ user.date_joined|date:"d. F Y" }}</p>
             {% if user.profile.bio %}
-            <hr>
+            <div class="divider"></div>
             <p class="mb-0"><strong>Om mig:</strong></p>
             <p class="text-muted">{{ user.profile.bio }}</p>
             {% endif %}
         </div>
     </div>
 
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h3>{{ total_bookings }}</h3>
-                    <p class="text-muted mb-0">Bookinger</p>
-                </div>
+    <div class="card-grid mb-4" style="grid-template-columns:repeat(3,1fr);">
+        <div class="info-card text-center">
+            <div class="info-card-body">
+                <h3 style="font-size:1.5rem;margin-bottom:0.25rem;">{{ total_bookings }}</h3>
+                <p class="text-muted mb-0">Bookinger</p>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h3>{{ total_messages }}</h3>
-                    <p class="text-muted mb-0">Beskeder</p>
-                </div>
+        <div class="info-card text-center">
+            <div class="info-card-body">
+                <h3 style="font-size:1.5rem;margin-bottom:0.25rem;">{{ total_messages }}</h3>
+                <p class="text-muted mb-0">Beskeder</p>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h3>{{ total_comments }}</h3>
-                    <p class="text-muted mb-0">Kommentarer</p>
-                </div>
+        <div class="info-card text-center">
+            <div class="info-card-body">
+                <h3 style="font-size:1.5rem;margin-bottom:0.25rem;">{{ total_comments }}</h3>
+                <p class="text-muted mb-0">Kommentarer</p>
             </div>
         </div>
     </div>
 
     <h2>Kommende bookinger</h2>
     {% if upcoming_bookings %}
-    <div class="list-group mb-4">
+    <div class="booking-list mb-4">
         {% for booking in upcoming_bookings %}
-        <div class="list-group-item d-flex justify-content-between align-items-center">
-            <div>
-                <strong>{{ booking.start_date|date:"d. M Y" }} - {{ booking.end_date|date:"d. M Y" }}</strong>
-                <br>
-                <small class="text-muted">{{ booking.duration_days }} dag{% if booking.duration_days != 1 %}e{% endif %}</small>
+        <div class="booking-item">
+            <div class="booking-color" style="background:{% if booking.status == 'confirmed' %}var(--sage){% else %}var(--coral-accent){% endif %};"></div>
+            <div class="booking-details">
+                <div class="who">{{ booking.start_date|date:"d. M Y" }} &ndash; {{ booking.end_date|date:"d. M Y" }}</div>
+                <div class="when">{{ booking.duration_days }} dag{% if booking.duration_days != 1 %}e{% endif %}</div>
                 {% if booking.notes %}
-                <br><small class="text-muted">{{ booking.notes|truncatewords:15 }}</small>
+                <div class="text-muted" style="font-size:0.8rem;">{{ booking.notes|truncatewords:15 }}</div>
                 {% endif %}
             </div>
             <div class="d-flex align-items-center gap-2">
-                <span class="badge {% if booking.status == 'confirmed' %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                <span class="badge {% if booking.status == 'confirmed' %}bg-sage{% else %}bg-coral{% endif %}">
                     {{ booking.get_status_display }}
                 </span>
                 {% if booking.status == 'pending' %}
-                <a href="{% url 'main:booking_update' booking.pk %}" class="btn btn-sm btn-outline-secondary">Rediger</a>
+                <a href="{% url 'main:booking_update' booking.pk %}" class="btn btn-sm btn-outline">Rediger</a>
                 {% endif %}
-                <a href="{% url 'main:booking_delete' booking.pk %}" class="btn btn-sm btn-outline-danger">Annuller</a>
+                <a href="{% url 'main:booking_delete' booking.pk %}" class="btn btn-sm btn-danger">Annuller</a>
             </div>
         </div>
         {% endfor %}
@@ -80,20 +74,22 @@
     <p class="text-muted mb-4">Ingen kommende bookinger.</p>
     {% endif %}
 
-    <div class="mb-3">
+    <div class="d-flex gap-2 mb-4">
         <a href="{% url 'main:booking_create' %}" class="btn btn-primary">Opret ny booking</a>
-        <a href="{% url 'main:kalender' %}" class="btn btn-outline-secondary">Se kalender</a>
+        <a href="{% url 'main:kalender' %}" class="btn btn-outline">Se kalender</a>
     </div>
 
     <h2>Tidligere bookinger</h2>
     {% if past_bookings %}
-    <div class="list-group mb-4">
+    <div class="booking-list mb-4">
         {% for booking in past_bookings %}
-        <div class="list-group-item">
-            <strong>{{ booking.start_date|date:"d. M Y" }} - {{ booking.end_date|date:"d. M Y" }}</strong>
-            <span class="badge bg-secondary ms-2">Afsluttet</span>
-            <br>
-            <small class="text-muted">{{ booking.duration_days }} dag{% if booking.duration_days != 1 %}e{% endif %}</small>
+        <div class="booking-item">
+            <div class="booking-color" style="background:var(--driftwood-light);"></div>
+            <div class="booking-details">
+                <div class="who">{{ booking.start_date|date:"d. M Y" }} &ndash; {{ booking.end_date|date:"d. M Y" }}</div>
+                <div class="when">{{ booking.duration_days }} dag{% if booking.duration_days != 1 %}e{% endif %}</div>
+            </div>
+            <span class="badge bg-secondary">Afsluttet</span>
         </div>
         {% endfor %}
     </div>
@@ -103,11 +99,14 @@
 
     {% if cancelled_bookings %}
     <h2>Annullerede bookinger</h2>
-    <div class="list-group mb-4">
+    <div class="booking-list mb-4">
         {% for booking in cancelled_bookings %}
-        <div class="list-group-item">
-            <strong>{{ booking.start_date|date:"d. M Y" }} - {{ booking.end_date|date:"d. M Y" }}</strong>
-            <span class="badge bg-danger ms-2">Annulleret</span>
+        <div class="booking-item">
+            <div class="booking-color" style="background:var(--coral-accent);opacity:0.4;"></div>
+            <div class="booking-details">
+                <div class="who">{{ booking.start_date|date:"d. M Y" }} &ndash; {{ booking.end_date|date:"d. M Y" }}</div>
+            </div>
+            <span class="badge bg-danger">Annulleret</span>
         </div>
         {% endfor %}
     </div>

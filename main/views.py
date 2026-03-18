@@ -444,10 +444,10 @@ class BookingAPIView(LoginRequiredMixin, View):
     def _get_booking_color(self, booking):
         """Get color for booking based on status and heritage line."""
         if booking.status == 'pending':
-            return '#ffc107'  # Yellow for pending
+            return '#C4826E'  # Coral for pending
         if hasattr(booking.user, 'profile') and booking.user.profile.heritage_line:
             return booking.user.profile.heritage_line.color
-        return '#28a745'  # Default green for confirmed
+        return '#7A8B6F'  # Sage for confirmed
 
 
 @method_decorator(cache_page(60 * 60), name='dispatch')

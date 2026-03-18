@@ -49,8 +49,8 @@
       <div id="description_help" class="form-text">Giv en detaljeret beskrivelse af problemet, inklusive hvornaar det opstod og evt. omstaendigheder.</div>
     </div>
 
-    <div class="row">
-      <div class="col-md-6 mb-3">
+    <div class="d-flex flex-wrap gap-3">
+      <div class="mb-3" style="flex:1;min-width:200px;">
         <label for="id_location" class="form-label">Placering</label>
         <input type="text" class="form-control {% if form.location.errors %}is-invalid{% endif %}"
                id="id_location" name="location" value="{{ form.location.value|default:'' }}"
@@ -75,8 +75,8 @@
     <hr class="my-4">
     <h3 class="mb-3">Administrator</h3>
 
-    <div class="row">
-      <div class="col-md-6 mb-3">
+    <div class="d-flex flex-wrap gap-3">
+      <div class="mb-3" style="flex:1;min-width:200px;">
         <label for="id_status" class="form-label">Status</label>
         <select class="form-select {% if form.status.errors %}is-invalid{% endif %}"
                 id="id_status" name="status" aria-describedby="status_help">
@@ -102,7 +102,7 @@
       <button type="submit" class="btn btn-primary">
         {% if object %}Gem aendringer{% else %}Opret anmodning{% endif %}
       </button>
-      <a href="{% url 'main:maintenance_list' %}" class="btn btn-outline-secondary">Annuller</a>
+      <a href="{% url 'main:maintenance_list' %}" class="btn btn btn-outline">Annuller</a>
     </div>
   </form>
 </div>

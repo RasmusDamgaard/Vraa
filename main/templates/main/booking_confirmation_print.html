@@ -3,31 +3,35 @@
 
 {% block extra_head %}
 <style>
-    /* Additional styles for booking confirmation page */
     .booking-confirmation-page .booking-details dt {
         font-weight: 600;
-        color: var(--text-secondary, #666);
+        color: var(--text-secondary);
+        min-width: 160px;
     }
     .booking-confirmation-page .booking-details dd {
         margin-bottom: 1rem;
     }
+    .booking-confirmation-page .booking-details .detail-row {
+        display: flex;
+        gap: 1rem;
+    }
     .booking-confirmation-page .booking-status {
         font-size: 1.1rem;
         padding: 0.5rem 1rem;
-        border-radius: var(--radius-md, 8px);
+        border-radius: var(--radius);
         display: inline-block;
     }
     .booking-confirmation-page .status-confirmed {
-        background-color: var(--success-light, #d4edda);
-        color: var(--success-dark, #155724);
+        background-color: rgba(122,139,111,0.15);
+        color: var(--sage-dark, #5C6B53);
     }
     .booking-confirmation-page .status-pending {
-        background-color: var(--warning-light, #fff3cd);
-        color: var(--warning-dark, #856404);
+        background-color: rgba(196,130,110,0.15);
+        color: var(--coral-accent);
     }
     .booking-confirmation-page .status-cancelled {
-        background-color: var(--danger-light, #f8d7da);
-        color: var(--danger-dark, #721c24);
+        background-color: rgba(196,130,110,0.25);
+        color: #8B4513;
     }
 </style>
 {% endblock %}
@@ -39,7 +43,7 @@
         <h1>Bookingbekræftelse</h1>
         <div class="d-flex gap-2">
             {% include 'main/partials/print_button.html' %}
-            <a href="{% url 'main:kalender' %}" class="btn btn-outline-primary">
+            <a href="{% url 'main:kalender' %}" class="btn btn-outline">
                 Tilbage til kalender
             </a>
         </div>
@@ -53,58 +57,69 @@
             <h3>Bookingbekræftelse</h3>
         </div>
 
-        <div class="card mb-4">
-            <div class="card-body">
+        <div class="info-card mb-4">
+            <div class="info-card-body">
                 <div class="booking-details">
-                    <dl class="row mb-0">
-                        <dt class="col-sm-4">Booking reference</dt>
-                        <dd class="col-sm-8">#{{ booking.pk }}</dd>
-
-                        <dt class="col-sm-4">Booket af</dt>
-                        <dd class="col-sm-8">{{ booking.user.profile.get_display_name }}</dd>
-
-                        <dt class="col-sm-4">Familie-linje</dt>
-                        <dd class="col-sm-8">
-                            {% if booking.user.profile.heritage_line %}
-                                {% include 'main/partials/heritage_badge.html' with heritage_line=booking.user.profile.heritage_line %}
-                            {% else %}
-                                <span class="text-muted">Ikke angivet</span>
-                            {% endif %}
-                        </dd>
-
-                        <dt class="col-sm-4">Ankomst</dt>
-                        <dd class="col-sm-8">{{ booking.start_date|date:"l d. F Y" }}</dd>
-
-                        <dt class="col-sm-4">Afrejse</dt>
-                        <dd class="col-sm-8">{{ booking.end_date|date:"l d. F Y" }}</dd>
-
-                        <dt class="col-sm-4">Antal nætter</dt>
-                        <dd class="col-sm-8">{{ booking.duration_days }}</dd>
-
-                        <dt class="col-sm-4">Status</dt>
-                        <dd class="col-sm-8">
-                            {% if booking.status == 'confirmed' %}
-                                <span class="booking-status status-confirmed">Bekræftet</span>
-                            {% elif booking.status == 'pending' %}
-                                <span class="booking-status status-pending">Afventer godkendelse</span>
-                            {% elif booking.status == 'cancelled' %}
-                                <span class="booking-status status-cancelled">Annulleret</span>
-                            {% else %}
-                                {{ booking.get_status_display }}
-                            {% endif %}
-                        </dd>
-
+                    <dl class="mb-0">
+                        <div class="detail-row">
+                            <dt>Booking reference</dt>
+                            <dd>#{{ booking.pk }}</dd>
+                        </div>
+                        <div class="detail-row">
+                            <dt>Booket af</dt>
+                            <dd>{{ booking.user.profile.get_display_name }}</dd>
+                        </div>
+                        <div class="detail-row">
+                            <dt>Familie-linje</dt>
+                            <dd>
+                                {% if booking.user.profile.heritage_line %}
+                                    {% include 'main/partials/heritage_badge.html' with heritage_line=booking.user.profile.heritage_line %}
+                                {% else %}
+                                    <span class="text-muted">Ikke angivet</span>
+                                {% endif %}
+                            </dd>
+                        </div>
+                        <div class="detail-row">
+                            <dt>Ankomst</dt>
+                            <dd>{{ booking.start_date|date:"l d. F Y" }}</dd>
+                        </div>
+                        <div class="detail-row">
+                            <dt>Afrejse</dt>
+                            <dd>{{ booking.end_date|date:"l d. F Y" }}</dd>
+                        </div>
+                        <div class="detail-row">
+                            <dt>Antal nætter</dt>
+                            <dd>{{ booking.duration_days }}</dd>
+                        </div>
+                        <div class="detail-row">
+                            <dt>Status</dt>
+                            <dd>
+                                {% if booking.status == 'confirmed' %}
+                                    <span class="booking-status status-confirmed">Bekræftet</span>
+                                {% elif booking.status == 'pending' %}
+                                    <span class="booking-status status-pending">Afventer godkendelse</span>
+                                {% elif booking.status == 'cancelled' %}
+                                    <span class="booking-status status-cancelled">Annulleret</span>
+                                {% else %}
+                                    {{ booking.get_status_display }}
+                                {% endif %}
+                            </dd>
+                        </div>
                         {% if booking.notes %}
-                        <dt class="col-sm-4">Bemærkninger</dt>
-                        <dd class="col-sm-8">{{ booking.notes|linebreaks }}</dd>
+                        <div class="detail-row">
+                            <dt>Bemærkninger</dt>
+                            <dd>{{ booking.notes|linebreaks }}</dd>
+                        </div>
                         {% endif %}
-
-                        <dt class="col-sm-4">Oprettet</dt>
-                        <dd class="col-sm-8">{{ booking.created_at|date:"d. F Y, H:i" }}</dd>
-
+                        <div class="detail-row">
+                            <dt>Oprettet</dt>
+                            <dd>{{ booking.created_at|date:"d. F Y, H:i" }}</dd>
+                        </div>
                         {% if booking.updated_at != booking.created_at %}
-                        <dt class="col-sm-4">Sidst opdateret</dt>
-                        <dd class="col-sm-8">{{ booking.updated_at|date:"d. F Y, H:i" }}</dd>
+                        <div class="detail-row">
+                            <dt>Sidst opdateret</dt>
+                            <dd>{{ booking.updated_at|date:"d. F Y, H:i" }}</dd>
+                        </div>
                         {% endif %}
                     </dl>
                 </div>
@@ -112,19 +127,25 @@
         </div>
 
         {% if booking.status == 'confirmed' %}
-        <div class="alert alert-success print-visible" role="status">
-            <strong>Din booking er bekræftet!</strong>
-            <p class="mb-0 mt-2">Husk at tjekke huset ved ankomst og efterlade det i god stand ved afrejse.</p>
+        <div class="callout" role="status">
+            <span class="callout-icon">&#10003;</span>
+            <div>
+                <strong>Din booking er bekræftet!</strong>
+                <p class="mb-0 mt-2">Husk at tjekke huset ved ankomst og efterlade det i god stand ved afrejse.</p>
+            </div>
         </div>
         {% elif booking.status == 'pending' %}
-        <div class="alert alert-warning print-visible" role="status">
-            <strong>Afventer godkendelse</strong>
-            <p class="mb-0 mt-2">Din booking afventer godkendelse af en administrator. Du vil modtage en notifikation når den er behandlet.</p>
+        <div class="callout warning" role="status">
+            <span class="callout-icon">&#9888;</span>
+            <div>
+                <strong>Afventer godkendelse</strong>
+                <p class="mb-0 mt-2">Din booking afventer godkendelse af en administrator. Du vil modtage en notifikation når den er behandlet.</p>
+            </div>
         </div>
         {% endif %}
 
         <!-- Print footer -->
-        <div class="print-footer mt-5 pt-3 border-top">
+        <div class="print-footer mt-5 pt-3" style="border-top:1px solid var(--border);">
             <p class="text-muted small mb-0">
                 Udskrevet fra Vraa Sommerhus<br>
                 Ved spørgsmål kontakt venligst administrator via beskedtavlen.
@@ -140,7 +161,7 @@
                         Rediger booking
                     </a>
                     {% endif %}
-                    <a href="{% url 'main:booking_ics' booking.pk %}" class="btn btn-outline-secondary">
+                    <a href="{% url 'main:booking_ics' booking.pk %}" class="btn btn-outline">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="me-1">
                             <path d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z"/>
                             <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
@@ -148,7 +169,7 @@
                         Tilføj til kalender
                     </a>
                 {% endif %}
-                <a href="{% url 'main:kalender' %}" class="btn btn-outline-secondary">
+                <a href="{% url 'main:kalender' %}" class="btn btn-outline">
                     Tilbage til kalender
                 </a>
             </div>

@@ -6,7 +6,19 @@
       "Bash(dir:*)",
       "Bash(powershell:*)",
       "Bash(uv run python:*)",
-      "Bash(python manage.py test:*)"
+      "Bash(python manage.py test:*)",
+      "Bash(curl -s -H \"User-Agent: Mozilla/5.0 \\(Windows NT 10.0; Win64; x64\\) AppleWebKit/537.36\" \"https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300;1,9..40,400&display=swap\")",
+      "Bash(curl -s -H \"User-Agent: Mozilla/5.0 \\(Windows NT 10.0; Win64; x64\\) AppleWebKit/537.36 \\(KHTML, like Gecko\\) Chrome/120.0.0.0 Safari/537.36\" \"https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300;1,9..40,400&display=swap\")",
+      "Bash(curl -s -o dm-sans-latin.woff2 \"https://fonts.gstatic.com/s/dmsans/v17/rP2Hp2ywxg089UriCZOIHQ.woff2\")",
+      "Bash(curl -s -o dm-sans-latin-ext.woff2 \"https://fonts.gstatic.com/s/dmsans/v17/rP2Hp2ywxg089UriCZ2IHSeH.woff2\")",
+      "Bash(curl -s -o dm-sans-italic-latin.woff2 \"https://fonts.gstatic.com/s/dmsans/v17/rP2Fp2ywxg089UriCZa4Hz-D.woff2\")",
+      "Bash(curl -s -o dm-sans-italic-latin-ext.woff2 \"https://fonts.gstatic.com/s/dmsans/v17/rP2Fp2ywxg089UriCZa4ET-DNl0.woff2\")",
+      "Bash(curl -s -o dm-serif-display-latin.woff2 \"https://fonts.gstatic.com/s/dmserifdisplay/v17/-nFnOHM81r4j6k0gjAW3mujVU2B2G_Bx0g.woff2\")",
+      "Bash(curl -s -o dm-serif-display-latin-ext.woff2 \"https://fonts.gstatic.com/s/dmserifdisplay/v17/-nFnOHM81r4j6k0gjAW3mujVU2B2G_5x0ujy.woff2\")",
+      "Bash(curl -s -o dm-serif-display-italic-latin.woff2 \"https://fonts.gstatic.com/s/dmserifdisplay/v17/-nFhOHM81r4j6k0gjAW3mujVU2B2G_VB0PD2.woff2\")",
+      "Bash(curl -s -o dm-serif-display-italic-latin-ext.woff2 \"https://fonts.gstatic.com/s/dmserifdisplay/v17/-nFhOHM81r4j6k0gjAW3mujVU2B2G_VB3vD212k.woff2\")",
+      "Bash(ls -la *.woff2)",
+      "Bash(xxd \"C:/Users/rdamg/Desktop/Vraa/main/static/main/fonts/dm-sans-latin.woff2\")"
     ]
   }
 }

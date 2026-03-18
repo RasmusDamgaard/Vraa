@@ -6,7 +6,7 @@ Optional context variables:
   - print_class: Additional CSS classes for the button
 {% endcomment %}
 <button type="button"
-        class="btn btn-outline-secondary no-print {{ print_class|default:'' }}"
+        class="btn btn-outline no-print {{ print_class|default:'' }}"
         onclick="window.print()"
         aria-label="Udskriv denne side">
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true" class="me-1">

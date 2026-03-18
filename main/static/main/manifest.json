@@ -4,8 +4,8 @@
     "description": "Vraa feriehus - booking og information for familien",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#F4E9D8",
-    "theme_color": "#2C5F7C",
+    "background_color": "#F5F1EB",
+    "theme_color": "#7A8B6F",
     "orientation": "portrait-primary",
     "lang": "da",
     "icons": [

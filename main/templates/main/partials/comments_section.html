@@ -1,0 +1,48 @@
+{% load heritage_tags %}
+<div class="comments-section">
+    <div class="comments-list" id="comments-{{ message.pk }}">
+        {% if message.comments.all %}
+        <small class="text-muted">{{ message.comments.count }} kommentar{{ message.comments.count|pluralize:"er" }}</small>
+        {% for comment in message.comments.all %}
+        <div class="comment-item" id="comment-{{ comment.pk }}">
+            <div class="comment-header">
+                <strong class="comment-author">{{ comment.author.profile.full_display_name }}</strong>
+                {% heritage_badge comment.author %}
+                <span class="comment-date">{{ comment.created_at|date:"d. M Y, H:i" }}</span>
+            </div>
+            <div class="comment-content">{{ comment.content|linebreaks }}</div>
+            {% if user == comment.author %}
+            <form hx-delete="{% url 'main:comment_delete' comment.pk %}"
+                  hx-target="#comment-{{ comment.pk }}"
+                  hx-swap="outerHTML"
+                  hx-confirm="Er du sikker på at du vil slette denne kommentar?">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-danger mt-1">Slet</button>
+            </form>
+            {% endif %}
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+    {% if user.is_authenticated %}
+    <button class="btn btn-sm btn-outline mt-2" type="button"
+            onclick="vraaToggle('comment-form-{{ message.pk }}')"
+            data-toggle-target="comment-form-{{ message.pk }}"
+            aria-expanded="false" aria-controls="comment-form-{{ message.pk }}">
+        Tilf&oslash;j kommentar
+    </button>
+    <div class="comment-form-wrapper" id="comment-form-{{ message.pk }}">
+        <form class="comment-form"
+              hx-post="{% url 'main:comment_create' message.pk %}"
+              hx-target="#comments-{{ message.pk }}"
+              hx-swap="beforeend"
+              hx-on::after-request="this.reset()">
+            {% csrf_token %}
+            <input type="text" name="content" class="form-control form-control-sm"
+                   placeholder="Skriv en kommentar..." maxlength="1000" required
+                   aria-label="Skriv en kommentar til denne besked" />
+            <button type="submit" class="btn btn-sm btn-primary">Send</button>
+        </form>
+    </div>
+    {% endif %}
+</div>

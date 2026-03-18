@@ -613,11 +613,11 @@ class AuthenticatedPageTests(BaseTestCase):
         response = self.client.get(reverse('main:vedtaegter'))
         self.assertEqual(response.status_code, 200)
 
-    def test_bootstrap_included_in_base_template(self):
-        """Base template includes self-hosted Bootstrap CSS."""
+    def test_custom_css_included_in_base_template(self):
+        """Base template includes custom stylesheet."""
         self.login_as_user()
         response = self.client.get(reverse('main:frontpage'))
-        self.assertContains(response, 'bootstrap.min.css')
+        self.assertContains(response, 'style.css')
 
 
 # =============================================================================
@@ -1044,8 +1044,8 @@ class BookingAPIViewTests(BaseTestCase):
         self.assertIn('color', event)
         self.assertIn('extendedProps', event)
 
-    def test_confirmed_booking_green_color(self):
-        """Confirmed bookings have green color."""
+    def test_confirmed_booking_sage_color(self):
+        """Confirmed bookings have sage color."""
         Booking.objects.create(
             user=self.user,
             start_date=self.future_date(5),
@@ -1055,10 +1055,10 @@ class BookingAPIViewTests(BaseTestCase):
         self.login_as_user()
         response = self.client.get(reverse('main:booking_api'))
         event = response.json()[0]
-        self.assertEqual(event['color'], '#28a745')
+        self.assertEqual(event['color'], '#7A8B6F')
 
-    def test_pending_booking_yellow_color(self):
-        """Pending bookings have yellow color."""
+    def test_pending_booking_coral_color(self):
+        """Pending bookings have coral color."""
         Booking.objects.create(
             user=self.user,
             start_date=self.future_date(5),
@@ -1068,7 +1068,7 @@ class BookingAPIViewTests(BaseTestCase):
         self.login_as_user()
         response = self.client.get(reverse('main:booking_api'))
         event = response.json()[0]
-        self.assertEqual(event['color'], '#ffc107')
+        self.assertEqual(event['color'], '#C4826E')
 
     def test_api_includes_ownership_flag(self):
         """API includes is_owner flag in extendedProps."""
@@ -1385,8 +1385,8 @@ class BookingFormTests(BaseTestCase):
         self.assertIn('type="date"', str(form['start_date']))
         self.assertIn('type="date"', str(form['end_date']))
 
-    def test_form_has_bootstrap_classes(self):
-        """Form fields have Bootstrap form-control class."""
+    def test_form_has_form_control_classes(self):
+        """Form fields have form-control class."""
         form = BookingForm()
         self.assertIn('form-control', str(form['start_date']))
         self.assertIn('form-control', str(form['end_date']))

@@ -7,7 +7,7 @@
         {% if notifications and unread_notification_count > 0 %}
         <form method="post" action="{% url 'main:notification_mark_all_read' %}" class="d-inline">
             {% csrf_token %}
-            <button type="submit" class="btn btn-outline-secondary btn-sm">
+            <button type="submit" class="btn btn-outline btn-sm">
                 Marker alle som laest
             </button>
         </form>
@@ -51,7 +51,7 @@
                 </div>
             </div>
             {% if not notification.is_read %}
-            <button class="btn btn-sm btn-link mark-read-btn"
+            <button class="btn btn-sm btn-outline mark-read-btn"
                     data-notification-id="{{ notification.pk }}"
                     data-url="{% url 'main:notification_mark_read' notification.pk %}"
                     title="Marker som laest">

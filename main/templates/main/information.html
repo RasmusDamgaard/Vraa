@@ -1,7 +1,8 @@
 {% extends 'main/base.html' %}
+{% load static %}
 
 {% block content %}
-  <h1 class="mb-4">Praktisk Information</h1>
+  <h1>Praktisk Information</h1>
 
   <!-- Weather Widget -->
   {% if weather %}
@@ -13,7 +14,7 @@
       </div>
       <div class="weather-widget-icon">{{ weather.emoji }}</div>
     </div>
-    <div class="weather-widget-temp">{{ weather.temperature }}°C</div>
+    <div class="weather-widget-temp">{{ weather.temperature }}&deg;C</div>
     <div class="weather-widget-details">
       <div class="weather-widget-detail">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
@@ -34,7 +35,7 @@
       <div class="weather-forecast-day">
         <div class="weather-forecast-date">{{ day.day }}</div>
         <div class="weather-forecast-icon">{{ day.emoji }}</div>
-        <div class="weather-forecast-temp">{{ day.temp }}°</div>
+        <div class="weather-forecast-temp">{{ day.temp }}&deg;</div>
       </div>
       {% endfor %}
     </div>
@@ -42,71 +43,211 @@
   </div>
   {% endif %}
 
-  <div class="alert alert-info">
-    <strong>Husk at udfylde afregningsskemaet som findes under regnskab!</strong>
-  </div>
+  <!-- ─── PRAKTISK INFO CARDS ─── -->
+  <section class="section" id="praktisk">
+    <div class="section-header">
+      <h2>Praktisk info</h2>
+      <p>Det vigtigste om huset &mdash; l&aelig;s inden ankomst.</p>
+    </div>
+    <div class="card-grid">
+      <div class="info-card">
+        <div class="info-card-header">
+          <div class="info-card-icon sage">&#9906;</div>
+          <h3>N&oslash;gler</h3>
+        </div>
+        <div class="info-card-body">
+          Kontakt <strong>Troels</strong> for n&oslash;gle. N&oslash;gler til skur og Bakkens Hvile: hemmeligt?
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-header">
+          <div class="info-card-icon ocean">&#9851;</div>
+          <h3>Affald</h3>
+        </div>
+        <div class="info-card-body">
+          <strong>Sort spand</strong> &mdash; blandet affald.<br>
+          <strong>Gr&oslash;n spand</strong> &mdash; kompost.<br>
+          Br&aelig;ndbart pap og papir i br&aelig;ndeovnen.
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-header">
+          <div class="info-card-icon coral">&#9733;</div>
+          <h3>Den bl&aring; ringordner</h3>
+        </div>
+        <div class="info-card-body">
+          Ligger p&aring; chatollet. Indeholder <strong>nyttige oplysninger</strong>, telefonnumre og &aring;bningstider.
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-header">
+          <div class="info-card-icon sand">&#9730;</div>
+          <h3>S&aelig;sonstart</h3>
+        </div>
+        <div class="info-card-body">
+          F&oslash;rste brugere i s&aelig;sonen: <strong>rabat i lejen</strong> mod hovedreng&oslash;ring og &ldquo;af-musning&rdquo;. Fjern tallerkener med musegift.
+        </div>
+      </div>
+    </div>
+  </section>
 
-  <p class="text-muted mb-4">
-    <em>Hjælp til rejsen til og fra øen kan findes <a href="http://www.anholt.dk/rejse.htm" target="_blank">her</a>.</em>
-  </p>
+  <div class="divider"></div>
 
-  <h2 class="mt-5 mb-3">Ankomst til Vraa</h2>
+  <!-- ─── ANKOMST ─── -->
+  <section class="section" id="ankomst">
+    <div class="section-header">
+      <h2>Ankomst til Vraa</h2>
+      <p>Hvad du skal g&oslash;re, n&aring;r du ankommer.</p>
+    </div>
+    <details open>
+      <summary><span>&#128274;&ensp;Adgang til huset</span><span class="chevron">&#9658;</span></summary>
+      <div class="details-body">
+        <ul>
+          <li>N&oslash;gle: Kontakt Troels.</li>
+          <li>N&oslash;gler til skur og Bakkens Hvile: hemmeligt?</li>
+          <li><strong>NB: se den bl&aring; ringordner p&aring; chatollet</strong>: Her er nyttige oplysninger om huset, tlf.numre, &aring;bningstider osv.</li>
+          <li>Telefon: bedes kun benyttet til korte opkald uden-&oslash;s. Lokalt: ok.</li>
+        </ul>
+      </div>
+    </details>
+    <details>
+      <summary><span>&#127793;&ensp;G&aelig;ster og bes&oslash;gende</span><span class="chevron">&#9658;</span></summary>
+      <div class="details-body">
+        G&aelig;ster er velkomne. Informer Troels om hvorn&aring;r du forventer g&aelig;ster. Alle g&aelig;ster skal kende husreglerne, herunder affaldsh&aring;ndtering og afrejsetjeklisten.
+      </div>
+    </details>
+    <details>
+      <summary><span>&#9730;&ensp;F&oslash;rste brugere i s&aelig;sonen</span><span class="chevron">&#9658;</span></summary>
+      <div class="details-body">
+        <p><em>NB: rabat i lejen for 1. brugere pga nedenst&aring;ende pligter:</em></p>
+        <ul>
+          <li>Hovedreng&oslash;ring: som anf&oslash;rt p&aring; checkliste ved afrejse.</li>
+          <li>Opvask af alt service... Generelt: &ldquo;af-muse&rdquo; huset.</li>
+          <li>Fjerne tallerkener med musegift!</li>
+        </ul>
+      </div>
+    </details>
+    <div class="callout">
+      <span class="callout-icon">&#128218;</span>
+      <div>Husk <strong>den bl&aring; ringordner</strong> p&aring; chatollet &mdash; alt hvad du skal vide om huset, lokale numre og tips.</div>
+    </div>
+  </section>
 
-  <h3 class="mt-4">Gæster:</h3>
-  <ul>
-    <li>Nøgle: Kontakt Troels.</li>
-    <li>Nøgler til skur og Bakkens Hvile: hemmeligt?</li>
-    <li><strong>NB: se den blå ringordner på chatollet</strong>: Her er nyttige oplysninger om huset, tlf.numre, åbningstider osv.</li>
-    <li>Telefon: bedes kun benyttet til korte opkald uden-øs. Lokalt: ok.</li>
-    <li>Affald: sort spand: blandet affald; grøn spand: kompost, som i sæsonen nedgraves i dertil gravet hul på grunden</li>
-    <li>Brændbart pap, papir: brændes gerne i brændeovnen</li>
-  </ul>
+  <div class="divider"></div>
 
-  <h3 class="mt-4">Første brugere i sæsonen:</h3>
-  <p class="text-muted"><em>NB: rabat i lejen for 1. brugere pga nedenståend pligter:</em></p>
-  <ul>
-    <li>Hovedrengøring: som anført på checkliste ved afrejse.</li>
-    <li>Opvask af alt service... Generelt: "af-muse" huset.</li>
-    <li>Fjerne tallerkener med musegift!</li>
-  </ul>
+  <!-- ─── AFREJSE ─── -->
+  <section class="section" id="afrejse">
+    <div class="section-header">
+      <h2>Afrejse fra Vraa</h2>
+      <p>G&aring; listen igennem inden du tager afsted.</p>
+    </div>
+    <div class="callout warning">
+      <span class="callout-icon">&#9888;</span>
+      <div>Husk at udfylde <strong>afregningsskemaet</strong> under <a href="#regnskab" style="color:inherit;font-weight:500">Regnskab</a>.</div>
+    </div>
 
-  <h2 class="mt-5 mb-3">Afrejse fra Vraa</h2>
+    <div class="checklist-card">
+      <div class="checklist-header">
+        <h3>Afrejsetjekliste</h3>
+        <button id="checklist-reset" class="btn btn-sm btn-outline">Nulstil</button>
+      </div>
+      <ul class="checklist" id="checklist">
+        <li><input type="checkbox"><span>Feje og st&oslash;vsuge overalt</span></li>
+        <li><input type="checkbox"><span>Vaske gulve i k&oslash;kken, badev&aelig;relse, spisestue</span></li>
+        <li><input type="checkbox"><span>Ryste diverse dyner, t&aelig;pper, puder udenfor</span></li>
+        <li><input type="checkbox"><span>T&oslash;mme + reng&oslash;re k&oslash;leskab, efterlade d&oslash;ren p&aring; klem</span></li>
+        <li><input type="checkbox"><span>T&oslash;mme spisekammer (madvarer, flasker, emballager, osv.)</span></li>
+        <li><input type="checkbox"><span>T&oslash;mme skraldespandene, vaske dem af</span></li>
+        <li><input type="checkbox"><span>T&oslash;mme pejsen</span></li>
+        <li><input type="checkbox"><span>L&aelig;gge br&aelig;nde i kobberkedlen</span></li>
+        <li><input type="checkbox"><span>Checke at alle vandhaner er lukkede</span></li>
+        <li><input type="checkbox"><span>S&aelig;tte cykler + vogne ind i skuret, som l&aring;ses</span></li>
+        <li><input type="checkbox"><span>L&aring;se begge d&oslash;re; anbringe n&oslash;glen under taget p&aring; Bakkens Hvile</span></li>
+      </ul>
+    </div>
 
-  <h3 class="mt-4">Checkliste:</h3>
-  <ul>
-    <li>Feje og støvsuge overalt</li>
-    <li>Vaske gulve i køkken, badeværelse, spisestue</li>
-    <li>Ryste diverse dyner, tæpper, puder udenfor</li>
-    <li>Tømme + rengøre køleskab, efterlade døren på klem</li>
-    <li>Tømme spisekammer (madvarer, flasker, emballager, osv.)</li>
-    <li>Tømme skraldespandene, vaske dem af</li>
-    <li>Tømme pejsen</li>
-    <li>Lægge brænde i kobberkedlen</li>
-    <li>Checke at alle vandhaner er lukkede</li>
-    <li>Sætte cykler + vogne ind i skuret, som låses</li>
-    <li>Låse begge døre; anbringe nøglen under taget på Bakkens Hvile</li>
-  </ul>
+    <details class="mt-4">
+      <summary><span>&#10052;&ensp;Sidste sommer-/efter&aring;rsbeboere</span><span class="chevron">&#9658;</span></summary>
+      <div class="details-body">
+        <p>Som ovenfor <strong>samt:</strong></p>
+        <ul>
+          <li>Putte sukker, mel, gryn i t&aelig;tte plastposer</li>
+          <li>L&aelig;gge bestik i plastposer og ind i et musefrit skab. Viskestykker m.v. fra tr&aring;dskuffer: do.</li>
+          <li>S&aelig;tte sk&aring;le m.v. under k&oslash;kkenbordet m. bunden i vejret</li>
+          <li>Tr&aelig;kke gardiner for i stuer og v&aelig;relser</li>
+          <li>H&aelig;nge dyner op over t&oslash;rresnore i k&oslash;jerummene</li>
+          <li>Sende frottel&aring;gnerne til vask</li>
+          <li>Anbringe underkopper med musegift i k&oslash;kken og k&aelig;lder</li>
+          <li>Lukke udvendig stophane *</li>
+          <li>Slukke for varmtvandsbeholder *</li>
+          <li>T&oslash;mme vand ud af r&oslash;rene *</li>
+          <li>Afbryde str&oslash;m i elskab i &ldquo;Tabernaklet&rdquo; *</li>
+          <li>Sidste brugere af motors&aring;v, buskrydder mm: f&oslash;lg brugsanvisn. for vinteropbevaring</li>
+          <li>Surfer: under tag til Bakkens Hvile; sejl: inde i Bakkens Hvile, som l&aring;ses</li>
+          <li>G&aring; en tur omkring huset &mdash; og anbring n&oslash;glen p&aring; sin plads</li>
+        </ul>
+        <p class="text-muted mt-2">* Se skitse over huset (i ringordner). Disse ting ordnes normalt af Finn Ottendahl.</p>
+      </div>
+    </details>
+  </section>
 
-  <h3 class="mt-4">Sidste sommer-/efterårsbeboere:</h3>
-  <p>Som ovenfor <strong>samt:</strong></p>
-  <ul>
-    <li>Putte sukker, mel, gryn i tætte plastposer</li>
-    <li>Lægge bestik i plastposer og ind i et musefrit skab. Viskestykker m.v. fra trådskuffer: do.</li>
-    <li>Sætte skåle m.v. under køkkenbordet m. bunden i vejret</li>
-    <li>Trække gardiner for i stuer og værelser</li>
-    <li>Hænge dyner op over tørresnore i køjerummene</li>
-    <li>Sende frottélagnerne til vask</li>
-    <li>Anbringe underkopper med musegift i køkken og kælder</li>
-    <li>Lukke udvendig stophane #)</li>
-    <li>Slukke for varmtvandsbeholder #)</li>
-    <li>Tømme vand ud af rørene #)</li>
-    <li>Afbryde strøm i elskab i "Tabernaklet" #)</li>
-    <li>Sidste brugere af motorsav, buskrydder mm: følg brugsanvisn. for vinteropbevaring</li>
-    <li>Surfer: under tag til Bakkens Hvile; sejl: inde i Bakkens Hvile, som låses</li>
-    <li>Gå en tur omkring huset - og anbring nøglen på sin plads</li>
-  </ul>
+  <div class="divider"></div>
 
-  <p class="text-muted mt-3">
-    #): se skitse over huset (i ringordner). Disse ting ordnes normalt af Finn Ottendahl.
-  </p>
+  <!-- ─── REJSE ─── -->
+  <section class="section" id="rejse">
+    <div class="section-header">
+      <h2>Rejse til og fra &oslash;en</h2>
+      <p>Transport, f&aelig;rger og ruter.</p>
+    </div>
+    <details open>
+      <summary><span>&#9875;&ensp;F&aelig;rge og transport</span><span class="chevron">&#9658;</span></summary>
+      <div class="details-body">
+        Tjek aktuelle afgangstider p&aring; <a href="http://www.anholt.dk/rejse.htm" target="_blank" rel="noopener">anholt.dk</a> &mdash; de varierer med s&aelig;sonen. Planl&aelig;g rejsen i god tid, s&aelig;rligt i h&oslash;js&aelig;sonen.
+      </div>
+    </details>
+    <details>
+      <summary><span>&#128663;&ensp;K&oslash;rsel og parkering</span><span class="chevron">&#9658;</span></summary>
+      <div class="details-body">
+        Information om parkering ved f&aelig;rgelejet og transport p&aring; &oslash;en. Kontakt Troels for aktuelle detaljer.
+      </div>
+    </details>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ─── REGNSKAB ─── -->
+  <section class="section" id="regnskab">
+    <div class="section-header">
+      <h2>Regnskab</h2>
+      <p>Afregning og &oslash;konomi.</p>
+    </div>
+    <div class="callout warning">
+      <span class="callout-icon">&#128203;</span>
+      <div>Husk at udfylde <strong>afregningsskemaet</strong> efter hvert ophold.</div>
+    </div>
+    <div class="mt-3">
+      <a href="#" class="btn btn-primary">&#128196;&ensp;&Aring;bn afregningsskema</a>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ─── KONTAKT ─── -->
+  <section class="section" id="kontakt">
+    <div class="section-header">
+      <h2>Kontakt</h2>
+      <p>Sp&oslash;rgsm&aring;l? Skriv eller ring.</p>
+    </div>
+    <div class="contact-card">
+      <div class="contact-avatar">T</div>
+      <div class="contact-info">
+        <h4>Troels</h4>
+        <p>N&oslash;gler, adgang og praktiske sp&oslash;rgsm&aring;l</p>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'main/js/checklist.js' %}"></script>
 {% endblock %}

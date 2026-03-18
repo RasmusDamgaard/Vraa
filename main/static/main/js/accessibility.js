@@ -40,127 +40,34 @@
     window.vraaAnnounce = announce;
 
     /**
-     * Handle Escape key to close open modals and dropdowns.
+     * Handle Escape key to close open dialogs and dropdowns.
      */
     function handleEscapeKey(event) {
         if (event.key !== 'Escape') return;
 
-        // Close Bootstrap modals
-        const openModals = document.querySelectorAll('.modal.show');
-        openModals.forEach(function(modal) {
-            const closeBtn = modal.querySelector('[data-bs-dismiss="modal"]');
-            if (closeBtn) {
-                closeBtn.click();
-                announce('Dialog lukket', 'polite');
-            }
-        });
-
-        // Close Bootstrap dropdowns
-        const openDropdowns = document.querySelectorAll('.dropdown-menu.show');
-        openDropdowns.forEach(function(dropdown) {
-            const toggle = dropdown.previousElementSibling;
-            if (toggle && toggle.classList.contains('dropdown-toggle')) {
-                toggle.click();
-            }
-        });
-
-        // Close Bootstrap collapse elements (mobile menu)
-        const openCollapses = document.querySelectorAll('.navbar-collapse.show');
-        openCollapses.forEach(function(collapse) {
-            const toggle = document.querySelector('[data-bs-target="#' + collapse.id + '"]');
-            if (toggle) {
-                toggle.click();
-                announce('Menu lukket', 'polite');
-            }
-        });
-    }
-
-    /**
-     * Trap focus within a modal when it's open.
-     * @param {HTMLElement} modal - The modal element
-     */
-    function trapFocus(modal) {
-        const focusableSelector = [
-            'button:not([disabled])',
-            'a[href]',
-            'input:not([disabled])',
-            'select:not([disabled])',
-            'textarea:not([disabled])',
-            '[tabindex]:not([tabindex="-1"])'
-        ].join(', ');
-
-        const focusableElements = modal.querySelectorAll(focusableSelector);
-        if (focusableElements.length === 0) return;
-
-        const firstFocusable = focusableElements[0];
-        const lastFocusable = focusableElements[focusableElements.length - 1];
-
-        modal.addEventListener('keydown', function(event) {
-            if (event.key !== 'Tab') return;
-
-            if (event.shiftKey) {
-                // Shift + Tab
-                if (document.activeElement === firstFocusable) {
-                    event.preventDefault();
-                    lastFocusable.focus();
-                }
+        // Close open <dialog> elements
+        var openDialogs = document.querySelectorAll('dialog[open]');
+        openDialogs.forEach(function(dialog) {
+            if (typeof vraaModal !== 'undefined') {
+                vraaModal.close(dialog);
             } else {
-                // Tab
-                if (document.activeElement === lastFocusable) {
-                    event.preventDefault();
-                    firstFocusable.focus();
-                }
+                dialog.close();
             }
+            announce('Dialog lukket', 'polite');
         });
-    }
 
-    /**
-     * Set up focus trap for modals.
-     */
-    function setupModalFocusTrapping() {
-        const modals = document.querySelectorAll('.modal');
-        modals.forEach(function(modal) {
-            modal.addEventListener('shown.bs.modal', function() {
-                trapFocus(modal);
-
-                // Focus the first focusable element or the close button
-                const firstFocusable = modal.querySelector(
-                    'input:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex="-1"])'
-                );
-                if (firstFocusable) {
-                    firstFocusable.focus();
-                }
-            });
+        // Close open dropdowns
+        var openDropdowns = document.querySelectorAll('.dropdown-menu.is-open');
+        openDropdowns.forEach(function(dropdown) {
+            dropdown.classList.remove('is-open');
         });
-    }
 
-    /**
-     * Update ARIA expanded state for collapsible elements.
-     */
-    function setupCollapseAriaStates() {
-        const collapseToggles = document.querySelectorAll('[data-bs-toggle="collapse"]');
-        collapseToggles.forEach(function(toggle) {
-            const targetId = toggle.getAttribute('data-bs-target');
-            const target = document.querySelector(targetId);
-            if (!target) return;
-
-            // Update aria-expanded when collapse state changes
-            target.addEventListener('shown.bs.collapse', function() {
-                toggle.setAttribute('aria-expanded', 'true');
-                // Update label if it's the mobile menu
-                if (toggle.classList.contains('navbar-toggler')) {
-                    toggle.setAttribute('aria-label', 'Luk navigation');
-                }
-            });
-
-            target.addEventListener('hidden.bs.collapse', function() {
-                toggle.setAttribute('aria-expanded', 'false');
-                // Update label if it's the mobile menu
-                if (toggle.classList.contains('navbar-toggler')) {
-                    toggle.setAttribute('aria-label', 'Åbn navigation');
-                }
-            });
-        });
+        // Close mobile nav
+        var mobileNav = document.querySelector('.mobile-nav.is-open');
+        if (mobileNav) {
+            mobileNav.classList.remove('is-open');
+            announce('Menu lukket', 'polite');
+        }
     }
 
     /**
@@ -250,12 +157,6 @@
     function init() {
         // Set up keyboard event handlers
         document.addEventListener('keydown', handleEscapeKey);
-
-        // Set up modal focus trapping
-        setupModalFocusTrapping();
-
-        // Set up collapse aria states
-        setupCollapseAriaStates();
 
         // Set up keyboard navigation indicator
         setupKeyboardNavigationIndicator();

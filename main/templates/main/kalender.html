@@ -1,21 +1,25 @@
 {% extends 'main/base.html' %}
 {% load static %}
 
+{% block extra_head %}
+<link href="{% static 'main/css/fullcalendar.min.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
-<div class="calendar-container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Kalender</h1>
-        <div class="btn-group">
-            <a href="{% url 'main:calendar_ics_feed' %}" class="btn btn-outline-secondary" title="Eksporter til din kalender-app">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-plus me-1" viewBox="0 0 16 16">
-                    <path d="M8 7a.5.5 0 0 1 .5.5V9H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V10H6a.5.5 0 0 1 0-1h1.5V7.5A.5.5 0 0 1 8 7z"/>
-                    <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
-                </svg>
-                Eksporter
-            </a>
-            <a href="{% url 'main:booking_create' %}" class="btn btn-primary">
-                Book nu
-            </a>
+<section class="section">
+    <div class="section-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1>Kalender</h1>
+            <div class="d-flex gap-2">
+                <a href="{% url 'main:calendar_ics_feed' %}" class="btn btn-outline" title="Eksporter til din kalender-app">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="vertical-align:-2px;margin-right:4px">
+                        <path d="M8 7a.5.5 0 0 1 .5.5V9H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V10H6a.5.5 0 0 1 0-1h1.5V7.5A.5.5 0 0 1 8 7z"/>
+                        <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                    </svg>
+                    Eksporter
+                </a>
+                <a href="{% url 'main:booking_create' %}" class="btn btn-primary">Book nu</a>
+            </div>
         </div>
     </div>
 
@@ -23,8 +27,8 @@
     <div class="calendar-nav mb-3">
         <div class="d-flex flex-wrap gap-2 align-items-center">
             <div class="date-nav-group">
-                <label for="month-select" class="form-label mb-0 me-2">Gå til:</label>
-                <select id="month-select" class="form-select form-select-sm d-inline-block" style="width: auto;">
+                <label for="month-select" class="form-label">G&aring; til:</label>
+                <select id="month-select" class="form-select form-select-sm">
                     <option value="0">Januar</option>
                     <option value="1">Februar</option>
                     <option value="2">Marts</option>
@@ -38,116 +42,103 @@
                     <option value="10">November</option>
                     <option value="11">December</option>
                 </select>
-                <select id="year-select" class="form-select form-select-sm d-inline-block" style="width: auto;">
-                    <!-- Years will be populated by JavaScript -->
+                <select id="year-select" class="form-select form-select-sm">
+                    <!-- Populated by JavaScript -->
                 </select>
-                <button type="button" id="go-to-date" class="btn btn-sm btn-outline-primary">Gå</button>
+                <button type="button" id="go-to-date" class="btn btn-sm btn-outline">G&aring;</button>
             </div>
             <div class="date-nav-group">
-                <label for="date-picker" class="form-label mb-0 me-2">Eller vælg dato:</label>
-                <input type="date" id="date-picker" class="form-control form-control-sm d-inline-block" style="width: auto;">
+                <label for="date-picker" class="form-label">Eller v&aelig;lg dato:</label>
+                <input type="date" id="date-picker" class="form-control form-control-sm">
             </div>
         </div>
     </div>
 
     <!-- Calendar Legend -->
-    <div class="calendar-legend-container mb-3">
-        <div class="calendar-legend mb-2">
-            <span class="legend-item">
-                <span class="legend-color confirmed"></span> Bekræftet booking
-            </span>
-            <span class="legend-item">
-                <span class="legend-color pending"></span> Afventer godkendelse
-            </span>
-        </div>
+    <div class="cal-legend mb-3">
+        <span class="legend-item">
+            <span class="cal-legend-dot" style="background:var(--sage);"></span> Bekr&aelig;ftet booking
+        </span>
+        <span class="legend-item">
+            <span class="cal-legend-dot" style="background:var(--coral-accent);"></span> Afventer godkendelse
+        </span>
         {% if heritage_lines %}
-        <div class="calendar-legend heritage-legend">
-            <span class="legend-label">Reserverede uger:</span>
-            {% for line in heritage_lines %}
-            <span class="legend-item">
-                <span class="legend-color" style="background-color: {{ line.color }}; opacity: 0.4;"></span>
-                {{ line.short_name }}
-            </span>
-            {% endfor %}
-        </div>
+        <span class="legend-label">&ensp;Reserverede uger:</span>
+        {% for line in heritage_lines %}
+        <span class="legend-item">
+            <span class="cal-legend-dot" style="background:{{ line.color }}; opacity:0.4;"></span>
+            {{ line.short_name }}
+        </span>
+        {% endfor %}
         {% endif %}
     </div>
 
-    <!-- Booking Details Modal -->
-    <div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="bookingModalLabel">Booking detaljer</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Luk"></button>
-                </div>
-                <div class="modal-body">
-                    <p><strong>Booket af:</strong> <span id="modal-user"></span></p>
-                    <p><strong>Periode:</strong> <span id="modal-dates"></span></p>
-                    <p><strong>Antal dage:</strong> <span id="modal-duration"></span></p>
-                    <p><strong>Status:</strong> <span id="modal-status"></span></p>
-                    <p id="modal-notes-container"><strong>Noter:</strong> <span id="modal-notes"></span></p>
-                    <p><strong>Oprettet:</strong> <span id="modal-created"></span></p>
-                </div>
-                <div class="modal-footer" id="modal-actions">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Luk</button>
-                </div>
-            </div>
+    <!-- Booking Details Dialog (replaces Bootstrap modal) -->
+    <dialog id="bookingDialog" class="booking-dialog">
+        <div class="dialog-header">
+            <h3 id="bookingDialogLabel">Booking detaljer</h3>
+            <button type="button" class="dialog-close" onclick="vraaModal.close(document.getElementById('bookingDialog'))" aria-label="Luk">&times;</button>
         </div>
-    </div>
+        <div class="dialog-body">
+            <p><strong>Booket af:</strong> <span id="modal-user"></span></p>
+            <p><strong>Periode:</strong> <span id="modal-dates"></span></p>
+            <p><strong>Antal dage:</strong> <span id="modal-duration"></span></p>
+            <p><strong>Status:</strong> <span id="modal-status"></span></p>
+            <p id="modal-notes-container"><strong>Noter:</strong> <span id="modal-notes"></span></p>
+            <p><strong>Oprettet:</strong> <span id="modal-created"></span></p>
+        </div>
+        <div class="dialog-footer" id="modal-actions"></div>
+    </dialog>
 
     <!-- Calendar Container -->
     <div id="calendar"></div>
 
     <!-- Upcoming Bookings List -->
-    <div class="bookings-list mt-4">
+    <div class="mt-4">
         <h2>Kommende bookinger</h2>
         {% if bookings %}
-        <ul class="list-group">
+        <div class="booking-list">
             {% for booking in bookings %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                    <strong>{{ booking.user.username }}</strong>
-                    <br>
-                    <small>{{ booking.start_date|date:"d. M Y" }} - {{ booking.end_date|date:"d. M Y" }}</small>
+            <div class="booking-item">
+                <div class="booking-color" style="background:{% if booking.status == 'confirmed' %}var(--sage){% else %}var(--coral-accent){% endif %};"></div>
+                <div class="booking-details">
+                    <div class="who">{{ booking.user.username }}</div>
+                    <div class="when">{{ booking.start_date|date:"d. M Y" }} &ndash; {{ booking.end_date|date:"d. M Y" }}</div>
                     {% if booking.notes %}
-                    <br><small class="text-muted">{{ booking.notes|truncatewords:10 }}</small>
+                    <div class="text-muted" style="font-size:0.8rem;">{{ booking.notes|truncatewords:10 }}</div>
                     {% endif %}
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                    <span class="badge {% if booking.status == 'confirmed' %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                    <span class="badge {% if booking.status == 'confirmed' %}bg-sage{% else %}bg-coral{% endif %}">
                         {{ booking.get_status_display }}
                     </span>
                     {% if user == booking.user %}
                     {% if booking.status == 'pending' %}
-                    <a href="{% url 'main:booking_update' booking.pk %}" class="btn btn-sm btn-outline-secondary">
-                        Rediger
-                    </a>
+                    <a href="{% url 'main:booking_update' booking.pk %}" class="btn btn-sm btn-outline">Rediger</a>
                     {% endif %}
-                    <a href="{% url 'main:booking_delete' booking.pk %}" class="btn btn-sm btn-outline-danger">
-                        Annuller
-                    </a>
+                    <a href="{% url 'main:booking_delete' booking.pk %}" class="btn btn-sm btn-danger">Annuller</a>
                     {% endif %}
                 </div>
-            </li>
+            </div>
             {% endfor %}
-        </ul>
+        </div>
         {% else %}
-        <p class="text-muted">Ingen kommende bookinger.</p>
+        <div class="empty-state">
+            <span class="empty-icon">&#128197;</span>
+            Ingen kommende bookinger.
+        </div>
         {% endif %}
     </div>
-</div>
+</section>
+{% endblock %}
 
-<!-- FullCalendar (self-hosted) -->
-<link href="{% static 'main/css/fullcalendar.min.css' %}" rel="stylesheet">
+{% block extra_js %}
 <script src="{% static 'main/js/fullcalendar.min.js' %}"></script>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('calendar');
-    var bookingModal = new bootstrap.Modal(document.getElementById('bookingModal'));
+    var bookingDialog = document.getElementById('bookingDialog');
 
-    // Helper function for date formatting
     function formatDate(date) {
         var options = { day: 'numeric', month: 'short', year: 'numeric' };
         return date.toLocaleDateString('da-DK', options);
@@ -166,16 +157,13 @@ document.addEventListener('DOMContentLoaded', function() {
         displayEventTime: false,
         selectable: true,
         select: function(info) {
-            // Navigate to booking form with pre-filled dates
             window.location.href = '{% url "main:booking_create" %}?start=' + info.startStr + '&end=' + info.endStr;
         },
         eventClick: function(info) {
             var event = info.event;
             var props = event.extendedProps;
 
-            // Handle reserved week events differently
             if (props.type === 'reserved_week') {
-                // Show simple alert or tooltip for reserved weeks
                 var message = 'Reserveret for ' + props.heritage_line_name + ' (Uge ' + props.week_number + ')';
                 if (props.is_locked) {
                     message += '\n\nDenne uge er låst - kun medlemmer af denne familielinje kan booke i denne periode.';
@@ -184,24 +172,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Regular booking event - populate modal
             document.getElementById('modal-user').textContent = event.title;
             document.getElementById('modal-dates').textContent =
                 formatDate(event.start) + ' - ' + formatDate(event.end);
             document.getElementById('modal-duration').textContent = props.duration + ' dag' + (props.duration !== 1 ? 'e' : '');
             document.getElementById('modal-status').innerHTML =
-                '<span class="badge ' + (props.status === 'confirmed' ? 'bg-success' : 'bg-warning text-dark') + '">' +
+                '<span class="badge ' + (props.status === 'confirmed' ? 'bg-sage' : 'bg-coral') + '">' +
                 props.status_display + '</span>';
             document.getElementById('modal-created').textContent = props.created_at;
 
-            // Heritage line badge (if applicable)
             var heritageHtml = '';
             if (props.heritage_line) {
-                heritageHtml = ' <span class="badge bg-secondary">' + props.heritage_line + '</span>';
+                heritageHtml = ' <span class="badge">' + props.heritage_line + '</span>';
             }
             document.getElementById('modal-user').innerHTML = event.title + heritageHtml;
 
-            // Notes (hide if empty)
             var notesContainer = document.getElementById('modal-notes-container');
             if (props.notes) {
                 document.getElementById('modal-notes').textContent = props.notes;
@@ -210,7 +195,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 notesContainer.style.display = 'none';
             }
 
-            // Action buttons for owner
             var actionsDiv = document.getElementById('modal-actions');
             actionsDiv.innerHTML = '';
 
@@ -222,13 +206,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     actionsDiv.innerHTML += '<a href="' + props.delete_url + '" class="btn btn-danger">Annuller</a> ';
                 }
             }
-            actionsDiv.innerHTML += '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Luk</button>';
+            actionsDiv.innerHTML += '<button type="button" class="btn btn-outline" onclick="vraaModal.close(bookingDialog)">Luk</button>';
 
-            // Show modal
-            bookingModal.show();
+            vraaModal.open(bookingDialog);
         },
         datesSet: function(info) {
-            // Update month/year selectors when calendar changes
             var currentDate = calendar.getDate();
             document.getElementById('month-select').value = currentDate.getMonth();
             document.getElementById('year-select').value = currentDate.getFullYear();
@@ -236,7 +218,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     calendar.render();
 
-    // Populate year selector (current year - 2 to current year + 5)
     var yearSelect = document.getElementById('year-select');
     var currentYear = new Date().getFullYear();
     for (var y = currentYear - 2; y <= currentYear + 5; y++) {
@@ -247,17 +228,14 @@ document.addEventListener('DOMContentLoaded', function() {
         yearSelect.appendChild(option);
     }
 
-    // Set initial month value
     document.getElementById('month-select').value = new Date().getMonth();
 
-    // Go to selected month/year
     document.getElementById('go-to-date').addEventListener('click', function() {
         var month = parseInt(document.getElementById('month-select').value);
         var year = parseInt(document.getElementById('year-select').value);
         calendar.gotoDate(new Date(year, month, 1));
     });
 
-    // Navigate when month or year changes (optional: auto-navigate)
     document.getElementById('month-select').addEventListener('change', function() {
         var month = parseInt(this.value);
         var year = parseInt(document.getElementById('year-select').value);
@@ -270,7 +248,6 @@ document.addEventListener('DOMContentLoaded', function() {
         calendar.gotoDate(new Date(year, month, 1));
     });
 
-    // Date picker navigation
     document.getElementById('date-picker').addEventListener('change', function() {
         if (this.value) {
             calendar.gotoDate(this.value);

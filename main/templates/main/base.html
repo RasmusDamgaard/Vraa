@@ -8,18 +8,14 @@
 
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="{% static 'main/manifest.json' %}">
-    <meta name="theme-color" content="#2C5F7C">
+    <meta name="theme-color" content="#7A8B6F">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Vraa">
     <link rel="apple-touch-icon" href="{% static 'main/img/logo-192.png' %}">
 
-    <!-- Bootstrap 5 (self-hosted to avoid Zscaler/corporate proxy SRI issues) -->
-    <link rel="stylesheet" href="{% static 'main/css/bootstrap.min.css' %}" />
-
     <link rel="icon" type="image/png" href="{% static 'main/img/logo.png' %}" />
     <link rel="stylesheet" href="{% static 'main/css/style.css' %}" />
-    <link rel="stylesheet" href="{% static 'main/css/print.css' %}" media="print" />
 
     {% block extra_head %}{% endblock %}
   </head>
@@ -30,216 +26,77 @@
     <!-- Live region for screen reader announcements -->
     <div id="aria-live-region" class="aria-live-region" aria-live="polite" aria-atomic="true"></div>
 
-    <!-- Mobile navbar with hamburger toggle -->
-    <nav class="navbar navbar-light bg-light d-md-none" aria-label="Mobilnavigation">
-      <div class="container-fluid">
-        <span class="navbar-brand mb-0 h1">Vraa</span>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#sidebarMenu"
-          aria-controls="sidebarMenu"
-          aria-expanded="false"
-          aria-label="Åbn navigation"
-        >
-          <span class="navbar-toggler-icon" aria-hidden="true"></span>
-        </button>
+    <!-- Sticky horizontal navigation -->
+    <nav class="site-nav" aria-label="Hovednavigation" role="navigation">
+      <div class="nav-inner">
+        <a href="{% url 'main:frontpage' %}" class="nav-brand" aria-label="Vraa - Gå til forsiden">Vraa</a>
+
+        <!-- Hamburger for mobile -->
+        <button class="nav-hamburger" type="button" aria-label="Åbn navigation" aria-expanded="false">&#9776;</button>
+
+        <div class="nav-links">
+          <a class="nav-link {% if title == 'Forside' %}active{% endif %}" href="{% url 'main:frontpage' %}">Forside</a>
+          <a class="nav-link {% if title == 'Information' %}active{% endif %}" href="{% url 'main:information' %}">Praktisk</a>
+          <a class="nav-link {% if title == 'Kalender' %}active{% endif %}" href="{% url 'main:kalender' %}">Booking</a>
+          <a class="nav-link {% if title == 'Referater' %}active{% endif %}" href="{% url 'main:referater' %}">Referater</a>
+          <a class="nav-link {% if title == 'Vedtægter' %}active{% endif %}" href="{% url 'main:vedtaegter' %}">Vedtægter</a>
+          {% if user.is_authenticated %}
+          <a class="nav-link {% if title == 'Vedligeholdelse' %}active{% endif %}" href="{% url 'main:maintenance_list' %}">Vedligeholdelse</a>
+          <a class="nav-link {% if title == 'Notifikationer' %}active{% endif %}" href="{% url 'main:notifications' %}">Notifikationer{% if unread_notification_count > 0 %}<span class="nav-badge">{{ unread_notification_count }}</span>{% endif %}</a>
+          {% endif %}
+        </div>
+
+        <div class="nav-actions">
+          {% if user.is_authenticated %}
+          <form action="{% url 'main:search' %}" method="get" class="nav-search-form" role="search">
+            <label for="nav-search-input" class="visually-hidden">Søg</label>
+            <input type="search" id="nav-search-input" name="q" placeholder="Søg..." aria-label="Søg">
+          </form>
+
+          <div class="nav-dropdown">
+            <a href="#" class="nav-dropdown-toggle nav-user-link" aria-haspopup="true" aria-expanded="false">{{ user.username }}</a>
+            <div class="nav-dropdown-menu">
+              <a href="{% url 'main:profile' %}">Min profil</a>
+              <a href="{% url 'main:brugervejledning' %}">Brugervejledning</a>
+              {% if user.is_staff %}
+              <div class="divider"></div>
+              <a href="{% url 'main:admin_vejledning' %}">Admin Vejledning</a>
+              <a href="{% url 'main:user_management' %}">Brugerstyring</a>
+              <a href="{% url 'main:audit_log' %}">Aktivitetslog</a>
+              {% endif %}
+              <div class="divider"></div>
+              <a href="{% url 'main:logout' %}">Log ud</a>
+            </div>
+          </div>
+          {% else %}
+          <a href="{% url 'main:login' %}" class="nav-link">Log ind</a>
+          <a href="{% url 'main:register' %}" class="nav-link">Registrer</a>
+          {% endif %}
+        </div>
       </div>
     </nav>
 
-    <div class="container-fluid">
-      <div class="row">
-        <!-- Side navigation panel -->
-        <nav
-          id="sidebarMenu"
-          class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse"
-          aria-label="Hovednavigation"
-          role="navigation"
-        >
-          <div class="sidebar-sticky pt-3">
-            <div class="text-center mb-4">
-              <a href="{% url 'main:frontpage' %}" aria-label="Gå til forsiden">
-                <picture>
-                  <source srcset="{% static 'main/img/logo.webp' %}" type="image/webp" />
-                  <img
-                    src="{% static 'main/img/logo.png' %}"
-                    alt="Vraa Sommerhus - Gå til forsiden"
-                    class="img-fluid"
-                  />
-                </picture>
-              </a>
-            </div>
-            <ul class="nav flex-column">
-              <li class="nav-item">
-                <a
-                  class="nav-link {% if title == 'Forside' %}active{% endif %}"
-                  aria-current="page"
-                  href="{% url 'main:frontpage' %}"
-                  >Forside</a
-                >
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link {% if title == 'Information' %}active{% endif %}"
-                  href="{% url 'main:information' %}"
-                  >Information</a
-                >
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link {% if title == 'Referater' %}active{% endif %}"
-                  href="{% url 'main:referater' %}"
-                  >Referater</a
-                >
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link {% if title == 'Vedtægter' %}active{% endif %}"
-                  href="{% url 'main:vedtaegter' %}"
-                  >Vedtægter</a
-                >
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link {% if title == 'Kalender' %}active{% endif %}"
-                  href="{% url 'main:kalender' %}"
-                  >Kalender</a
-                >
-              </li>
-              {% if user.is_authenticated %}
-              <li class="nav-item">
-                <a
-                  class="nav-link {% if title == 'Vedligeholdelse' %}active{% endif %}"
-                  href="{% url 'main:maintenance_list' %}"
-                  >Vedligeholdelse</a
-                >
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link {% if title == 'Min profil' %}active{% endif %}"
-                  href="{% url 'main:profile' %}"
-                  >Min profil</a
-                >
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link {% if title == 'Notifikationer' %}active{% endif %} position-relative"
-                  href="{% url 'main:notifications' %}"
-                  >Notifikationer
-                  {% if unread_notification_count > 0 %}
-                  <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge">
-                    {{ unread_notification_count }}
-                    <span class="visually-hidden">ulæste notifikationer</span>
-                  </span>
-                  {% endif %}
-                </a>
-              </li>
+    <!-- Hero section (only used by frontpage) -->
+    {% block hero %}{% endblock %}
 
-              <!-- Search -->
-              <li class="nav-item mt-3">
-                <form action="{% url 'main:search' %}" method="get" class="search-nav-form" role="search">
-                  <div class="input-group input-group-sm">
-                    <label for="nav-search-input" class="visually-hidden">Søg</label>
-                    <input type="search"
-                           id="nav-search-input"
-                           name="q"
-                           class="form-control"
-                           placeholder="Søg..."
-                           aria-label="Søg">
-                    <button type="submit" class="btn btn-outline-secondary" aria-label="Søg">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
-                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-                      </svg>
-                    </button>
-                  </div>
-                </form>
-              </li>
-              {% endif %}
-
-              <!-- Help Section -->
-              <li class="nav-item mt-3">
-                <small class="text-muted px-3">Hjælp</small>
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link {% if title == 'Brugervejledning' %}active{% endif %}"
-                  href="{% url 'main:brugervejledning' %}"
-                  >Brugervejledning</a
-                >
-              </li>
-              {% if user.is_staff %}
-              <li class="nav-item">
-                <a
-                  class="nav-link {% if title == 'Admin Vejledning' %}active{% endif %}"
-                  href="{% url 'main:admin_vejledning' %}"
-                  >Admin Vejledning</a
-                >
-              </li>
-
-              <!-- Admin Dashboard Section -->
-              <li class="nav-item mt-3">
-                <small class="text-muted px-3">Administration</small>
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link {% if title == 'Brugerstyring' %}active{% endif %}"
-                  href="{% url 'main:user_management' %}"
-                  >Brugerstyring</a
-                >
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link {% if title == 'Aktivitetslog' %}active{% endif %}"
-                  href="{% url 'main:audit_log' %}"
-                  >Aktivitetslog</a
-                >
-              </li>
-              {% endif %}
-            </ul>
-
-            <!-- User authentication status -->
-            <div class="user-status">
-                {% if user.is_authenticated %}
-                <p class="mb-2">Logget ind som <strong>{{ user.username }}</strong></p>
-                <a href="{% url 'main:logout' %}" class="btn btn-outline-secondary btn-sm w-100">Log ud</a>
-                {% else %}
-                <a href="{% url 'main:login' %}" class="btn btn-primary btn-sm w-100 mb-2">Log ind</a>
-                <a href="{% url 'main:register' %}" class="btn btn-outline-secondary btn-sm w-100">Registrer</a>
-                {% endif %}
-            </div>
-
-            <!-- Theme toggle -->
-            <div class="theme-toggle-container">
-                <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Skift tema" title="Skift tema">
-                    <span class="theme-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/>
-                        </svg>
-                    </span>
-                </button>
-                <span class="theme-toggle-label">Skift tema</span>
-            </div>
-          </div>
-        </nav>
-
-        <!-- Main content (centered column) -->
-        <main id="main-content" class="col-12 col-md-9 col-lg-10 px-4" role="main" aria-label="Sideindhold">
-          <div class="mx-auto content">
-            {% block content %}{% endblock %}
-          </div>
-        </main>
+    <!-- Main content -->
+    <main id="main-content" role="main" aria-label="Sideindhold">
+      <div class="content">
+        {% block content %}{% endblock %}
       </div>
-    </div>
+    </main>
 
-    <!-- Bootstrap JS (self-hosted) -->
-    <script src="{% static 'main/js/bootstrap.bundle.min.js' %}"></script>
+    <!-- Footer -->
+    <footer>
+      <div class="footer-logo">Vraa Sommerhus</div>
+      <p>&copy; Familien Vraa &middot; 2026</p>
+    </footer>
 
     <!-- HTMX for dynamic interactions (self-hosted) -->
     <script src="{% static 'main/js/htmx.min.js' %}"></script>
 
-    <!-- Theme Toggle JS -->
-    <script src="{% static 'main/js/theme.js' %}"></script>
+    <!-- Components (modal, collapse, dropdown, alert dismiss) -->
+    <script src="{% static 'main/js/components.js' %}"></script>
 
     <!-- Accessibility enhancements -->
     <script src="{% static 'main/js/accessibility.js' %}"></script>
@@ -258,5 +115,7 @@
         });
       }
     </script>
+
+    {% block extra_js %}{% endblock %}
   </body>
 </html>
