@@ -1,0 +1,154 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Bookinghåndtering</h1>
+    <a href="{% url 'main:kalender' %}" class="btn btn-outline">Kalender</a>
+</div>
+
+<!-- Statistics Cards -->
+<div class="card-grid mb-4" style="grid-template-columns:repeat(3,1fr);">
+    <div class="info-card text-center">
+        <div class="info-card-body">
+            <h3 style="font-size:1.5rem;color:var(--coral-accent);margin-bottom:0.25rem;">{{ pending_count }}</h3>
+            <p class="text-muted mb-0">Afventer godkendelse</p>
+        </div>
+    </div>
+    <div class="info-card text-center">
+        <div class="info-card-body">
+            <h3 style="font-size:1.5rem;color:var(--sage);margin-bottom:0.25rem;">{{ confirmed_count }}</h3>
+            <p class="text-muted mb-0">Godkendte bookinger</p>
+        </div>
+    </div>
+    <div class="info-card text-center">
+        <div class="info-card-body">
+            <h3 style="font-size:1.5rem;color:var(--text-muted);margin-bottom:0.25rem;">{{ cancelled_count }}</h3>
+            <p class="text-muted mb-0">Afviste bookinger</p>
+        </div>
+    </div>
+</div>
+
+<!-- Django Messages -->
+{% if messages %}
+<div class="mb-4">
+    {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}" role="alert">
+        {{ message }}
+        <button type="button" class="alert-dismiss" aria-label="Luk">&times;</button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Pending Bookings Section -->
+{% if bookings %}
+<div class="info-card mb-4" style="border-left:3px solid var(--coral-accent);">
+    <div class="info-card-header">
+        <h3>Bookinger der afventer godkendelse ({{ pending_count }})</h3>
+    </div>
+    <div class="info-card-body" style="padding:0;">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Bruger</th>
+                        <th>Ankomst</th>
+                        <th>Afrejse</th>
+                        <th>Dage</th>
+                        <th>Bemærkninger</th>
+                        <th>Oprettet</th>
+                        <th class="text-end">Handling</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in bookings %}
+                    <tr>
+                        <td>
+                            <strong>{{ booking.user.profile.display_name|default:booking.user.username }}</strong>
+                            {% if booking.user.profile.heritage_line %}
+                            <span class="badge" style="background:{{ booking.user.profile.heritage_line.color }};color:#fff;margin-left:4px;">{{ booking.user.profile.heritage_line.short_name }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ booking.start_date|date:"d. M Y" }}</td>
+                        <td>{{ booking.end_date|date:"d. M Y" }}</td>
+                        <td>{{ booking.duration_days }}</td>
+                        <td>{{ booking.notes|default:"-"|truncatewords:10 }}</td>
+                        <td>{{ booking.created_at|date:"d. M Y, H:i" }}</td>
+                        <td class="text-end" style="white-space:nowrap;">
+                            <form method="post" action="{% url 'main:booking_approve' booking.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-primary">Godkend</button>
+                            </form>
+                            <details class="d-inline" style="position:relative;">
+                                <summary class="btn btn-sm btn-danger" style="list-style:none;cursor:pointer;">Afvis</summary>
+                                <div style="position:absolute;right:0;top:100%;z-index:10;background:var(--white);border:1px solid var(--border);border-radius:var(--radius-md);padding:0.75rem;min-width:250px;box-shadow:var(--shadow-md);">
+                                    <form method="post" action="{% url 'main:booking_reject' booking.pk %}" onsubmit="return confirm('Er du sikker på, at du vil afvise denne booking?');">
+                                        {% csrf_token %}
+                                        <label for="reason-{{ booking.pk }}" style="font-size:0.85rem;font-weight:500;margin-bottom:0.25rem;display:block;">Begrundelse (valgfri)</label>
+                                        <textarea name="reason" id="reason-{{ booking.pk }}" rows="2" class="form-control" style="font-size:0.85rem;margin-bottom:0.5rem;" placeholder="Angiv en begrundelse..."></textarea>
+                                        <button type="submit" class="btn btn-sm btn-danger" style="width:100%;">Bekræft afvisning</button>
+                                    </form>
+                                </div>
+                            </details>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="info-card mb-4">
+    <div class="info-card-body text-center" style="padding:2rem;">
+        <p class="text-muted mb-0">Ingen bookinger afventer godkendelse.</p>
+    </div>
+</div>
+{% endif %}
+
+<!-- Recent Decisions Section -->
+{% if recent_decisions %}
+<div class="info-card">
+    <div class="info-card-header">
+        <h3>Seneste beslutninger</h3>
+    </div>
+    <div class="info-card-body" style="padding:0;">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Bruger</th>
+                        <th>Ankomst</th>
+                        <th>Afrejse</th>
+                        <th>Status</th>
+                        <th>Opdateret</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in recent_decisions %}
+                    <tr>
+                        <td><strong>{{ booking.user.username }}</strong></td>
+                        <td>{{ booking.start_date|date:"d. M Y" }}</td>
+                        <td>{{ booking.end_date|date:"d. M Y" }}</td>
+                        <td>
+                            {% if booking.status == 'confirmed' %}
+                            <span class="badge bg-sage">Godkendt</span>
+                            {% elif booking.status == 'cancelled' %}
+                            <span class="badge bg-coral">Afvist</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ booking.updated_at|date:"d. M Y, H:i" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Quick Links -->
+<div class="mt-4">
+    <a href="{% url 'admin:index' %}" class="btn btn-outline">Django Admin</a>
+</div>
+{% endblock %}

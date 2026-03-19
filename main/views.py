@@ -764,6 +764,78 @@ class AuditLogListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return context
 
 
+class BookingManagementView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    """Dashboard for managing booking requests (staff only)."""
+
+    model = Booking
+    template_name = 'main/booking_management.html'
+    context_object_name = 'bookings'
+    extra_context = {'title': 'Bookinghåndtering'}
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get_queryset(self):
+        return Booking.objects.filter(status='pending').select_related(
+            'user', 'user__profile', 'user__profile__heritage_line',
+        ).order_by('start_date')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['pending_count'] = self.get_queryset().count()
+        context['confirmed_count'] = Booking.objects.filter(status='confirmed').count()
+        context['cancelled_count'] = Booking.objects.filter(status='cancelled').count()
+        context['recent_decisions'] = Booking.objects.filter(
+            status__in=['confirmed', 'cancelled'],
+        ).select_related('user').order_by('-updated_at')[:10]
+        return context
+
+
+class BookingApproveView(LoginRequiredMixin, UserPassesTestMixin, View):
+    """Approve a pending booking (staff only)."""
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def post(self, request, pk):
+        booking = get_object_or_404(Booking, pk=pk, status='pending')
+        booking.status = 'confirmed'
+        booking.save()
+
+        # Send notifications
+        NotificationService.notify_booking_approved(booking)
+        AuditService.log_booking_approved(request, booking)
+
+        messages.success(
+            request,
+            f'Bookingen for {booking.user.username} ({booking.start_date} – {booking.end_date}) er godkendt.',
+        )
+        return HttpResponse(status=302, headers={'Location': reverse_lazy('main:booking_management')})
+
+
+class BookingRejectView(LoginRequiredMixin, UserPassesTestMixin, View):
+    """Reject a pending booking (staff only)."""
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def post(self, request, pk):
+        booking = get_object_or_404(Booking, pk=pk, status='pending')
+        reason = request.POST.get('reason', '').strip()
+        booking.status = 'cancelled'
+        booking.save()
+
+        # Send notifications
+        NotificationService.notify_booking_rejected(booking, reason=reason)
+        AuditService.log_booking_rejected(request, booking)
+
+        messages.success(
+            request,
+            f'Bookingen for {booking.user.username} ({booking.start_date} – {booking.end_date}) er afvist.',
+        )
+        return HttpResponse(status=302, headers={'Location': reverse_lazy('main:booking_management')})
+
+
 class ReferaterDynamicView(TemplateView):
     """Display referater from database with fallback to static files."""
 
