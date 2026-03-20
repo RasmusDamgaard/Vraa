@@ -216,13 +216,16 @@ class NotificationService:
         return notification
 
     @staticmethod
-    def notify_booking_rejected(booking):
+    def notify_booking_rejected(booking, reason=''):
         """Notify user when booking is rejected."""
+        message = f'Din booking fra {booking.start_date.strftime("%d. %B %Y")} til {booking.end_date.strftime("%d. %B %Y")} er desværre blevet afvist.'
+        if reason:
+            message += f' Begrundelse: {reason}'
         notification = Notification.objects.create(
             user=booking.user,
             notification_type='booking_rejected',
             title='Din booking er afvist',
-            message=f'Din booking fra {booking.start_date.strftime("%d. %B %Y")} til {booking.end_date.strftime("%d. %B %Y")} er desværre blevet afvist.',
+            message=message,
             link=reverse('main:kalender'),
         )
 
