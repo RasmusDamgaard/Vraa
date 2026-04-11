@@ -10,6 +10,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
+from django.template.loader import render_to_string
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
@@ -124,7 +125,6 @@ class RegisterView(CreateView):
 
     def _notify_admins(self, new_user):
         """Send email notification to all admin users about a new registration."""
-        # Get all staff users with email addresses
         admin_emails = list(
             User.objects.filter(is_staff=True, is_active=True)
             .exclude(email='')
@@ -135,22 +135,34 @@ class RegisterView(CreateView):
             logger.warning('No admin email addresses configured for registration notifications')
             return
 
+        site_url = getattr(settings, 'SITE_URL', '')
         subject = f'Ny bruger registreret: {new_user.username}'
-        message = (
+        context = {
+            'new_user': new_user,
+            'registered_at': timezone.now().strftime('%d. %B %Y kl. %H:%M'),
+            'site_url': site_url,
+            'manage_url': '/brugerstyring/',
+        }
+        plain_message = (
             f'En ny bruger har registreret sig på Vraa-hjemmesiden.\n\n'
             f'Brugernavn: {new_user.username}\n'
             f'E-mail: {new_user.email}\n'
-            f'Tidspunkt: {timezone.now().strftime("%d. %B %Y kl. %H:%M")}\n\n'
-            f'Brugeren er inaktiv og afventer godkendelse.\n'
-            f'Log ind på admin-panelet for at aktivere kontoen.'
+            f'Tidspunkt: {context["registered_at"]}\n\n'
+            f'Gå til brugerstyring: {site_url}/brugerstyring/'
         )
+        try:
+            html_message = render_to_string('main/email/registration_notification.html', context)
+        except Exception as e:
+            logger.error(f'Failed to render registration notification template: {e}')
+            html_message = None
 
         try:
             send_mail(
                 subject=subject,
-                message=message,
-                from_email=settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else None,
+                message=plain_message,
+                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', None),
                 recipient_list=admin_emails,
+                html_message=html_message,
                 fail_silently=True,
             )
             logger.info(f'Registration notification sent for user {new_user.username}')
@@ -693,17 +705,28 @@ class UserActivateView(LoginRequiredMixin, UserPassesTestMixin, View):
 
         # Send welcome email
         if user.email:
+            site_url = getattr(settings, 'SITE_URL', '')
+            plain_message = (
+                f'Hej {user.username},\n\n'
+                f'Din konto på Vraa-hjemmesiden er nu aktiveret.\n'
+                f'Du kan nu logge ind og bruge siden: {site_url}\n\n'
+                f'Venlig hilsen,\nVraa'
+            )
+            try:
+                html_message = render_to_string('main/email/activation_welcome.html', {
+                    'user': user,
+                    'site_url': site_url,
+                })
+            except Exception as e:
+                logger.error(f'Failed to render activation email template: {e}')
+                html_message = None
             try:
                 send_mail(
                     subject='Din konto er aktiveret - Vraa',
-                    message=(
-                        f'Hej {user.username},\n\n'
-                        f'Din konto på Vraa-hjemmesiden er nu aktiveret.\n'
-                        f'Du kan nu logge ind og bruge siden.\n\n'
-                        f'Venlig hilsen,\nVraa'
-                    ),
-                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    message=plain_message,
+                    from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', None),
                     recipient_list=[user.email],
+                    html_message=html_message,
                     fail_silently=True,
                 )
             except Exception as e:
