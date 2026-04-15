@@ -1733,36 +1733,77 @@ dialog::backdrop {
   margin-bottom: 1.5rem;
 }
 
-.weather-header {
+.weather-widget-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.5rem;
   margin-bottom: 0.75rem;
-  font-size: 0.85rem;
-  color: var(--charcoal-soft);
 }
 
-.weather-temp {
+.weather-widget-title {
+  font-size: 0.85rem;
+  color: var(--charcoal-soft);
+  font-weight: 500;
+}
+
+.weather-widget-location {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--charcoal);
+}
+
+.weather-widget-icon {
+  font-size: 2rem;
+}
+
+.weather-widget-temp {
   font-family: var(--font-display);
   font-size: 2.5rem;
   color: var(--charcoal);
   margin-bottom: 0.5rem;
 }
 
-.weather-details {
+.weather-widget-details {
   display: flex;
   gap: 1.5rem;
   font-size: 0.78rem;
   color: var(--charcoal-soft);
 }
 
-.weather-forecast {
+.weather-widget-detail {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.weather-widget-forecast {
   display: flex;
   gap: 1rem;
   margin-top: 0.85rem;
   padding-top: 0.85rem;
   border-top: 1px solid var(--border);
   font-size: 0.75rem;
+  color: var(--charcoal-soft);
+}
+
+.weather-forecast-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.weather-forecast-date {
+  font-weight: 500;
+  color: var(--charcoal);
+}
+
+.weather-forecast-icon {
+  font-size: 1.25rem;
+}
+
+.weather-forecast-temp {
   color: var(--charcoal-soft);
 }
 
