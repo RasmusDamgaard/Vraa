@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.decorators import method_decorator
@@ -141,14 +141,14 @@ class RegisterView(CreateView):
             'new_user': new_user,
             'registered_at': timezone.now().strftime('%d. %B %Y kl. %H:%M'),
             'site_url': site_url,
-            'manage_url': '/brugerstyring/',
+            'manage_url': '/admin-dashboard/brugere/',
         }
         plain_message = (
             f'En ny bruger har registreret sig på Vraa-hjemmesiden.\n\n'
             f'Brugernavn: {new_user.username}\n'
             f'E-mail: {new_user.email}\n'
             f'Tidspunkt: {context["registered_at"]}\n\n'
-            f'Gå til brugerstyring: {site_url}/brugerstyring/'
+            f'Gå til brugerstyring: {site_url}/admin-dashboard/brugere/'
         )
         try:
             html_message = render_to_string('main/email/registration_notification.html', context)
@@ -733,7 +733,7 @@ class UserActivateView(LoginRequiredMixin, UserPassesTestMixin, View):
                 logger.error(f'Failed to send activation email: {e}')
 
         messages.success(request, f'Brugeren {user.username} er nu aktiveret.')
-        return HttpResponse(status=204, headers={'HX-Trigger': 'userUpdated'})
+        return redirect('main:user_management')
 
 
 class UserDeactivateView(LoginRequiredMixin, UserPassesTestMixin, View):
@@ -746,7 +746,7 @@ class UserDeactivateView(LoginRequiredMixin, UserPassesTestMixin, View):
         user = get_object_or_404(User, pk=pk)
         if user == request.user:
             messages.error(request, 'Du kan ikke deaktivere din egen konto.')
-            return HttpResponse(status=400)
+            return redirect('main:user_management')
 
         user.is_active = False
         user.save()
@@ -755,7 +755,29 @@ class UserDeactivateView(LoginRequiredMixin, UserPassesTestMixin, View):
         AuditService.log_user_deactivated(request, user)
 
         messages.success(request, f'Brugeren {user.username} er nu deaktiveret.')
-        return HttpResponse(status=204, headers={'HX-Trigger': 'userUpdated'})
+        return redirect('main:user_management')
+
+
+class UserRejectView(LoginRequiredMixin, UserPassesTestMixin, View):
+    """Reject and delete a pending user (staff only)."""
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def post(self, request, pk):
+        user = get_object_or_404(User, pk=pk)
+        if user.is_active:
+            messages.error(request, 'Kun ventende brugere kan afvises.')
+            return redirect('main:user_management')
+
+        username = user.username
+        email = user.email
+        user.delete()
+
+        AuditService.log_user_rejected(request, username, email)
+
+        messages.success(request, f'Brugeren {username} er blevet afvist og slettet.')
+        return redirect('main:user_management')
 
 
 class AuditLogListView(LoginRequiredMixin, UserPassesTestMixin, ListView):

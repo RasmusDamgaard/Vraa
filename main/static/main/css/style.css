@@ -873,13 +873,21 @@ details[open] summary .chevron { transform: rotate(90deg); }
   text-decoration: none;
 }
 
-.btn-danger,
+.btn-danger {
+  background: var(--coral-light);
+  color: var(--coral-accent);
+  border: 1px solid var(--coral-accent);
+}
+.btn-danger:hover {
+  background: var(--coral-accent);
+  color: #fff;
+  text-decoration: none;
+}
 .btn-outline-danger {
   background: none;
   color: var(--coral-accent);
   border: 1px solid var(--coral-accent);
 }
-.btn-danger:hover,
 .btn-outline-danger:hover {
   background: var(--coral-light);
   color: var(--coral-accent);

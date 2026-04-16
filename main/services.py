@@ -282,6 +282,16 @@ class AuditService:
         )
 
     @staticmethod
+    def log_user_rejected(request, username, email):
+        """Log when a pending user is rejected."""
+        AuditService.log(
+            request,
+            'user_rejected',
+            None,
+            {'username': username, 'email': email},
+        )
+
+    @staticmethod
     def log_booking_approved(request, booking):
         """Log when a booking is approved."""
         AuditService.log(

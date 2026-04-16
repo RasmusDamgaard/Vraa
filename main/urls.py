@@ -101,6 +101,7 @@ urlpatterns = [
     path('admin-dashboard/brugere/', views.UserManagementView.as_view(), name='user_management'),
     path('admin-dashboard/brugere/<int:pk>/aktiver/', views.UserActivateView.as_view(), name='user_activate'),
     path('admin-dashboard/brugere/<int:pk>/deaktiver/', views.UserDeactivateView.as_view(), name='user_deactivate'),
+    path('admin-dashboard/brugere/<int:pk>/afvis/', views.UserRejectView.as_view(), name='user_reject'),
     path('admin-dashboard/bookinger/', views.BookingManagementView.as_view(), name='booking_management'),
     path('admin-dashboard/bookinger/<int:pk>/godkend/', views.BookingApproveView.as_view(), name='booking_approve'),
     path('admin-dashboard/bookinger/<int:pk>/afvis/', views.BookingRejectView.as_view(), name='booking_reject'),
