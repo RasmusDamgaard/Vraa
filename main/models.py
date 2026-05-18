@@ -474,6 +474,9 @@ class Booking(models.Model):
                 name='end_date_after_start_date',
             ),
         ]
+        permissions = [
+            ('can_approve_bookings', 'Can approve and reject booking requests'),
+        ]
 
     def __str__(self) -> str:
         return f'{self.user.username}: {self.start_date} - {self.end_date}'
