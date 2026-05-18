@@ -6,7 +6,7 @@ from __future__ import annotations
 from django.contrib.auth import views as auth_views
 from django.urls import path, reverse_lazy
 
-from . import views
+from . import forms, views
 
 app_name = 'main'
 
@@ -44,6 +44,7 @@ urlpatterns = [
     # Authentication
     path('login/', auth_views.LoginView.as_view(
         template_name='main/login.html',
+        authentication_form=forms.EmailOrUsernameAuthForm,
         extra_context={'title': 'Log ind'},
     ), name='login'),
     path('logout/', auth_views.LogoutView.as_view(

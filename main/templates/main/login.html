@@ -5,17 +5,24 @@
     <h1>Log ind</h1>
 
     {% if form.errors %}
-    <div class="alert alert-danger" role="alert">
-        <span class="visually-hidden">Fejl: </span>
-        Ugyldigt brugernavn eller adgangskode. Bemærk at din konto skal være godkendt af administrator.
-    </div>
+        {% if form.multiple_accounts_error %}
+        <div class="alert alert-warning" role="alert">
+            <span class="visually-hidden">Fejl: </span>
+            Flere konti er knyttet til denne e-mail — brug dit brugernavn i stedet.
+        </div>
+        {% else %}
+        <div class="alert alert-danger" role="alert">
+            <span class="visually-hidden">Fejl: </span>
+            Ugyldigt brugernavn eller adgangskode. Bemærk at din konto skal være godkendt af administrator.
+        </div>
+        {% endif %}
     {% endif %}
 
     <form method="post" novalidate>
         {% csrf_token %}
         <div class="mb-3">
             <label for="id_username" class="form-label">
-                Brugernavn <span class="required-indicator" aria-hidden="true">*</span>
+                Brugernavn eller e-mail <span class="required-indicator" aria-hidden="true">*</span>
             </label>
             <input type="text" name="username" id="id_username" class="form-control"
                    required aria-required="true" autocomplete="username" autofocus>

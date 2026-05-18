@@ -6,7 +6,7 @@ from __future__ import annotations
 import re
 
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
@@ -168,3 +168,24 @@ class BookingForm(forms.ModelForm):
                 )
 
         return cleaned_data
+
+
+class EmailOrUsernameAuthForm(AuthenticationForm):
+    multiple_accounts_error = False
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].label = 'Brugernavn eller e-mail'
+
+    def clean(self):
+        credential = self.cleaned_data.get('username', '')
+        password = self.cleaned_data.get('password', '')
+        if credential and '@' in credential and password:
+            count = User.objects.filter(email__iexact=credential).count()
+            if count > 1:
+                self.multiple_accounts_error = True
+                raise forms.ValidationError(
+                    'Flere konti er knyttet til denne e-mail — brug dit brugernavn i stedet.',
+                    code='multiple_accounts',
+                )
+        return super().clean()
