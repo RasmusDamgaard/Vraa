@@ -1620,3 +1620,65 @@ class HealthCheckTests(TestCase):
         self.assertIn('cache', data['checks'])
         # DummyCache used in tests returns 'unavailable', real cache returns 'ok'
         self.assertIn(data['checks']['cache'], ['ok', 'unavailable'])
+
+
+class BookingApproverPermissionTests(BaseTestCase):
+    """Tests for the can_approve_bookings permission."""
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        from django.contrib.auth.models import Permission
+        cls.approver = User.objects.create_user(
+            username='approver', password='approverpass123', is_active=True
+        )
+        perm = Permission.objects.get(codename='can_approve_bookings')
+        cls.approver.user_permissions.add(perm)
+
+    def login_as_approver(self):
+        self.client.login(username='approver', password='approverpass123')
+
+    def test_approver_can_access_booking_management(self):
+        self.login_as_approver()
+        self.assertEqual(self.client.get(reverse('main:booking_management')).status_code, 200)
+
+    def test_regular_user_blocked_from_booking_management(self):
+        self.login_as_user()
+        self.assertNotEqual(self.client.get(reverse('main:booking_management')).status_code, 200)
+
+    def test_approver_can_approve_booking(self):
+        from main.models import Booking
+        booking = Booking.objects.create(
+            user=self.other_user,
+            start_date=self.future_date(5),
+            end_date=self.future_date(10),
+            status='pending',
+        )
+        self.login_as_approver()
+        self.client.post(reverse('main:booking_approve', args=[booking.pk]))
+        booking.refresh_from_db()
+        self.assertEqual(booking.status, 'confirmed')
+
+    def test_approver_can_reject_booking(self):
+        from main.models import Booking
+        booking = Booking.objects.create(
+            user=self.other_user,
+            start_date=self.future_date(15),
+            end_date=self.future_date(20),
+            status='pending',
+        )
+        self.login_as_approver()
+        self.client.post(reverse('main:booking_reject', args=[booking.pk]), {'reason': 'Conflict'})
+        booking.refresh_from_db()
+        self.assertEqual(booking.status, 'cancelled')
+
+    def test_approver_can_view_any_booking_detail(self):
+        from main.models import Booking
+        booking = Booking.objects.create(
+            user=self.other_user,
+            start_date=self.future_date(25),
+            end_date=self.future_date(30),
+            status='confirmed',
+        )
+        self.login_as_approver()
+        self.assertEqual(self.client.get(reverse('main:booking_detail', args=[booking.pk])).status_code, 200)

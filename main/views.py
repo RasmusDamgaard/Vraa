@@ -354,8 +354,8 @@ class BookingDetailView(LoginRequiredMixin, DetailView):
     extra_context = {'title': 'Bookingbekræftelse'}
 
     def get_queryset(self):
-        # Only show user's own bookings or all bookings for staff
-        if self.request.user.is_staff:
+        # Only show user's own bookings or all bookings for staff/approvers
+        if self.request.user.is_staff or self.request.user.has_perm('main.can_approve_bookings'):
             return Booking.objects.select_related('user', 'user__profile', 'user__profile__heritage_line')
         return Booking.objects.filter(user=self.request.user).select_related(
             'user', 'user__profile', 'user__profile__heritage_line'
@@ -818,7 +818,7 @@ class BookingManagementView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     extra_context = {'title': 'Bookinghåndtering'}
 
     def test_func(self):
-        return self.request.user.is_staff
+        return self.request.user.is_staff or self.request.user.has_perm('main.can_approve_bookings')
 
     def get_queryset(self):
         return Booking.objects.filter(status='pending').select_related(
@@ -837,10 +837,10 @@ class BookingManagementView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
 
 class BookingApproveView(LoginRequiredMixin, UserPassesTestMixin, View):
-    """Approve a pending booking (staff only)."""
+    """Approve a pending booking (staff or booking approver)."""
 
     def test_func(self):
-        return self.request.user.is_staff
+        return self.request.user.is_staff or self.request.user.has_perm('main.can_approve_bookings')
 
     def post(self, request, pk):
         booking = get_object_or_404(Booking, pk=pk, status='pending')
@@ -859,10 +859,10 @@ class BookingApproveView(LoginRequiredMixin, UserPassesTestMixin, View):
 
 
 class BookingRejectView(LoginRequiredMixin, UserPassesTestMixin, View):
-    """Reject a pending booking (staff only)."""
+    """Reject a pending booking (staff or booking approver)."""
 
     def test_func(self):
-        return self.request.user.is_staff
+        return self.request.user.is_staff or self.request.user.has_perm('main.can_approve_bookings')
 
     def post(self, request, pk):
         booking = get_object_or_404(Booking, pk=pk, status='pending')
