@@ -10,9 +10,11 @@ from django.contrib.auth.models import User
 class EmailOrUsernameBackend(ModelBackend):
     """Authenticate with either a username or an email address.
 
-    If the credential contains '@' it is treated as an email.
+    If the credential contains '@' it is first looked up as an email.
     Exactly one matching account → authenticate by the resolved username.
-    Zero or multiple matching accounts → return None (form handles messaging).
+    Multiple matching accounts → return None (form handles messaging).
+    No matching account → fall through and treat the credential as a
+    username (usernames are allowed to contain '@').
     """
 
     def authenticate(self, request, username=None, password=None, **kwargs):
@@ -22,6 +24,6 @@ class EmailOrUsernameBackend(ModelBackend):
             )
             if len(matches) == 1:
                 username = matches[0]
-            else:
+            elif len(matches) > 1:
                 return None
         return super().authenticate(request, username=username, password=password, **kwargs)

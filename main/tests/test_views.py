@@ -968,13 +968,14 @@ class BookingViewTests(BaseTestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_owner_can_delete_booking(self):
-        """Owner can cancel their booking."""
+        """Owner can cancel their booking (soft-cancel, record is kept)."""
         self.login_as_user()
         response = self.client.post(
             reverse('main:booking_delete', kwargs={'pk': self.booking.pk})
         )
         self.assertEqual(response.status_code, 302)
-        self.assertFalse(Booking.objects.filter(pk=self.booking.pk).exists())
+        self.booking.refresh_from_db()
+        self.assertEqual(self.booking.status, 'cancelled')
 
     def test_non_owner_cannot_delete_booking(self):
         """Non-owner cannot cancel a booking."""
@@ -1682,3 +1683,104 @@ class BookingApproverPermissionTests(BaseTestCase):
         )
         self.login_as_approver()
         self.assertEqual(self.client.get(reverse('main:booking_detail', args=[booking.pk])).status_code, 200)
+
+
+# =============================================================================
+# Regression Tests - Admin Dashboard & Notifications
+# =============================================================================
+
+
+class UserRejectViewTests(BaseTestCase):
+    """Tests for rejecting pending user registrations."""
+
+    def test_admin_can_reject_pending_user(self):
+        """Rejecting a pending user deletes the user and writes an audit log."""
+        from main.models import AuditLog
+
+        pending = User.objects.create_user(
+            username='pendinguser',
+            email='pending@test.com',
+            password='pass12345',
+            is_active=False,
+        )
+        self.login_as_admin()
+        response = self.client.post(
+            reverse('main:user_reject', kwargs={'pk': pending.pk})
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(User.objects.filter(pk=pending.pk).exists())
+        log = AuditLog.objects.filter(action='user_rejected').first()
+        self.assertIsNotNone(log)
+        self.assertEqual(log.details['username'], 'pendinguser')
+
+    def test_active_user_cannot_be_rejected(self):
+        """Active users are not deleted by the reject endpoint."""
+        self.login_as_admin()
+        response = self.client.post(
+            reverse('main:user_reject', kwargs={'pk': self.other_user.pk})
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(User.objects.filter(pk=self.other_user.pk).exists())
+
+
+class BookingApproveConflictTests(BaseTestCase):
+    """Tests for the double-booking guard when approving bookings."""
+
+    def test_cannot_approve_overlapping_pending_booking(self):
+        """A pending booking overlapping a confirmed one cannot be approved."""
+        Booking.objects.create(
+            user=self.other_user,
+            start_date=self.future_date(10),
+            end_date=self.future_date(17),
+            status='confirmed',
+        )
+        pending = Booking.objects.create(
+            user=self.user,
+            start_date=self.future_date(12),
+            end_date=self.future_date(15),
+            status='pending',
+        )
+        self.login_as_admin()
+        response = self.client.post(
+            reverse('main:booking_approve', kwargs={'pk': pending.pk})
+        )
+        self.assertEqual(response.status_code, 302)
+        pending.refresh_from_db()
+        self.assertEqual(pending.status, 'pending')
+
+    def test_can_approve_non_overlapping_booking(self):
+        """A pending booking without conflicts is approved normally."""
+        pending = Booking.objects.create(
+            user=self.user,
+            start_date=self.future_date(40),
+            end_date=self.future_date(45),
+            status='pending',
+        )
+        self.login_as_admin()
+        response = self.client.post(
+            reverse('main:booking_approve', kwargs={'pk': pending.pk})
+        )
+        self.assertEqual(response.status_code, 302)
+        pending.refresh_from_db()
+        self.assertEqual(pending.status, 'confirmed')
+
+
+class NotificationMarkAllReadTests(BaseTestCase):
+    """Tests for marking all notifications as read."""
+
+    def test_form_submit_redirects_to_notifications(self):
+        """A regular (non-AJAX) form submit redirects back to the list."""
+        from main.models import Notification
+
+        Notification.objects.create(
+            user=self.user,
+            notification_type='comment',
+            title='Test',
+            message='Test',
+        )
+        self.login_as_user()
+        response = self.client.post(reverse('main:notification_mark_all_read'))
+        self.assertRedirects(response, reverse('main:notifications'))
+        self.assertFalse(
+            Notification.objects.filter(user=self.user, is_read=False).exists()
+        )

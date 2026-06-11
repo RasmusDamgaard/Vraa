@@ -172,15 +172,18 @@ class ReservedWeek(models.Model):
         return f'{self.heritage_line.short_name} - Uge {self.week_number}, {self.year}'
 
     def save(self, *args, **kwargs):
-        """Auto-calculate dates from year and week number."""
+        """Auto-calculate dates from year and week number.
+
+        Dates are always recalculated so they stay in sync when the year or
+        week number is changed (the date fields are read-only in admin).
+        """
         from datetime import datetime, timedelta
 
-        if not self.start_date or not self.end_date:
-            # ISO week calculation
-            jan4 = datetime(self.year, 1, 4)
-            start_of_week1 = jan4 - timedelta(days=jan4.weekday())
-            self.start_date = (start_of_week1 + timedelta(weeks=self.week_number - 1)).date()
-            self.end_date = self.start_date + timedelta(days=6)
+        # ISO week calculation
+        jan4 = datetime(self.year, 1, 4)
+        start_of_week1 = jan4 - timedelta(days=jan4.weekday())
+        self.start_date = (start_of_week1 + timedelta(weeks=self.week_number - 1)).date()
+        self.end_date = self.start_date + timedelta(days=6)
         super().save(*args, **kwargs)
 
     @classmethod
@@ -750,6 +753,7 @@ class AuditLog(models.Model):
         ('booking_rejected', 'Booking afvist'),
         ('user_activated', 'Bruger aktiveret'),
         ('user_deactivated', 'Bruger deaktiveret'),
+        ('user_rejected', 'Bruger afvist'),
         ('message_deleted', 'Besked slettet'),
         ('document_uploaded', 'Dokument uploadet'),
         ('document_deleted', 'Dokument slettet'),

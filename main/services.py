@@ -154,13 +154,11 @@ class NotificationService:
         usernames = re.findall(mention_pattern, content)
 
         mentioned_users = []
-        for username in usernames:
-            try:
-                user = User.objects.get(username__iexact=username)
+        for username in dict.fromkeys(u.lower() for u in usernames):
+            user = User.objects.filter(username__iexact=username).first()
+            if user:
                 NotificationService.notify_mention(user, source_object, author)
                 mentioned_users.append(user)
-            except User.DoesNotExist:
-                pass
 
         return mentioned_users
 
@@ -251,12 +249,12 @@ class AuditService:
 
     @staticmethod
     def log(request, action, target, details=None):
-        """Create an audit log entry."""
+        """Create an audit log entry. ``target`` may be None for deleted objects."""
         AuditLog.objects.create(
             user=request.user if request.user.is_authenticated else None,
             action=action,
-            target_type=target.__class__.__name__,
-            target_id=target.pk,
+            target_type=target.__class__.__name__ if target is not None else '',
+            target_id=target.pk if target is not None else 0,
             details=details or {},
             ip_address=AuditService.get_client_ip(request),
         )

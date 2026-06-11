@@ -19,7 +19,7 @@
 
     {% block extra_head %}{% endblock %}
   </head>
-  <body>
+  <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     <!-- Skip link for keyboard navigation -->
     <a href="#main-content" class="skip-link">Spring til hovedindhold</a>
 
