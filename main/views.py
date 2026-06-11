@@ -69,18 +69,6 @@ class InformationView(TemplateView):
         return context
 
 
-@method_decorator(cache_page(60 * 60), name='dispatch')
-class ReferaterView(TemplateView):
-    template_name = 'main/referater.html'
-    extra_context = {'title': 'Referater'}
-
-
-@method_decorator(cache_page(60 * 60), name='dispatch')
-class VedtaegterView(TemplateView):
-    template_name = 'main/vedtaegter.html'
-    extra_context = {'title': 'Vedtægter'}
-
-
 class KalenderView(LoginRequiredMixin, ListView):
     """Display calendar with bookings and reserved weeks."""
 
@@ -111,10 +99,10 @@ class RegisterView(CreateView):
     extra_context = {'title': 'Registrer'}
 
     def form_valid(self, form):
+        # Set user as inactive until admin approves (before saving, so the
+        # account is never active, not even briefly)
+        form.instance.is_active = False
         response = super().form_valid(form)
-        # Set user as inactive until admin approves
-        self.object.is_active = False
-        self.object.save()
         messages.success(
             self.request,
             'Din konto er oprettet og afventer godkendelse af administrator.',
@@ -343,6 +331,14 @@ class BookingDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def test_func(self):
         return self.get_object().user == self.request.user
+
+    def form_valid(self, form):
+        # Soft-cancel instead of deleting, so the booking history is kept
+        # (shown under "Annullerede bookinger" on the profile page)
+        self.object.status = 'cancelled'
+        self.object.save()
+        messages.success(self.request, 'Din booking er annulleret.')
+        return redirect(self.get_success_url())
 
 
 class BookingDetailView(LoginRequiredMixin, DetailView):
@@ -657,7 +653,8 @@ class NotificationMarkAllReadView(LoginRequiredMixin, View):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({'success': True})
 
-        return HttpResponse(status=204)
+        # Regular form submit: go back to the notification list
+        return redirect('main:notifications')
 
 
 # =============================================================================
@@ -844,6 +841,23 @@ class BookingApproveView(LoginRequiredMixin, UserPassesTestMixin, View):
 
     def post(self, request, pk):
         booking = get_object_or_404(Booking, pk=pk, status='pending')
+
+        # Guard against double-booking: another overlapping booking may have
+        # been confirmed after this one was requested
+        conflict = Booking.objects.filter(
+            status='confirmed',
+            start_date__lt=booking.end_date,
+            end_date__gt=booking.start_date,
+        ).exclude(pk=booking.pk).first()
+        if conflict:
+            messages.error(
+                request,
+                f'Bookingen kan ikke godkendes: perioden overlapper med en allerede '
+                f'bekræftet booking for {conflict.user.username} '
+                f'({conflict.start_date} – {conflict.end_date}).',
+            )
+            return HttpResponse(status=302, headers={'Location': reverse_lazy('main:booking_management')})
+
         booking.status = 'confirmed'
         booking.save()
 

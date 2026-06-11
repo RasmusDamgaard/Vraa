@@ -9,6 +9,31 @@
     Her ligger referater fra bestyrelsesmøder. Klik på et årstal for at åbne referatet som PDF.
   </p>
 
+  {% if has_dynamic_documents %}
+  <div class="document-list mt-4 mb-4">
+    {% for year, docs in documents_by_year.items %}
+      {% for doc in docs %}
+      <a href="{{ doc.file.url }}" target="_blank" class="document-item">
+        <div class="document-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
+          </svg>
+        </div>
+        <div class="document-info">
+          <span class="document-title">{{ doc.title }}</span>
+          <span class="document-subtitle">{{ doc.document_date|date:"d. M Y" }}{% if doc.description %} &middot; {{ doc.description|truncatewords:10 }}{% endif %}</span>
+        </div>
+        <div class="document-arrow">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+          </svg>
+        </div>
+      </a>
+      {% endfor %}
+    {% endfor %}
+  </div>
+  {% endif %}
+
   <div class="document-list mt-4">
     <a href="{% static 'main/pdfs/referater/Ref.best.2020_v1.pdf' %}" target="_blank" class="document-item">
       <div class="document-icon">

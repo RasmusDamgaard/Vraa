@@ -102,7 +102,7 @@
             <div class="booking-item">
                 <div class="booking-color" style="background:{% if booking.status == 'confirmed' %}var(--sage){% else %}var(--coral-accent){% endif %};"></div>
                 <div class="booking-details">
-                    <div class="who">{{ booking.user.username }}</div>
+                    <div class="who">{{ booking.user.profile.full_display_name|default:booking.user.username }}</div>
                     <div class="when">{{ booking.start_date|date:"d. M Y" }} &ndash; {{ booking.end_date|date:"d. M Y" }}</div>
                     {% if booking.notes %}
                     <div class="text-muted" style="font-size:0.8rem;">{{ booking.notes|truncatewords:10 }}</div>

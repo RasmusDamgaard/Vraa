@@ -17,8 +17,8 @@ urlpatterns = [
     # Pages
     path('', views.FrontpageView.as_view(), name='frontpage'),
     path('information/', views.InformationView.as_view(), name='information'),
-    path('referater/', views.ReferaterView.as_view(), name='referater'),
-    path('vedtaegter/', views.VedtaegterView.as_view(), name='vedtaegter'),
+    path('referater/', views.ReferaterDynamicView.as_view(), name='referater'),
+    path('vedtaegter/', views.VedtaegterDynamicView.as_view(), name='vedtaegter'),
     path('kalender/', views.KalenderView.as_view(), name='kalender'),
 
     # Booking system

@@ -11,7 +11,8 @@ from __future__ import annotations
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
+from django.views.static import serve
 
 urlpatterns = [
     # Admin site URLs
@@ -20,6 +21,12 @@ urlpatterns = [
     path('', include('main.urls')),
 ]
 
-# Serve media files in development
+# Serve media files (uploaded documents)
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+else:
+    # Low-traffic family site: serve media through Django in production too.
+    # LoginRequiredMiddleware gates /media/ so documents stay members-only.
+    urlpatterns += [
+        re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    ]

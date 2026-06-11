@@ -270,6 +270,21 @@ class BookingAdmin(admin.ModelAdmin):
         """Bulk approve bookings and send notifications."""
         count = 0
         for booking in queryset.filter(status='pending'):
+            # Skip bookings that would overlap an already confirmed booking
+            conflict = Booking.objects.filter(
+                status='confirmed',
+                start_date__lt=booking.end_date,
+                end_date__gt=booking.start_date,
+            ).exclude(pk=booking.pk).exists()
+            if conflict:
+                self.message_user(
+                    request,
+                    f'Booking for {booking.user.username} ({booking.start_date} – '
+                    f'{booking.end_date}) blev sprunget over: perioden overlapper '
+                    f'med en bekræftet booking.',
+                    level='warning',
+                )
+                continue
             booking.status = 'confirmed'
             booking.save()
             if booking.user.email:
