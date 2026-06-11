@@ -18,7 +18,15 @@
       "Bash(curl -s -o dm-serif-display-italic-latin.woff2 \"https://fonts.gstatic.com/s/dmserifdisplay/v17/-nFhOHM81r4j6k0gjAW3mujVU2B2G_VB0PD2.woff2\")",
       "Bash(curl -s -o dm-serif-display-italic-latin-ext.woff2 \"https://fonts.gstatic.com/s/dmserifdisplay/v17/-nFhOHM81r4j6k0gjAW3mujVU2B2G_VB3vD212k.woff2\")",
       "Bash(ls -la *.woff2)",
-      "Bash(xxd \"C:/Users/rdamg/Desktop/Vraa/main/static/main/fonts/dm-sans-latin.woff2\")"
+      "Bash(xxd \"C:/Users/rdamg/Desktop/Vraa/main/static/main/fonts/dm-sans-latin.woff2\")",
+      "Bash(git stash:*)",
+      "Bash(git pull:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(git push:*)",
+      "Bash(gh pr create --title 'Fix weather widget and update contact info on information page' --body ':*)",
+      "Bash(gh pr create --title 'Fix admin dashboard bugs: email link, user reject, approval feedback, button styling' --body ':*)"
     ]
   }
 }
