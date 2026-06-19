@@ -1707,6 +1707,32 @@ dialog::backdrop {
   font-size: 0.85rem;
 }
 
+/* A referat together with its bilag (appendices) */
+.document-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.bilag-list {
+  list-style: none;
+  margin: 0 0 0 3.35rem; /* align under the document title, past the icon */
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.bilag-list li {
+  font-size: 0.78rem;
+}
+.bilag-list a {
+  color: var(--sage-dark);
+  text-decoration: none;
+}
+.bilag-list a:hover {
+  text-decoration: underline;
+}
+
 /* Document download card (vedtaegter) */
 .document-download-card {
   background: linear-gradient(135deg, var(--sage) 0%, var(--sage-dark) 100%);
