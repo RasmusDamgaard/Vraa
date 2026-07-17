@@ -338,6 +338,20 @@ if not DEBUG and not _is_testing:
             "Set a secure SECRET_KEY environment variable for production."
         )
 
+    # Validate EMAIL_BACKEND is not left on the console fallback, which
+    # silently "sends" mail (password resets, notifications) to the log
+    # output instead of a real inbox.
+    if EMAIL_BACKEND == 'django.core.mail.backends.console.EmailBackend':
+        import warnings
+        warnings.warn(
+            "EMAIL_BACKEND is not configured for production (falling back to "
+            "the console backend). Password reset and notification emails "
+            "will be logged, not delivered. Set EMAIL_BACKEND to "
+            "'django.core.mail.backends.smtp.EmailBackend' along with "
+            "EMAIL_HOST_USER and EMAIL_HOST_PASSWORD.",
+            RuntimeWarning
+        )
+
 # =============================================================================
 # TEST OVERRIDES (must come last to override production settings)
 # =============================================================================
